@@ -18,8 +18,9 @@ import wandb
 import argparse
 
 # How to run:
-# nohup sh -c './distill.py --temperature 2.0 --alpha 0.5 > nohup.out && stopinstance' &
-# with && we ensure stopinstance only run if distill.py runs successfully
+# $ conda activate pepmlm
+# $ nohup sh -c './distill.py --temperature 2.0 --alpha 0.5 > nohup.out && stopinstance' &
+## with && we ensure stopinstance only run if distill.py runs successfully
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
