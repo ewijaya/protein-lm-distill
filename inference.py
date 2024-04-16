@@ -2,7 +2,7 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextGenerationPipeline
 import re
 
 # Load the model and tokenizer
-model_name = "models/protgpt2-distilled-test/"
+model_name = "models/protgpt2-distilled/"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 

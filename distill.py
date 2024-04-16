@@ -40,6 +40,8 @@ student_config = GPT2Config(
     n_layer=4,  # Fewer layers
     n_head=4,
     activation_function="gelu_new",
+    bos_token_id=teacher_model.config.bos_token_id,  # Ensure same BOS token
+    eos_token_id=teacher_model.config.eos_token_id,  # Ensure same EOS token
 )
 student_model = GPT2LMHeadModel(student_config).to(device)
 
@@ -150,7 +152,7 @@ class DistillationTrainer(Trainer):
 # Setup training arguments
 training_args = TrainingArguments(
     output_dir="./models/protgpt2-distilled",
-    num_train_epochs=5,
+    num_train_epochs=3,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=32,
     learning_rate=0.0001,
