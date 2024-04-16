@@ -1,4 +1,6 @@
 import gc
+import os
+import shutil
 from transformers import (
     GPT2Config,
     GPT2LMHeadModel,
@@ -162,19 +164,27 @@ model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{student_co
 # Initialize Weights & Biases with the model name as the run name
 wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
 
+output_dir = f"./models/{model_name}"
+if os.path.exists(output_dir):
+    print(f"Output directory {output_dir} already exists. Deleting...")
+    shutil.rmtree(
+        output_dir
+    )  # Use shutil.rmtree to delete the directory and its contents
+else:
+    print(f"Output directory {output_dir} does not exist. Creating...")
+
+# Setup training arguments
 # Setup training arguments
 training_args = TrainingArguments(
-    output_dir=f"./models/{model_name}",
+    output_dir=output_dir,
     num_train_epochs=3,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=32,
     learning_rate=0.0001,
     weight_decay=0.01,
     adam_epsilon=1e-8,
-    logging_dir="./logs",
-    logging_steps=10,
-    push_to_hub=False,
-    evaluation_strategy="no",
+    logging_dir=f"{output_dir}/logs",  # Specify the directory to save the logs
+    logging_strategy="epoch",  # Log at the end of each epoch
     save_strategy="no",
     save_total_limit=1,
     fp16=True,
