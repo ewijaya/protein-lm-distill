@@ -12,6 +12,7 @@ from datasets import load_dataset
 from torch.nn import functional as F
 import json
 import wandb
+import argparse
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -46,11 +47,9 @@ student_config = GPT2Config(
 student_model = GPT2LMHeadModel(student_config).to(device)
 
 # Load the dataset directly from a single file
-# data_file = "data/train_small.txt"
-data_file = "data/all_natural_train_data.txt"
+data_file = "data/train_small.txt"
+# data_file = "data/all_natural_train_data.txt"
 dataset = load_dataset("text", data_files=data_file)
-
-wandb.init(project="PROTGPT2_DISTILLATION")
 
 
 # Tokenize the dataset
@@ -149,9 +148,23 @@ class DistillationTrainer(Trainer):
         return (loss, outputs) if return_outputs else loss
 
 
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Distillation parameters")
+parser.add_argument(
+    "--temperature", type=float, default=2.0, help="Temperature for distillation"
+)
+parser.add_argument("--alpha", type=float, default=0.5, help="Alpha for distillation")
+args = parser.parse_args()
+
+# Create the model name based on temperature, alpha, and architecture parameters
+model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{student_config.n_layer}-h{student_config.n_head}-e{student_config.n_embd}"
+
+# Initialize Weights & Biases with the model name as the run name
+wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
+
 # Setup training arguments
 training_args = TrainingArguments(
-    output_dir="./models/protgpt2-distilled",
+    output_dir=f"./models/{model_name}",
     num_train_epochs=3,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=32,
@@ -168,9 +181,10 @@ training_args = TrainingArguments(
 )
 
 # Initialize the trainer
+# Initialize the trainer
 trainer = DistillationTrainer(
-    temperature=2.0,
-    alpha=0.5,
+    temperature=args.temperature,
+    alpha=args.alpha,
     model=student_model,
     args=training_args,
     train_dataset=tokenized_dataset["train"],
