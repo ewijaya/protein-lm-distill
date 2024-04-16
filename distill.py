@@ -17,6 +17,10 @@ import json
 import wandb
 import argparse
 
+# How to run:
+# nohup sh -c './distill.py --temperature 2.0 --alpha 0.5 > nohup.out && stopinstance' &
+# with && we ensure stopinstance only run if distill.py runs successfully
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
