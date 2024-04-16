@@ -1,3 +1,4 @@
+#!/home/ubuntu/storage1/anaconda3/envs/pepmlm/bin/python
 import gc
 import os
 import shutil
@@ -49,8 +50,8 @@ student_config = GPT2Config(
 student_model = GPT2LMHeadModel(student_config).to(device)
 
 # Load the dataset directly from a single file
-data_file = "data/train_small.txt"
-# data_file = "data/all_natural_train_data.txt"
+# data_file = "data/train_small.txt"
+data_file = "data/all_natural_train_data.txt"
 dataset = load_dataset("text", data_files=data_file)
 
 
@@ -73,6 +74,17 @@ class DistillationTrainer(Trainer):
         self.temperature = temperature
         self.alpha = alpha
         self.teacher_model = teacher_model
+        self.training_logs = []  # Initialize an empty list to store training logs
+
+    def log(self, logs: dict):
+        super().log(logs)
+        # Store the log data in the list
+        self.training_logs.append(logs)
+
+    def save_logs(self, save_path):
+        # Save the collected logs to a JSON file
+        with open(save_path, "w") as f:
+            json.dump(self.training_logs, f, indent=4)
 
     def compute_loss(self, model, inputs, return_outputs=False):
         r"""
@@ -161,10 +173,13 @@ args = parser.parse_args()
 # Create the model name based on temperature, alpha, and architecture parameters
 model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{student_config.n_layer}-h{student_config.n_head}-e{student_config.n_embd}"
 
+
 # Initialize Weights & Biases with the model name as the run name
 wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
 
 output_dir = f"./models/{model_name}"
+
+
 if os.path.exists(output_dir):
     print(f"Output directory {output_dir} already exists. Deleting...")
     shutil.rmtree(
@@ -174,7 +189,6 @@ else:
     print(f"Output directory {output_dir} does not exist. Creating...")
 
 # Setup training arguments
-# Setup training arguments
 training_args = TrainingArguments(
     output_dir=output_dir,
     num_train_epochs=3,
@@ -183,7 +197,6 @@ training_args = TrainingArguments(
     learning_rate=0.0001,
     weight_decay=0.01,
     adam_epsilon=1e-8,
-    logging_dir=f"{output_dir}/logs",  # Specify the directory to save the logs
     logging_strategy="epoch",  # Log at the end of each epoch
     save_strategy="no",
     save_total_limit=1,
@@ -206,6 +219,7 @@ trainer.train()
 
 # Save the model and tokenizer
 model_save_path = training_args.output_dir
+trainer.save_logs(f"{model_save_path}/training_logs.json")
 student_model.save_pretrained(model_save_path)
 teacher_tokenizer.save_pretrained(model_save_path)
 
