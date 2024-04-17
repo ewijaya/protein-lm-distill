@@ -2,7 +2,8 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextGenerationPipeline
 import re
 
 # Load the model and tokenizer
-model_name = "models/protgpt2-distilled/"
+# model_name = "nferruz/protgpt2"
+model_name = "models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
@@ -16,8 +17,8 @@ text_generator = TextGenerationPipeline(
 
 # Generate sequences
 sequences = text_generator(
-    "",
-    max_length=30,
+    "<|endoftext|>KKAW",
+    max_length=100,
     do_sample=True,
     top_k=950,
     repetition_penalty=1.2,
@@ -28,7 +29,12 @@ sequences = text_generator(
 )
 
 for i, seq in enumerate(sequences):
-    text = seq["generated_text"]
-    cleaned_text = re.sub("[^a-zA-Z]", "", text)
+    # Remove "<|endoftext|>"
+    seq["generated_text"] = seq["generated_text"].replace("<|endoftext|>", "")
+
+    # Remove newline characters and non-alphabetical characters
+    seq["generated_text"] = "".join(
+        char for char in seq["generated_text"] if char.isalpha()
+    )
     print(f">Seq_{i}")
-    print(cleaned_text)
+    print(seq["generated_text"])
