@@ -3,7 +3,8 @@ import re
 
 # Load the model and tokenizer
 # model_name = "nferruz/protgpt2"
-model_name = "models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256"
+model_name = "models/protgpt2-distilled-t1.0-a0.2-l4-h4-e256"
+# model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
@@ -17,7 +18,7 @@ text_generator = TextGenerationPipeline(
 
 # Generate sequences
 sequences = text_generator(
-    "<|endoftext|>KKAW",
+    "<|endoftext|>A",
     max_length=100,
     do_sample=True,
     top_k=950,
@@ -29,6 +30,7 @@ sequences = text_generator(
 )
 
 for i, seq in enumerate(sequences):
+    print(seq)
     # Remove "<|endoftext|>"
     seq["generated_text"] = seq["generated_text"].replace("<|endoftext|>", "")
 
@@ -36,5 +38,5 @@ for i, seq in enumerate(sequences):
     seq["generated_text"] = "".join(
         char for char in seq["generated_text"] if char.isalpha()
     )
-    print(f">Seq_{i}")
-    print(seq["generated_text"])
+    # print(f">Seq_{i}")
+    # print(seq["generated_text"])
