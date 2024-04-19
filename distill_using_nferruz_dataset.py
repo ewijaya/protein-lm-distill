@@ -23,6 +23,18 @@ import argparse
 # $ nohup sh -c './distill_using_nferruz_dataset.py --temperature 2.0 --alpha 0.5 > nohup.out && stopinstance' &
 ## with && we ensure stopinstance only run if distill.py runs successfully
 
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Distillation parameters")
+parser.add_argument(
+    "--temperature", type=float, default=2.0, help="Temperature for distillation"
+)
+parser.add_argument("--alpha", type=float, default=0.5, help="Alpha for distillation")
+parser.add_argument("--n_embd", type=int, default=256, help="Embedding size")
+parser.add_argument("--n_layer", type=int, default=4, help="Number of layers")
+parser.add_argument("--n_head", type=int, default=4, help="Number of attention heads")
+args = parser.parse_args()
+
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,19 +53,21 @@ if teacher_tokenizer.pad_token is None:
     teacher_tokenizer.pad_token = teacher_tokenizer.eos_token
 teacher_tokenizer.padding_side = "left"
 
+
 # Define the student model configuration
-student_config = GPT2Config(
-    vocab_size=teacher_model.config.vocab_size,
-    n_positions=teacher_model.config.n_positions,
-    n_ctx=teacher_model.config.n_ctx,
-    n_embd=256,  # Smaller embedding size
-    n_layer=4,  # Fewer layers
-    n_head=4,
-    activation_function="gelu_new",
-    bos_token_id=teacher_model.config.bos_token_id,  # Ensure same BOS token
-    eos_token_id=teacher_model.config.eos_token_id,  # Ensure same EOS token
-)
-student_model = GPT2LMHeadModel(student_config).to(device)
+def create_student_config(n_embd, n_layer, n_head):
+    return GPT2Config(
+        vocab_size=teacher_model.config.vocab_size,
+        n_positions=teacher_model.config.n_positions,
+        n_ctx=teacher_model.config.n_ctx,
+        n_embd=n_embd,
+        n_layer=n_layer,
+        n_head=n_head,
+        activation_function="gelu_new",
+        bos_token_id=teacher_model.config.bos_token_id,
+        eos_token_id=teacher_model.config.eos_token_id,
+    )
+
 
 # Load the dataset directly from a single file
 local_dataset_path = "/home/ubuntu/storage2/various_hugging_face_data_and_models/data"
@@ -183,23 +197,17 @@ class DistillationTrainer(Trainer):
         return (loss, outputs) if return_outputs else loss
 
 
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description="Distillation parameters")
-parser.add_argument(
-    "--temperature", type=float, default=2.0, help="Temperature for distillation"
-)
-parser.add_argument("--alpha", type=float, default=0.5, help="Alpha for distillation")
-args = parser.parse_args()
+# Create the student model configuration based on the command-line arguments
+student_config = create_student_config(args.n_embd, args.n_layer, args.n_head)
+student_model = GPT2LMHeadModel(student_config).to(device)
 
 # Create the model name based on temperature, alpha, and architecture parameters
-model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{student_config.n_layer}-h{student_config.n_head}-e{student_config.n_embd}.uniprot_trainset"
-
+model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}.uniprot_trainset"
 
 # Initialize Weights & Biases with the model name as the run name
 wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
 
 output_dir = f"./models/{model_name}"
-
 
 if os.path.exists(output_dir):
     print(f"Output directory {output_dir} already exists. Deleting...")
@@ -212,7 +220,7 @@ else:
 # Setup training arguments
 training_args = TrainingArguments(
     output_dir=output_dir,
-    num_train_epochs=5,
+    num_train_epochs=3,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=32,
     learning_rate=1e-03,
@@ -225,7 +233,6 @@ training_args = TrainingArguments(
     fp16=True,
 )
 
-# Initialize the trainer
 # Initialize the trainer
 trainer = DistillationTrainer(
     temperature=args.temperature,
@@ -250,6 +257,11 @@ hyperparams = {
     "training_arguments": training_args.to_dict(),
     "distillation_temperature": trainer.temperature,
     "distillation_alpha": trainer.alpha,
+    "model_architecture": {
+        "n_embd": args.n_embd,
+        "n_layer": args.n_layer,
+        "n_head": args.n_head,
+    },
 }
 with open(f"{model_save_path}/training_hyperparameters.json", "w") as f:
     json.dump(hyperparams, f, indent=4)
