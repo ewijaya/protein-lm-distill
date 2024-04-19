@@ -3,8 +3,9 @@ import re
 
 # Load the model and tokenizer
 # model_name = "nferruz/protgpt2"
-model_name = "models/protgpt2-distilled-t1.0-a0.2-l4-h4-e256"
+# model_name = "models/protgpt2-distilled-t1.0-a0.2-l4-h4-e256"
 # model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256"
+model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256.uniprot_trainset"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
@@ -18,7 +19,7 @@ text_generator = TextGenerationPipeline(
 
 # Generate sequences
 sequences = text_generator(
-    "<|endoftext|>A",
+    "<|endoftext|>",
     max_length=100,
     do_sample=True,
     top_k=950,
