@@ -85,7 +85,7 @@ def tokenize_function(examples):
 
 
 # Tokenize the dataset
-tokenized_dataset = dataset.map(tokenize_function, batched=True)
+tokenized_dataset = dataset.map(tokenize_function, batched=True, num_proc=8)
 
 
 # Define a custom Trainer class for distillation
