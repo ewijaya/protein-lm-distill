@@ -1,5 +1,6 @@
 #!/home/ubuntu/storage1/anaconda3/envs/pepmlm/bin/python
 import gc
+import multiprocessing
 import os
 import shutil
 from transformers import (
@@ -99,7 +100,9 @@ def tokenize_function(examples):
 
 
 # Tokenize the dataset
-tokenized_dataset = dataset.map(tokenize_function, batched=True, num_proc=8)
+tokenized_dataset = dataset.map(
+    tokenize_function, batched=True, num_proc=multiprocessing.cpu_count()
+)
 
 
 # Define a custom Trainer class for distillation
