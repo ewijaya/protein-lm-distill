@@ -2,10 +2,9 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextGenerationPipeline
 import re
 
 # Load the model and tokenizer
-# model_name = "nferruz/protgpt2"
-# model_name = "models/protgpt2-distilled-t1.0-a0.2-l4-h4-e256"
+model_name = "nferruz/protgpt2"
 # model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256"
-model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256.uniprot_trainset"
+# model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256.uniprot_trainset"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
