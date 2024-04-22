@@ -12,9 +12,9 @@ do
   n_layer=$(echo $params | cut -d' ' -f3)
   n_head=$(echo $params | cut -d' ' -f4)
 
-  echo "Running distill.py with temperature=$temperature  alpha=$alpha n_layer=$n_layer n_head=$n_head"
-  /home/ubuntu/storage1/distilling_protgpt2/distill.py --temperature $temperature --alpha $alpha --n_layer=$n_layer --n_head=$n_head
+  echo "Running distill_using_nferruz_dataset.py with temperature=$temperature  alpha=$alpha n_layer=$n_layer n_head=$n_head"
+  /home/ubuntu/storage1/distilling_protgpt2/distill_using_nferruz_dataset.py --temperature $temperature --alpha $alpha --n_layer=$n_layer --n_head=$n_head
 
-  echo "Finshed distill.py with temperature=$temperature  alpha=$alpha n_layer=$n_layer n_head=$n_head"
+  echo "Finshed distill_using_nferruz_dataset.py with temperature=$temperature  alpha=$alpha n_layer=$n_layer n_head=$n_head"
   echo "------------------------------------------------------------"
 done
