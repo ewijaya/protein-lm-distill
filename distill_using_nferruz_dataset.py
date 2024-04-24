@@ -6,7 +6,7 @@ import shutil
 from transformers import (
     GPT2Config,
     GPT2LMHeadModel,
-    GPT2Tokenizer,
+    GPT2TokenizerFast,
     Trainer,
     TrainingArguments,
 )
@@ -33,6 +33,12 @@ parser.add_argument("--alpha", type=float, default=0.5, help="Alpha for distilla
 parser.add_argument("--n_embd", type=int, default=256, help="Embedding size")
 parser.add_argument("--n_layer", type=int, default=4, help="Number of layers")
 parser.add_argument("--n_head", type=int, default=4, help="Number of attention heads")
+parser.add_argument(
+    "--train_size_prop",
+    type=float,
+    default=0.1,
+    help="Proportion of the validation set to use as the training set",
+)
 args = parser.parse_args()
 
 
@@ -49,7 +55,8 @@ teacher_model_path = "nferruz/ProtGPT2"
 teacher_model = GPT2LMHeadModel.from_pretrained(teacher_model_path).to(device)
 
 # Setup tokenizer
-teacher_tokenizer = GPT2Tokenizer.from_pretrained(teacher_model_path)
+teacher_tokenizer = GPT2TokenizerFast.from_pretrained(teacher_model_path)
+
 if teacher_tokenizer.pad_token is None:
     teacher_tokenizer.pad_token = teacher_tokenizer.eos_token
 teacher_tokenizer.padding_side = "left"
@@ -78,10 +85,9 @@ data_files = {"validation": glob.glob(f"{local_dataset_path}/validation*.parquet
 dataset = load_dataset("parquet", data_files=data_files, trust_remote_code=True)
 
 # Subsample the dataset to 0.005% of the original size, prop=1 -> 100%, prop=0.1 -> 10%
-train_size_prop = 0.1  # for testing
-validation_subset = dataset["validation"].train_test_split(train_size=train_size_prop)[
-    "train"
-]
+validation_subset = dataset["validation"].train_test_split(
+    train_size=args.train_size_prop
+)["train"]
 print(f"Subset size: {len(validation_subset)}")
 
 # Use the subset as the training dataset
@@ -90,12 +96,21 @@ dataset = DatasetDict({"train": validation_subset})
 
 # Tokenization function that uses the provided features
 def tokenize_function(examples):
+    output = teacher_tokenizer(
+        examples["input_ids"],
+        padding="max_length",
+        truncation=True,
+        return_tensors="pt",
+    )
+
+    labels = examples["labels"]
+    if isinstance(labels, list):
+        labels = torch.tensor(labels)
+
     return {
-        "input_ids": examples["input_ids"],
-        "attention_mask": examples["attention_mask"],
-        "labels": examples[
-            "labels"
-        ],  # Assuming labels are already set correctly in the dataset
+        "input_ids": output.input_ids,
+        "attention_mask": output.attention_mask,
+        "labels": labels,
     }
 
 
@@ -205,7 +220,7 @@ student_config = create_student_config(args.n_embd, args.n_layer, args.n_head)
 student_model = GPT2LMHeadModel(student_config).to(device)
 
 # Create the model name based on temperature, alpha, and architecture parameters
-model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}.uniprot_trainset"
+model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}-p{args.train_size_prop}.uniprot_trainset"
 
 # Initialize Weights & Biases with the model name as the run name
 wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
