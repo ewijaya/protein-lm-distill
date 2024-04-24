@@ -18,6 +18,7 @@ import json
 import wandb
 import glob
 import argparse
+import time
 
 # How to run:
 # $ conda activate pepmlm
@@ -96,41 +97,44 @@ dataset = DatasetDict({"train": validation_subset})
 
 # Tokenization function that uses the provided features
 def tokenize_function(examples):
-    input_texts = [
-        teacher_tokenizer.decode(input_ids) for input_ids in examples["input_ids"]
-    ]
-    output = teacher_tokenizer(
-        input_texts,
-        padding="max_length",
-        truncation=True,
-        max_length=teacher_tokenizer.model_max_length,  # Add this line
-        return_tensors="pt",
-    )
-
-    labels = examples["labels"]
-    if isinstance(labels, list):
-        labels = torch.tensor(labels)
+    if examples["input_ids"] is not None:
+        print("Using cached data for tokenization.")
+    else:
+        print("Generating new tokenized data.")
 
     return {
-        "input_ids": output.input_ids,
-        "attention_mask": output.attention_mask,
-        "labels": labels,
+        "input_ids": examples["input_ids"],
+        "attention_mask": examples["attention_mask"],
+        "labels": examples["labels"],
     }
 
 
-# Tokenize the dataset
-tokenized_dataset_path = os.path.join(local_dataset_path, "tokenized_dataset")
-
-if os.path.exists(tokenized_dataset_path):
-    print(f"Loading cached tokenized dataset from {tokenized_dataset_path}")
-    tokenized_dataset = Dataset.load_from_disk(tokenized_dataset_path)
+# Check if the cache directory exists
+cache_dir = "/home/ubuntu/storage2/various_hugging_face_data_and_models/parquet/default-d119f9e3cc2fb7c2/0.0.0/62d0a49e103aa24c107d63273c3426a8ce02488f032cba1725ec4dd00b4f05db"
+if os.path.exists(cache_dir):
+    print(f"Cache directory {cache_dir} exists. Using cached data.")
 else:
-    print("Tokenizing dataset...")
-    tokenized_dataset = dataset.map(
-        tokenize_function, batched=True, num_proc=multiprocessing.cpu_count()
-    )
-    print(f"Saving tokenized dataset to {tokenized_dataset_path}")
-    tokenized_dataset.save_to_disk(tokenized_dataset_path)
+    print(f"Cache directory {cache_dir} does not exist. Generating new cache files.")
+
+# Tokenize the dataset
+print("Tokenizing dataset...")
+start_time = time.time()
+tokenized_dataset = dataset.map(
+    tokenize_function,
+    batched=True,
+    num_proc=multiprocessing.cpu_count(),
+    load_from_cache_file=False,
+)
+end_time = time.time()
+# print(tokenized_dataset.cache_files)
+print(f"Tokenization time: {end_time - start_time} seconds")
+
+if tokenized_dataset.cache_files is not None:
+    print("Cache files were used:")
+    for cache_file in tokenized_dataset.cache_files["train"]:
+        print(cache_file["filename"])
+else:
+    print("No cache files were used.")
 
 
 # Define a custom Trainer class for distillation
