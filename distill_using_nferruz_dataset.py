@@ -12,7 +12,7 @@ from transformers import (
 )
 import torch
 import logging
-from datasets import load_dataset, DatasetDict
+from datasets import load_dataset, DatasetDict, Dataset
 from torch.nn import functional as F
 import json
 import wandb
@@ -96,10 +96,14 @@ dataset = DatasetDict({"train": validation_subset})
 
 # Tokenization function that uses the provided features
 def tokenize_function(examples):
+    input_texts = [
+        teacher_tokenizer.decode(input_ids) for input_ids in examples["input_ids"]
+    ]
     output = teacher_tokenizer(
-        examples["input_ids"],
+        input_texts,
         padding="max_length",
         truncation=True,
+        max_length=teacher_tokenizer.model_max_length,  # Add this line
         return_tensors="pt",
     )
 
@@ -115,9 +119,18 @@ def tokenize_function(examples):
 
 
 # Tokenize the dataset
-tokenized_dataset = dataset.map(
-    tokenize_function, batched=True, num_proc=multiprocessing.cpu_count()
-)
+tokenized_dataset_path = os.path.join(local_dataset_path, "tokenized_dataset")
+
+if os.path.exists(tokenized_dataset_path):
+    print(f"Loading cached tokenized dataset from {tokenized_dataset_path}")
+    tokenized_dataset = Dataset.load_from_disk(tokenized_dataset_path)
+else:
+    print("Tokenizing dataset...")
+    tokenized_dataset = dataset.map(
+        tokenize_function, batched=True, num_proc=multiprocessing.cpu_count()
+    )
+    print(f"Saving tokenized dataset to {tokenized_dataset_path}")
+    tokenized_dataset.save_to_disk(tokenized_dataset_path)
 
 
 # Define a custom Trainer class for distillation
