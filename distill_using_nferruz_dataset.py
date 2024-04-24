@@ -236,7 +236,11 @@ student_model = GPT2LMHeadModel(student_config).to(device)
 model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}-p{args.train_size_prop}.uniprot_trainset"
 
 # Initialize Weights & Biases with the model name as the run name
-wandb.init(project="PROTGPT2_DISTILLATION", name=model_name)
+wandb.init(
+    project="PROTGPT2_DISTILLATION",
+    name=model_name,
+    settings=wandb.Settings(_service_wait=120),
+)
 
 output_dir = f"./models/{model_name}"
 
