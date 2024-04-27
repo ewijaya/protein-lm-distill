@@ -40,6 +40,9 @@ parser.add_argument(
     default=0.1,
     help="Proportion of the validation set to use as the training set",
 )
+parser.add_argument(
+    "--learning_rate", type=float, default=1e-3, help="Initial learning rate"
+)
 args = parser.parse_args()
 
 
@@ -237,7 +240,7 @@ student_config = create_student_config(args.n_embd, args.n_layer, args.n_head)
 student_model = GPT2LMHeadModel(student_config).to(device)
 
 # Create the model name based on temperature, alpha, and architecture parameters
-model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}-p{args.train_size_prop}.uniprot_trainset"
+model_name = f"protgpt2-distilled-t{args.temperature}-a{args.alpha}-l{args.n_layer}-h{args.n_head}-e{args.n_embd}-p{args.train_size_prop}-lr{args.learning_rate:.0e}.uniprot"
 
 # Initialize Weights & Biases with the model name as the run name
 wandb.init(
@@ -262,7 +265,7 @@ training_args = TrainingArguments(
     num_train_epochs=3,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=32,
-    learning_rate=1e-03,
+    learning_rate=args.learning_rate,
     weight_decay=0.01,
     adam_epsilon=1e-8,
     logging_strategy="steps",  # Log at the end of each steps for prettier plot.
