@@ -2,8 +2,7 @@
 
 # Define the parameter sets
 parameter_sets=(
-  # "10.0 0.1 4 4 512 0.2 0.001"
-   "10.0 0.1 12 16 1024 0.1 0.0001"
+   "10.0 0.1 4 4 512 0.2 0.001"
   # Add more parameter sets here if needed
 )
 
