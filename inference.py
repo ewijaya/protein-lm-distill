@@ -2,9 +2,11 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextGenerationPipeline
 import re
 
 # Load the model and tokenizer
-model_name = "nferruz/protgpt2"
+# model_name = "nferruz/protgpt2"
 # model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256"
 # model_name = "models/protgpt2-distilled-t10.0-a0.1-l4-h4-e256.uniprot_trainset"
+# model_name = "/home/ubuntu/storage1/distilling_protgpt2/models/protgpt2-distilled-t10.0-a0.1-l4-h4-e512-p0.1.uniprot_trainset"
+model_name = "littleworth/protgpt2-distilled-tiny"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
@@ -30,7 +32,7 @@ sequences = text_generator(
 )
 
 for i, seq in enumerate(sequences):
-    print(seq)
+    # print(seq)
     # Remove "<|endoftext|>"
     seq["generated_text"] = seq["generated_text"].replace("<|endoftext|>", "")
 
@@ -38,5 +40,5 @@ for i, seq in enumerate(sequences):
     seq["generated_text"] = "".join(
         char for char in seq["generated_text"] if char.isalpha()
     )
-    # print(f">Seq_{i}")
-    # print(seq["generated_text"])
+    print(f">Seq_{i}")
+    print(seq["generated_text"])
