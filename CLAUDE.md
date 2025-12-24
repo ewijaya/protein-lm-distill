@@ -9,7 +9,7 @@ This project implements knowledge distillation for ProtGPT2, a protein language 
 ## Project Structure
 
 ```
-distilling_protgpt2/
+protein-lm-distill/
 ├── config.py                 # Centralized paths and defaults
 ├── scripts/                  # Executable scripts
 │   ├── train.py             # Main training (parquet data)
@@ -98,8 +98,8 @@ Trained models saved to `./models/{model_name}/` with:
 
 ## Git Remotes
 
-- `origin`: Bitbucket (git@bitbucket.org:stemrim-bi/distilling_protgpt2.git)
-- `github`: GitHub (git@github.com:ewijaya/distilling_protgpt2.git)
+- `origin`: Bitbucket (git@bitbucket.org:stemrim-bi/protein-lm-distill.git)
+- `github`: GitHub (git@github.com:ewijaya/protein-lm-distill.git)
 
 ## Key Files
 
