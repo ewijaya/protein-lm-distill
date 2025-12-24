@@ -11,7 +11,23 @@ This project trains compact "student" GPT-2 models to mimic the behavior of the 
 
 The combined loss enables student models to learn both the teacher's output distribution and the correct token predictions.
 
-## Installation
+## Requirements
+
+### AWS Instance Requirements
+
+| Task | Minimum Instance | Recommended | Notes |
+|------|------------------|-------------|-------|
+| **Training** | g4dn.xlarge (T4 16GB) | g5.xlarge (A10G 24GB) | GPU required for distillation |
+| **Inference** | g4dn.xlarge | g4dn.xlarge | Single GPU sufficient |
+| **Evaluation** | g4dn.xlarge | g5.xlarge | Loads both teacher and student |
+| **CPU-only inference** | m5.xlarge | m5.2xlarge | Slow but works for small batches |
+
+**Memory considerations:**
+- Teacher model (ProtGPT2): ~500M parameters (~2GB GPU memory)
+- Student model: varies by config (tiny ~10M, medium ~125M)
+- Training requires both models loaded simultaneously
+
+### Software Requirements
 
 ```bash
 conda activate pepmlm
@@ -19,9 +35,10 @@ conda activate pepmlm
 
 Required packages:
 - transformers
-- torch
+- torch (with CUDA for GPU instances)
 - datasets
 - wandb
+- pyarrow (for parquet data)
 
 ## Usage
 
@@ -101,6 +118,33 @@ models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot/
 
 ## Evaluation
 
+### Model Quality Evaluation
+
+Compare a distilled model against the teacher:
+
+```bash
+python evaluate_model.py \
+    --student_model ./models/your-model \
+    --num_samples 100 \
+    --output results.json
+```
+
+This evaluates:
+- **Perplexity**: How well the model predicts held-out sequences
+- **KL divergence**: How closely student matches teacher outputs
+- **Generation quality**: Amino acid distribution of generated sequences
+
+Example output:
+```
+Compression: 36.0x smaller
+Perplexity degradation: 1.45x
+Output KL divergence: 0.0234
+
+ASSESSMENT: Good - Student closely matches teacher quality
+```
+
+### Structural Plausibility (ESMFold)
+
 Use ESMFold to evaluate the structural plausibility of generated sequences:
 
 ```python
@@ -112,6 +156,8 @@ print(f"pLDDT score: {plddt_score:.2f}")
 ```
 
 Higher pLDDT scores indicate more structurally plausible sequences.
+
+**Note:** ESMFold requires significant GPU memory (~16GB+). Use g5.xlarge or larger.
 
 ## Training Tracking
 
