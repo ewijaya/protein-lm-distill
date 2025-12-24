@@ -22,7 +22,7 @@ In therapeutic protein and peptide development, computational cost and iteration
 ## Project Structure
 
 ```
-distilling_protgpt2/
+protein-lm-distill/
 ├── config.py                 # Centralized configuration (paths, defaults)
 ├── requirements.txt          # Python dependencies
 │

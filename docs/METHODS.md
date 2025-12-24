@@ -603,5 +603,5 @@ variable-length sequences.
 
 ---
 
-*Document generated for distilling_protgpt2 project. For implementation
+*Document generated for protein-lm-distill project. For implementation
 details, see the source code repository.*

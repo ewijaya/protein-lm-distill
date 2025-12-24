@@ -35,7 +35,7 @@ python -c "from src.distillation import DistillationTrainer; import config; prin
 Run minimal training to verify everything works:
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Minimal training run (very small model, tiny dataset fraction)
 python scripts/train.py \
@@ -62,7 +62,7 @@ python scripts/train.py \
 Test evaluation script with pre-trained HuggingFace model:
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Evaluate a published model
 python scripts/evaluate.py \
@@ -85,7 +85,7 @@ cat results_test.json
 ### 1.4 Generation Test (~1 min)
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Generate sequences
 python scripts/generate.py \
@@ -113,7 +113,7 @@ cat generated_sequences.fasta
 ### 1.5 Legacy Script Test (Optional, ~5 min)
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Test legacy training with text file
 python scripts/train_legacy.py \
@@ -129,7 +129,7 @@ python scripts/train_legacy.py \
 ### 1.6 ESMFold Test (Optional, requires 16GB+ GPU)
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Test ESMFold pLDDT prediction
 python -c "
@@ -153,7 +153,7 @@ After Phase 1 passes, proceed with production training.
 ### 2.1 Single Model Training
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Tiny model (fastest, ~30 min with 10% data)
 python scripts/train.py \
@@ -194,7 +194,7 @@ python scripts/train.py \
 ### 2.2 Background Training with nohup
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Run training in background (survives SSH disconnect)
 nohup python scripts/train.py \
@@ -219,7 +219,7 @@ ps aux | grep train.py
 First, edit the parameter sets in `scripts/batch_train.sh`:
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Edit batch_train.sh to add your configurations
 nano scripts/batch_train.sh
@@ -247,7 +247,7 @@ tail -f batch_training.log
 ### 2.4 Hyperparameter Sweep Examples
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Temperature sweep
 for temp in 1.0 2.0 5.0 10.0; do
@@ -287,7 +287,7 @@ done
 ### 3.1 Evaluate All Trained Models
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # List all trained models
 ls -la models/
@@ -321,7 +321,7 @@ cat results/*.json | grep -E "(student_model|perplexity_ratio|ASSESSMENT)"
 ### 3.2 Compare Perplexity Across Models
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Quick comparison script
 python -c "
@@ -350,7 +350,7 @@ for r in results:
 ### 3.3 Generate Sequences for Analysis
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Generate from teacher
 python scripts/generate.py \
@@ -373,7 +373,7 @@ wc -l results/teacher_sequences.fasta results/student_sequences.fasta
 ### 3.4 ESMFold Structural Evaluation (Optional)
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Evaluate pLDDT scores for generated sequences
 python -c "
@@ -412,7 +412,7 @@ print(f'Mean pLDDT: {np.mean(scores):.2f} +/- {np.std(scores):.2f}')
 ### 4.1 Upload Best Model to HuggingFace
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Login to HuggingFace (if not using HF_TOKEN env var)
 huggingface-cli login
@@ -453,7 +453,7 @@ python scripts/evaluate.py \
 ### 5.1 Update Documentation
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Update README with final results
 nano README.md
@@ -464,7 +464,7 @@ nano README.md
 ### 5.2 Cleanup
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 # Remove test outputs
 rm -f results_test.json generated_sequences.fasta
@@ -485,7 +485,7 @@ df -h
 ### 5.3 Final Git Push
 
 ```bash
-cd /home/ubuntu/storage1/distilling_protgpt2
+cd /home/ubuntu/storage1/protein-lm-distill
 
 git add -A
 git status
