@@ -11,6 +11,32 @@ This project trains compact "student" GPT-2 models to mimic the behavior of the 
 
 The combined loss enables student models to learn both the teacher's output distribution and the correct token predictions.
 
+## Project Structure
+
+```
+distilling_protgpt2/
+├── config.py                 # Centralized configuration (paths, defaults)
+├── requirements.txt          # Python dependencies
+│
+├── scripts/                  # Executable scripts
+│   ├── train.py             # Main training script
+│   ├── train_legacy.py      # Legacy training (text files)
+│   ├── evaluate.py          # Model evaluation
+│   ├── generate.py          # Sequence generation
+│   └── batch_train.sh       # Batch training wrapper
+│
+├── src/                      # Reusable modules
+│   ├── distillation.py      # DistillationTrainer class
+│   └── esmfold.py           # ESMFold pLDDT prediction
+│
+├── tools/                    # Utility scripts
+│   └── upload_to_hf.py      # Upload models to HuggingFace
+│
+├── notebooks/                # Jupyter notebooks
+├── data/                     # Training data
+└── models/                   # Trained model outputs
+```
+
 ## Requirements
 
 ### AWS Instance Requirements
@@ -31,21 +57,15 @@ The combined loss enables student models to learn both the teacher's output dist
 
 ```bash
 conda activate pepmlm
+pip install -r requirements.txt
 ```
-
-Required packages:
-- transformers
-- torch (with CUDA for GPU instances)
-- datasets
-- wandb
-- pyarrow (for parquet data)
 
 ## Usage
 
 ### Training a Distilled Model
 
 ```bash
-./distill_using_nferruz_dataset.py \
+python scripts/train.py \
     --temperature 2.0 \
     --alpha 0.5 \
     --n_layer 4 \
@@ -69,18 +89,27 @@ Required packages:
 
 ### Batch Training
 
-Edit `wrap.sh` to define parameter sets, then run:
+Edit `scripts/batch_train.sh` to define parameter sets, then run:
 
 ```bash
-./wrap.sh
+./scripts/batch_train.sh
 ```
 
 ### Generating Protein Sequences
 
+```bash
+python scripts/generate.py \
+    --model littleworth/protgpt2-distilled-tiny \
+    --num_sequences 10 \
+    --max_length 100
+```
+
+Or use the Python API:
+
 ```python
 from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextGenerationPipeline
 
-model_name = "littleworth/protgpt2-distilled-tiny"  # or local path
+model_name = "littleworth/protgpt2-distilled-tiny"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
@@ -103,17 +132,12 @@ Pre-trained distilled models available on Hugging Face:
 - [littleworth/protgpt2-distilled-tiny](https://huggingface.co/littleworth/protgpt2-distilled-tiny) - Smallest variant
 - [littleworth/protgpt2-distilled-medium](https://huggingface.co/littleworth/protgpt2-distilled-medium) - Medium variant
 
-## Output Structure
+### Upload Your Own Model
 
-Trained models are saved to `./models/{model_name}/` containing:
-
-```
-models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot/
-├── config.json
-├── pytorch_model.bin
-├── tokenizer.json
-├── training_logs.json
-└── training_hyperparameters.json
+```bash
+python tools/upload_to_hf.py \
+    --model_dir ./models/your-model \
+    --repo_id username/model-name
 ```
 
 ## Evaluation
@@ -123,7 +147,7 @@ models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot/
 Compare a distilled model against the teacher:
 
 ```bash
-python evaluate_model.py \
+python scripts/evaluate.py \
     --student_model ./models/your-model \
     --num_samples 100 \
     --output results.json
@@ -148,7 +172,7 @@ ASSESSMENT: Good - Student closely matches teacher quality
 Use ESMFold to evaluate the structural plausibility of generated sequences:
 
 ```python
-from esmfold_pldtt_prediction import predict_plddt
+from src.esmfold import predict_plddt
 
 sequence = "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"
 plddt_score = predict_plddt(sequence)
@@ -158,6 +182,14 @@ print(f"pLDDT score: {plddt_score:.2f}")
 Higher pLDDT scores indicate more structurally plausible sequences.
 
 **Note:** ESMFold requires significant GPU memory (~16GB+). Use g5.xlarge or larger.
+
+## Configuration
+
+The `config.py` file centralizes paths and default values. It uses environment variables from `~/.zshrc`:
+
+- `HF_DATASETS_CACHE`: Data directory location
+- `HF_TOKEN`: HuggingFace authentication
+- `WANDB_API_KEY`: Weights & Biases authentication
 
 ## Training Tracking
 

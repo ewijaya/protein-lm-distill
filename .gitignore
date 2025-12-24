@@ -1,4 +1,40 @@
-wandb/*
-models/*
-data/*
+# Output directories
+models/
+wandb/
+
+# Data files
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
 nohup*
+*.log
+
+# Jupyter
+.ipynb_checkpoints/

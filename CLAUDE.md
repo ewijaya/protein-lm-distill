@@ -6,76 +6,106 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This project implements knowledge distillation for ProtGPT2, a protein language model. It creates smaller, faster "student" models that learn from the larger "teacher" model (nferruz/ProtGPT2) while retaining similar capabilities for protein sequence generation.
 
+## Project Structure
+
+```
+distilling_protgpt2/
+├── config.py                 # Centralized paths and defaults
+├── scripts/                  # Executable scripts
+│   ├── train.py             # Main training (parquet data)
+│   ├── train_legacy.py      # Legacy training (text files)
+│   ├── evaluate.py          # Model evaluation
+│   ├── generate.py          # Sequence generation
+│   └── batch_train.sh       # Batch training
+├── src/                      # Reusable modules
+│   ├── distillation.py      # DistillationTrainer class
+│   └── esmfold.py           # pLDDT prediction
+├── tools/                    # Utilities
+│   └── upload_to_hf.py      # HuggingFace upload
+├── notebooks/                # Jupyter notebooks
+├── data/                     # Training data
+└── models/                   # Trained outputs
+```
+
 ## Commands
 
-### Running Distillation Training
+### Training
 
-Activate the conda environment and run training:
 ```bash
 conda activate pepmlm
-./distill_using_nferruz_dataset.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 256 --train_size_prop 0.1 --learning_rate 1e-3
+python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 256
 ```
 
-Run with nohup for long training sessions:
+For long-running training:
 ```bash
-nohup sh -c './distill_using_nferruz_dataset.py --temperature 2.0 --alpha 0.5 > nohup.out' &
+nohup python scripts/train.py --temperature 2.0 --alpha 0.5 > nohup.out &
 ```
 
-Use wrap.sh to run with multiple parameter configurations:
+Batch training with multiple configs:
 ```bash
-./wrap.sh
+./scripts/batch_train.sh
 ```
 
-### Inference
+### Evaluation
 
-Generate protein sequences using a trained model:
 ```bash
-python inference.py
+python scripts/evaluate.py --student_model ./models/your-model --num_samples 100
 ```
 
-### Upload Model to Hugging Face
+### Generation
 
 ```bash
-python notebooks/submit_to_hf_repo.py
+python scripts/generate.py --model littleworth/protgpt2-distilled-tiny --num_sequences 10
+```
+
+### Upload to HuggingFace
+
+```bash
+python tools/upload_to_hf.py --model_dir ./models/your-model --repo_id username/model-name
 ```
 
 ## Architecture
 
-### Distillation Training (`distill_using_nferruz_dataset.py`)
+### DistillationTrainer (`src/distillation.py`)
 
-The main training script implements a custom `DistillationTrainer` extending HuggingFace's `Trainer`. The distillation loss combines:
+Custom Trainer extending HuggingFace's Trainer. The distillation loss combines:
 - **Soft loss**: KL divergence between student and teacher softened logits (temperature-scaled)
 - **Hard loss**: Cross-entropy on ground truth labels
-- **Combined**: `loss = alpha * hard_loss + (1 - alpha) * soft_loss`
+- **Combined**: `loss = alpha * hard_loss + (1 - alpha) * T² * soft_loss`
 
 Key hyperparameters:
-- `--temperature`: Softens probability distributions (default: 2.0)
-- `--alpha`: Weight between hard/soft loss (default: 0.5)
-- `--n_embd`, `--n_layer`, `--n_head`: Student model architecture
-- `--train_size_prop`: Proportion of validation set to use for training
+- `temperature`: Softens probability distributions (default: 2.0)
+- `alpha`: Weight between hard/soft loss (default: 0.5)
+- `n_embd`, `n_layer`, `n_head`: Student model architecture
+
+### Configuration (`config.py`)
+
+Centralized paths using environment variables from `~/.zshrc`:
+- `HF_DATASETS_CACHE` → `DATA_DIR`
+- `WANDB_API_KEY`, `HF_TOKEN` used by respective libraries
 
 ### Data
 
-- Training data: Parquet files from UniProt stored in `/home/ubuntu/storage2/various_hugging_face_data_and_models/data/`
+- Training data: Parquet files from UniProt at `$HF_DATASETS_CACHE`
 - Legacy text data: `data/all_natural_train_data.txt`
 
 ### Model Outputs
 
-Trained models are saved to `./models/{model_name}/` with:
+Trained models saved to `./models/{model_name}/` with:
 - Model weights and tokenizer
 - `training_logs.json`: Training metrics
 - `training_hyperparameters.json`: Full configuration
-
-### Tracking
-
-Training runs are logged to Weights & Biases under project `PROTGPT2_DISTILLATION`.
 
 ## Git Remotes
 
 - `origin`: Bitbucket (git@bitbucket.org:stemrim-bi/distilling_protgpt2.git)
 - `github`: GitHub (git@github.com:ewijaya/distilling_protgpt2.git)
 
-## Notes
+## Key Files
 
-- The DeepSpeed version (`distill_using_nferruz_dataset.DEEPSPEED.py`) is non-functional; use the standard version which supports multiple GPUs via DataParallel
-- ESMFold pLDDT prediction (`esmfold_pldtt_prediction.py`) evaluates generated sequence quality
+| File | Purpose |
+|------|---------|
+| `scripts/train.py` | Main training script |
+| `src/distillation.py` | DistillationTrainer class |
+| `config.py` | Centralized configuration |
+| `scripts/evaluate.py` | Model quality evaluation |
