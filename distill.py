@@ -152,20 +152,29 @@ class DistillationTrainer(Trainer):
             teacher_outputs = self.teacher_model(**inputs)
             teacher_logits = teacher_outputs.logits
 
+        # Shift logits and labels for causal LM (predict next token)
+        # logits[i] predicts token[i+1], so we align them properly
+        shift_student_logits = student_logits[..., :-1, :].contiguous()
+        shift_teacher_logits = teacher_logits[..., :-1, :].contiguous()
+        shift_labels = labels[..., 1:].contiguous()
+
         # Calculate the soft loss using KL divergence
+        # Scale by T^2 as per Hinton et al. (2015) to maintain gradient magnitude
         loss_fct = torch.nn.KLDivLoss(reduction="batchmean")
         soft_loss = loss_fct(
-            F.log_softmax(student_logits / self.temperature, dim=-1),
-            F.softmax(teacher_logits / self.temperature, dim=-1),
+            F.log_softmax(shift_student_logits / self.temperature, dim=-1),
+            F.softmax(shift_teacher_logits / self.temperature, dim=-1),
         )
 
-        # Calculate the hard loss using cross-entropy
+        # Calculate the hard loss using cross-entropy on shifted sequences
         hard_loss = torch.nn.CrossEntropyLoss()(
-            student_logits.view(-1, student_logits.size(-1)), labels.view(-1)
+            shift_student_logits.view(-1, shift_student_logits.size(-1)),
+            shift_labels.view(-1),
         )
 
         # Combine the soft and hard losses
-        loss = self.alpha * hard_loss + (1.0 - self.alpha) * soft_loss
+        # T^2 scaling for soft loss maintains proper gradient contribution
+        loss = self.alpha * hard_loss + (1.0 - self.alpha) * (self.temperature ** 2) * soft_loss
 
         return (loss, outputs) if return_outputs else loss
 

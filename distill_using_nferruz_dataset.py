@@ -1,6 +1,5 @@
 #!/home/ubuntu/storage1/anaconda3/envs/pepmlm/bin/python
 import gc
-import multiprocessing
 import os
 import shutil
 from transformers import (
@@ -12,13 +11,12 @@ from transformers import (
 )
 import torch
 import logging
-from datasets import load_dataset, DatasetDict, Dataset
+from datasets import load_dataset, DatasetDict
 from torch.nn import functional as F
 import json
 import wandb
 import glob
 import argparse
-import time
 
 # How to run:
 # $ conda activate pepmlm
@@ -81,63 +79,27 @@ def create_student_config(n_embd, n_layer, n_head):
     )
 
 
-# Load the dataset directly from a single file
+# Load the dataset from parquet files
 local_dataset_path = "/home/ubuntu/storage2/various_hugging_face_data_and_models/data"
-data_files = {"validation": glob.glob(f"{local_dataset_path}/validation*.parquet")}
+data_files = {"train": glob.glob(f"{local_dataset_path}/train*.parquet")}
 
-# Assuming data_files is defined and points to your Parquet files
+# Load the training set
 dataset = load_dataset("parquet", data_files=data_files, trust_remote_code=True)
 
-# Subsample the dataset to 0.005% of the original size, prop=1 -> 100%, prop=0.1 -> 10%
-validation_subset = dataset["validation"].train_test_split(
+# Subsample the dataset: prop=1 -> 100%, prop=0.1 -> 10%
+train_subset = dataset["train"].train_test_split(
     train_size=args.train_size_prop
 )["train"]
-print(f"Subset size: {len(validation_subset)}")
+print(f"Subset size: {len(train_subset)}")
 
 # Use the subset as the training dataset
-dataset = DatasetDict({"train": validation_subset})
+dataset = DatasetDict({"train": train_subset})
 
 
-# Tokenization function that uses the provided features
-def tokenize_function(examples):
-    if examples["input_ids"] is not None:
-        print("Using cached data for tokenization.")
-    else:
-        print("Generating new tokenized data.")
-
-    return {
-        "input_ids": examples["input_ids"],
-        "attention_mask": examples["attention_mask"],
-        "labels": examples["labels"],
-    }
-
-
-# Check if the cache directory exists
-cache_dir = "/home/ubuntu/storage2/various_hugging_face_data_and_models/parquet/default-d119f9e3cc2fb7c2/0.0.0/62d0a49e103aa24c107d63273c3426a8ce02488f032cba1725ec4dd00b4f05db"
-if os.path.exists(cache_dir):
-    print(f"Cache directory {cache_dir} exists. Using cached data.")
-else:
-    print(f"Cache directory {cache_dir} does not exist. Generating new cache files.")
-
-# Tokenize the dataset
-print("Tokenizing dataset...")
-start_time = time.time()
-tokenized_dataset = dataset.map(
-    tokenize_function,
-    batched=True,
-    num_proc=multiprocessing.cpu_count(),
-    load_from_cache_file=False,
-)
-end_time = time.time()
-# print(tokenized_dataset.cache_files)
-print(f"Tokenization time: {end_time - start_time} seconds")
-
-if tokenized_dataset.cache_files is not None:
-    print("Cache files were used:")
-    for cache_file in tokenized_dataset.cache_files["train"]:
-        print(cache_file["filename"])
-else:
-    print("No cache files were used.")
+# The parquet files are already tokenized with input_ids, attention_mask, and labels
+# We can use the dataset directly without additional tokenization
+tokenized_dataset = dataset
+print(f"Dataset loaded with {len(tokenized_dataset['train'])} samples")
 
 
 # Define a custom Trainer class for distillation
@@ -223,20 +185,29 @@ class DistillationTrainer(Trainer):
             teacher_outputs = self.teacher_model(**inputs)
             teacher_logits = teacher_outputs.logits
 
+        # Shift logits and labels for causal LM (predict next token)
+        # logits[i] predicts token[i+1], so we align them properly
+        shift_student_logits = student_logits[..., :-1, :].contiguous()
+        shift_teacher_logits = teacher_logits[..., :-1, :].contiguous()
+        shift_labels = labels[..., 1:].contiguous()
+
         # Calculate the soft loss using KL divergence
+        # Scale by T^2 as per Hinton et al. (2015) to maintain gradient magnitude
         loss_fct = torch.nn.KLDivLoss(reduction="batchmean")
         soft_loss = loss_fct(
-            F.log_softmax(student_logits / self.temperature, dim=-1),
-            F.softmax(teacher_logits / self.temperature, dim=-1),
+            F.log_softmax(shift_student_logits / self.temperature, dim=-1),
+            F.softmax(shift_teacher_logits / self.temperature, dim=-1),
         )
 
-        # Calculate the hard loss using cross-entropy
+        # Calculate the hard loss using cross-entropy on shifted sequences
         hard_loss = torch.nn.CrossEntropyLoss()(
-            student_logits.view(-1, student_logits.size(-1)), labels.view(-1)
+            shift_student_logits.view(-1, shift_student_logits.size(-1)),
+            shift_labels.view(-1),
         )
 
         # Combine the soft and hard losses
-        loss = self.alpha * hard_loss + (1.0 - self.alpha) * soft_loss
+        # T^2 scaling for soft loss maintains proper gradient contribution
+        loss = self.alpha * hard_loss + (1.0 - self.alpha) * (self.temperature ** 2) * soft_loss
 
         return (loss, outputs) if return_outputs else loss
 
