@@ -1,5 +1,9 @@
 # Distilling ProtGPT2
 
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![W&B](https://img.shields.io/badge/W%26B-Experiments-1F1F1F?logo=weightsandbiases&logoColor=white)](https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION)
+
 Knowledge distillation for [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2), creating smaller and faster protein language models that retain the generative capabilities of the original model.
 
 ## Overview
