@@ -128,6 +128,27 @@ First, validate the input:
      - What files/artifacts from prior phases are needed
      - What environment setup is required
 
+   - **Code standards**:
+     - **Python scripts (`.py`)** for:
+       - Training code (long-running, nohup-able) → `scripts/`
+       - Evaluation code (batch-run) → `scripts/`
+       - Generation/inference code → `scripts/`
+       - Upload/deployment tools → `tools/`
+       - Reusable modules/libraries → `src/`
+     - **Jupyter notebooks (`.ipynb`)** for:
+       - Exploratory analysis and visualization
+       - Comparison/ablation studies
+       - One-off investigations and debugging
+       - Documentation with executable code
+       - Location: `notebooks/`
+
+   - **Jupyter notebook requirements** (when creating notebooks):
+     - Organize with clear numbered sections using markdown headers (e.g., `## 1. Data Loading`)
+     - Include a minimal, self-sufficient description before each code cell explaining what that code block does
+     - Configure all plots to display inline (`%matplotlib inline`), not saved as external files
+     - Ensure notebook is fully executable from top to bottom
+     - Example naming: `notebooks/phase_{N}_analysis.ipynb`
+
 6. **Save the output** to `docs/PRD-phase-$1.md`
 
 7. **Confirm completion** by displaying:
