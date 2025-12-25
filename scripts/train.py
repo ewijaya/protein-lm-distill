@@ -97,6 +97,18 @@ def main():
         default=config.DEFAULT_LEARNING_RATE,
         help="Initial learning rate",
     )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=config.DEFAULT_BATCH_SIZE,
+        help="Per-device batch size",
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=config.DEFAULT_GRADIENT_ACCUMULATION_STEPS,
+        help="Gradient accumulation steps",
+    )
     args = parser.parse_args()
 
     # Set device
@@ -153,8 +165,8 @@ def main():
     training_args = TrainingArguments(
         output_dir=str(output_dir),
         num_train_epochs=config.DEFAULT_NUM_EPOCHS,
-        per_device_train_batch_size=config.DEFAULT_BATCH_SIZE,
-        gradient_accumulation_steps=config.DEFAULT_GRADIENT_ACCUMULATION_STEPS,
+        per_device_train_batch_size=args.batch_size,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
         weight_decay=0.01,
         adam_epsilon=1e-8,
