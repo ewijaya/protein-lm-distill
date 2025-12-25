@@ -1,30 +1,49 @@
-# Project TODO List
+# ProtGPT2 Distillation Project - Comprehensive PRD
+
+## Executive Summary
+
+Complete the ProtGPT2 distillation project through systematic training, evaluation, HuggingFace deployment, and paper publication. The goal is to produce three production-quality distilled protein language models (Tiny, Small, Medium) with rigorous hyperparameter optimization and comprehensive evaluation.
+
+---
+
+## Project Timeline Overview
+
+| Phase | Milestone | Duration | Dependencies |
+|-------|-----------|----------|--------------|
+| **1** | Baseline Training | ~8 hours | None (In Progress) |
+| **2** | Hyperparameter Sweeps | 2-3 days | Phase 1 |
+| **3** | Comprehensive Evaluation | 1 day | Phase 2 |
+| **4** | HuggingFace Update | 1 day | Phase 3 |
+| **5** | Publication Writing | 3-5 days | Phase 3 |
+
+---
 
 ## Phase 1: Baseline Training (IN PROGRESS)
 
-**Status**: Currently running via nohup (`training_baseline.log`)
+**Status**: Currently running via nohup
 
-**Note**: Current training uses smaller architectures for initial baseline. After completion, we will retrain with architectures matching existing HuggingFace models.
+**Note**: Current training uses smaller architectures. After completion, we will retrain with architectures matching existing HuggingFace models.
 
-### Current Training Progress
+**Current Training** (will complete for reference):
+| Model | Config | Est. Params | Est. Time |
+|-------|--------|-------------|-----------|
+| Tiny | 4L/4H/256E, T=2.0, α=0.5 | ~10M | ~45 min |
+| Small | 6L/8H/512E, T=2.0, α=0.5 | ~40M | ~2 hours |
+| Medium | 12L/12H/768E, T=2.0, α=0.5 | ~125M | ~5 hours |
 
-| Model | Config | Est. Params | Est. Time | Status |
-|-------|--------|-------------|-----------|--------|
-| Tiny | 4L/4H/256E, T=2.0, α=0.5 | ~10M | ~45 min | ⏳ In Progress |
-| Small | 6L/8H/512E, T=2.0, α=0.5 | ~40M | ~2 hours | ⏸️ Pending |
-| Medium | 12L/12H/768E, T=2.0, α=0.5 | ~125M | ~5 hours | ⏸️ Pending |
+**Final Training** (matching HuggingFace architectures):
+| Model | Config | Est. Params | Matches HF |
+|-------|--------|-------------|------------|
+| Tiny | 4L/4H/512E, T=best, α=best | ~39M | littleworth/protgpt2-distilled-tiny |
+| Small | 6L/8H/768E, T=best, α=best | ~82M | littleworth/protgpt2-distilled-small |
+| Medium | 12L/16H/1024E, T=best, α=best | ~200M | littleworth/protgpt2-distilled-medium |
+
+**Output Location**: `./models/protgpt2-distilled-t2.0-a0.5-l{L}-h{H}-e{E}-p0.1-lr*.uniprot/`
 
 **Monitoring**:
 ```bash
 tail -f training_baseline.log
 ```
-
-**Checklist**:
-- [x] Training started via nohup
-- [ ] Tiny model completed
-- [ ] Small model completed
-- [ ] Medium model completed
-- [ ] Instance auto-stops after completion
 
 ---
 
@@ -45,15 +64,6 @@ for temp in 1.0 2.0 4.0 6.0 8.0 10.0; do
 done
 ```
 
-**Checklist**:
-- [ ] T=1.0 completed
-- [ ] T=2.0 completed
-- [ ] T=4.0 completed
-- [ ] T=6.0 completed
-- [ ] T=8.0 completed
-- [ ] T=10.0 completed
-- [ ] Best temperature identified
-
 ### 2.2 Alpha Sweep (with best temperature)
 
 **Rationale**: Alpha balances hard loss (ground truth) vs soft loss (teacher mimicking).
@@ -71,23 +81,9 @@ for alpha in 0.1 0.3 0.5 0.7 0.9; do
 done
 ```
 
-**Checklist**:
-- [ ] α=0.1 completed
-- [ ] α=0.3 completed
-- [ ] α=0.5 completed
-- [ ] α=0.7 completed
-- [ ] α=0.9 completed
-- [ ] Best alpha identified
-
 ### 2.3 Final Training with Optimal Hyperparameters
 
 Apply best T and α to all model sizes (matching HuggingFace architectures):
-
-| Model | Config | Est. Params | Matches HF |
-|-------|--------|-------------|------------|
-| Tiny | 4L/4H/512E, T=best, α=best | ~39M | littleworth/protgpt2-distilled-tiny |
-| Small | 6L/8H/768E, T=best, α=best | ~82M | littleworth/protgpt2-distilled-small |
-| Medium | 12L/16H/1024E, T=best, α=best | ~200M | littleworth/protgpt2-distilled-medium |
 
 ```bash
 nohup bash -c '
@@ -104,12 +100,6 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 aws ec2 stop-instances --instance-ids $(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 ' > training_optimized.log 2>&1 &
 ```
-
-**Checklist**:
-- [ ] Best hyperparameters determined (T=___, α=___)
-- [ ] Tiny (HF-matching) trained
-- [ ] Small (HF-matching) trained
-- [ ] Medium (HF-matching) trained
 
 ---
 
@@ -145,13 +135,6 @@ python scripts/evaluate.py --student_model littleworth/protgpt2-distilled-small 
 python scripts/evaluate.py --student_model littleworth/protgpt2-distilled-medium --num_samples 200 --output results/eval_hf_medium_old.json
 ```
 
-**Checklist**:
-- [ ] Baseline models evaluated
-- [ ] Existing HF models evaluated for comparison
-- [ ] Optimized models evaluated
-- [ ] Comparison summary generated
-- [ ] Best models identified for each size
-
 ### 3.3 pLDDT Structural Evaluation (Optional, requires 16GB+ GPU)
 
 ```bash
@@ -166,8 +149,28 @@ print(f'Mean pLDDT: {np.mean(scores):.2f}')
 "
 ```
 
-**Checklist**:
-- [ ] pLDDT evaluation completed (if GPU supports it)
+### 3.4 Comparison Summary Table
+
+Generate after all evaluations:
+```bash
+python -c "
+import json, glob
+results = []
+for f in glob.glob('results/eval_*.json'):
+    with open(f) as fp:
+        data = json.load(fp)
+        results.append({
+            'model': data['student_model'].split('/')[-1][:40],
+            'params': data.get('student_params', 'N/A'),
+            'compression': data.get('compression_ratio', 'N/A'),
+            'ppl_ratio': data.get('perplexity_ratio', 'N/A'),
+            'kl_div': data.get('kl_divergence', 'N/A')
+        })
+results.sort(key=lambda x: x.get('ppl_ratio', 999) if isinstance(x.get('ppl_ratio'), (int, float)) else 999)
+for r in results:
+    print(f\"{r['model']}: PPL ratio={r['ppl_ratio']}, KL={r['kl_div']}\")
+"
+```
 
 ---
 
@@ -193,6 +196,7 @@ print(f'Mean pLDDT: {np.mean(scores):.2f}')
 ### 4.3 Upload Commands
 
 ```bash
+# Only upload if new model is better than existing
 python tools/upload_to_hf.py \
     --model_dir ./models/BEST_TINY_MODEL \
     --repo_id littleworth/protgpt2-distilled-tiny
@@ -206,12 +210,68 @@ python tools/upload_to_hf.py \
     --repo_id littleworth/protgpt2-distilled-medium
 ```
 
-**Checklist**:
-- [ ] Tiny model uploaded
-- [ ] Small model uploaded
-- [ ] Medium model uploaded
+### 4.4 Model Card Template (README.md for each repo)
 
-### 4.4 Post-Upload Verification
+```markdown
+# ProtGPT2-Distilled-{Size}
+
+A knowledge-distilled version of [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2) for efficient protein sequence generation.
+
+## Model Details
+
+| Property | Value |
+|----------|-------|
+| Parameters | XX M |
+| Layers | X |
+| Attention Heads | X |
+| Embedding Size | XXX |
+| Compression Ratio | XXx vs ProtGPT2 |
+
+## Training
+
+- **Teacher Model**: nferruz/ProtGPT2 (738M params)
+- **Temperature**: X.X
+- **Alpha**: X.X
+- **Dataset**: UniRef50 (XX% subset)
+- **Training Time**: X hours on Tesla T4
+
+## Evaluation
+
+| Metric | This Model | Teacher |
+|--------|------------|---------|
+| Perplexity | XX.X | XX.X |
+| Perplexity Ratio | X.Xx | 1.0x |
+| KL Divergence | X.XXX | - |
+
+## Usage
+
+\```python
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
+model = GPT2LMHeadModel.from_pretrained("littleworth/protgpt2-distilled-{size}")
+tokenizer = GPT2Tokenizer.from_pretrained("littleworth/protgpt2-distilled-{size}")
+
+# Generate protein sequence
+input_ids = tokenizer.encode("<|endoftext|>", return_tensors="pt")
+output = model.generate(input_ids, max_length=100, do_sample=True, top_k=950)
+sequence = tokenizer.decode(output[0])
+\```
+
+## Citation
+
+If you use this model, please cite:
+\```bibtex
+@misc{protgpt2distilled2024,
+  author = {Your Name},
+  title = {Efficient Knowledge Distillation for Protein Language Models},
+  year = {2024},
+  publisher = {HuggingFace},
+  url = {https://huggingface.co/littleworth/protgpt2-distilled-{size}}
+}
+\```
+```
+
+### 4.5 Post-Upload Verification
 
 ```bash
 # Verify each model loads from HF
@@ -222,11 +282,6 @@ for size in tiny small medium; do
         --max_length 50
 done
 ```
-
-**Checklist**:
-- [ ] All models load from HuggingFace
-- [ ] Generation works correctly
-- [ ] Model cards updated
 
 ---
 
@@ -261,7 +316,7 @@ done
 | Table 2 | Evaluation metrics for all models |
 | Table 3 | Comparison with existing HF models |
 
-### 5.4 Publication Strategy
+### 5.4 Publication Strategy (User Preference: Preprint + Journal)
 
 **Step 1: bioRxiv Preprint** (Immediate upon completion)
 - Submit to establish priority
@@ -270,43 +325,22 @@ done
 
 **Step 2: Journal Submission** (After preprint)
 
-| Venue | Type | Notes |
-|-------|------|-------|
-| Bioinformatics | Journal | High visibility in computational biology |
-| PLOS Comp Bio | Journal | Open access, good for methods papers |
-| Briefings in Bioinformatics | Journal | Review-style, high impact |
+| Venue | Type | Timeline | Notes |
+|-------|------|----------|-------|
+| Bioinformatics | Journal | 2-3 months | High visibility in computational biology |
+| PLOS Comp Bio | Journal | 2-3 months | Open access, good for methods papers |
+| Briefings in Bioinformatics | Journal | 2-3 months | Review-style, high impact |
 
-**Checklist**:
-- [ ] Paper draft complete
-- [ ] Figures generated
-- [ ] Tables completed
-- [ ] Internal review done
-- [ ] bioRxiv submitted
-- [ ] Journal submitted
+**Timeline**:
+1. Week 1: Complete paper draft
+2. Week 2: Internal review, polish
+3. Week 2-3: Submit to bioRxiv
+4. Week 3: Submit to journal
 
 ### 5.5 Existing Resources
 
 - **docs/METHODS.md** - Complete mathematical framework with LaTeX, ready for paper Methods section
 - **W&B Dashboard** - https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION - Training curves and metrics
-
----
-
-## Success Criteria
-
-### Must-Have (MVP)
-- [ ] Three baseline models trained (Tiny, Small, Medium)
-- [ ] Perplexity ratio < 2.0x for all models
-- [ ] Evaluation metrics documented
-- [ ] HuggingFace repos updated with new models and documentation
-
-### Should-Have
-- [ ] Optimal hyperparameters from sweeps
-- [ ] pLDDT evaluation completed
-- [ ] Paper draft complete
-
-### Nice-to-Have
-- [ ] Paper submitted to preprint
-- [ ] Comparison with other distillation methods
 
 ---
 
@@ -334,29 +368,32 @@ done
 
 ---
 
-## Quick Reference
+## Critical Files
 
-### Model Naming Convention
+| File | Purpose |
+|------|---------|
+| `scripts/train.py` | Main training script |
+| `scripts/evaluate.py` | Evaluation metrics |
+| `scripts/generate.py` | Sequence generation |
+| `tools/upload_to_hf.py` | HuggingFace upload |
+| `docs/METHODS.md` | Paper Methods content |
+| `src/distillation.py` | DistillationTrainer class |
 
-```
-protgpt2-distilled-t{temp}-a{alpha}-l{layers}-h{heads}-e{embed}-p{prop}-lr{lr}.uniprot
-```
+---
 
-Example: `protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot`
+## Success Criteria
 
-### AWS Instance Recommendations
+### Must-Have (MVP)
+- [ ] Three baseline models trained (Tiny, Small, Medium) matching HF architectures
+- [ ] Perplexity ratio < 2.0x for all models
+- [ ] Evaluation metrics documented
+- [ ] HuggingFace repos updated with new models and documentation
 
-| Instance | GPU | VRAM | Hourly Cost | Use Case |
-|----------|-----|------|-------------|----------|
-| g4dn.xlarge | T4 | 16GB | ~$0.53 | Development, tiny models |
-| g5.xlarge | A10G | 24GB | ~$1.01 | Training, evaluation |
-| g5.2xlarge | A10G | 24GB | ~$1.21 | Faster training |
-| p3.2xlarge | V100 | 16GB | ~$3.06 | Large models |
+### Should-Have
+- [ ] Optimal hyperparameters from sweeps
+- [ ] pLDDT evaluation completed
+- [ ] Paper draft complete
 
-### Typical Training Times (10% data, 3 epochs)
-
-| Model Size | g4dn.xlarge | g5.xlarge |
-|------------|-------------|-----------|
-| Tiny (4L/4H/256E) | ~45 min | ~30 min |
-| Small (6L/8H/512E) | ~2 hours | ~1.5 hours |
-| Medium (12L/12H/768E) | ~5 hours | ~3.5 hours |
+### Nice-to-Have
+- [ ] Paper submitted to preprint
+- [ ] Comparison with other distillation methods
