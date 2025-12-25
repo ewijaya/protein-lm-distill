@@ -18,6 +18,10 @@ import argparse
 import logging
 from pathlib import Path
 
+# Set HF cache paths BEFORE importing datasets/transformers
+os.environ["HF_HOME"] = "/home/ubuntu/storage3/hf_cache"
+os.environ["HF_DATASETS_CACHE"] = "/home/ubuntu/storage3/datasets_cache"
+
 import torch
 import wandb
 from transformers import (
@@ -150,12 +154,6 @@ def main():
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}", flush=True)
-
-    # Use fast gp3 storage for HuggingFace cache
-    os.environ["HF_HOME"] = str(config.HF_CACHE_DIR)
-    os.environ["HF_DATASETS_CACHE"] = str(config.FAST_STORAGE / "datasets_cache")
-    print(f"Using HF cache: {config.HF_CACHE_DIR}", flush=True)
-    print(f"Using datasets cache: {config.FAST_STORAGE / 'datasets_cache'}", flush=True)
 
     # Load teacher model
     print(f"Loading teacher model: {config.TEACHER_MODEL}", flush=True)
