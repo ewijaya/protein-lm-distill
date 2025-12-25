@@ -22,9 +22,16 @@ protein-lm-distill/
 │   └── esmfold.py           # pLDDT prediction
 ├── tools/                    # Utilities
 │   └── upload_to_hf.py      # HuggingFace upload
+├── docs/                     # Documentation
+│   ├── PRD-master.md        # Project requirements & roadmap
+│   ├── METHODS.md           # Mathematical framework
+│   └── TODO.md              # Task tracking
 ├── notebooks/                # Jupyter notebooks
+│   ├── compare_student_teacher.ipynb
+│   └── try_esmfold.ipynb
 ├── data/                     # Training data
-└── models/                   # Trained outputs
+├── models/                   # Trained outputs
+└── wandb/                    # Experiment tracking logs
 ```
 
 ## Commands
@@ -33,7 +40,7 @@ protein-lm-distill/
 
 ```bash
 conda activate pepmlm
-python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 256
+python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 256 --batch_size 8 --gradient_accumulation 4
 ```
 
 For long-running training:
@@ -109,4 +116,19 @@ Trained models saved to `./models/{model_name}/` with:
 | `src/distillation.py` | DistillationTrainer class |
 | `config.py` | Centralized configuration |
 | `scripts/evaluate.py` | Model quality evaluation |
-| `docs/PRD-master.md` | Comprehensive project requirements and roadmap |
+| `docs/PRD-master.md` | Project requirements and roadmap |
+| `docs/METHODS.md` | Mathematical framework and methodology |
+| `docs/TODO.md` | Task tracking and project roadmap |
+
+## Project Phases
+
+The project follows a phased approach (see `docs/PRD-master.md` for details):
+
+| Phase | Description |
+|-------|-------------|
+| 0 | Methodological Enhancements (uncertainty-aware, calibration-aware distillation) |
+| 1 | Baseline Training |
+| 2 | Hyperparameter Sweeps (temperature, alpha) |
+| 3 | Comprehensive Evaluation |
+| 4 | HuggingFace Model Update |
+| 5 | Publication |
