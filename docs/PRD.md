@@ -344,6 +344,40 @@ done
 
 ---
 
+## Decision Checkpoints
+
+### After Phase 3 Evaluation: Data Size Decision
+
+After completing evaluation, check perplexity ratios using **size-dependent thresholds**:
+
+| Model | Params | % of Teacher | Perplexity Ratio Threshold |
+|-------|--------|--------------|----------------------------|
+| Tiny | ~39M | 5% | < 3.0 |
+| Small | ~82M | 11% | < 2.5 |
+| Medium | ~200M | 27% | < 2.0 |
+
+**Rationale**: Smaller models have more aggressive compression, so expecting teacher-level performance is unrealistic. These thresholds balance compression vs. quality.
+
+**Decision flow:**
+
+| Condition | Action |
+|-----------|--------|
+| Model meets its threshold | Proceed to Phase 4 (HuggingFace Update) |
+| Model exceeds its threshold | Retrain that model with `--train_size_prop 0.2` |
+| After 20% retrain, still exceeds | Retrain with `--train_size_prop 0.5` |
+| After 50% retrain, still exceeds | Keep existing HF model, document in paper |
+
+**Commands for retraining with more data:**
+```bash
+# 20% data
+python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer X --n_head X --n_embd X --train_size_prop 0.2
+
+# 50% data (if 20% insufficient)
+python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer X --n_head X --n_embd X --train_size_prop 0.5
+```
+
+---
+
 ## Risk Mitigation
 
 ### If New Models Underperform Existing HF Models
@@ -351,7 +385,7 @@ done
 1. Try higher temperature (match T=10 from existing)
 2. Lower alpha toward 0.1
 3. Match embedding dimensions (512, 768, 1024)
-4. Increase training data to 20% or 50%
+4. Increase training data to 20% or 50% (see Decision Checkpoints above)
 5. **Fallback**: Keep existing HF models, report comparison in paper
 
 ### If Hyperparameter Sweeps Take Too Long

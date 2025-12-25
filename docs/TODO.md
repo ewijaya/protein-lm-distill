@@ -120,10 +120,18 @@ aws ec2 stop-instances --instance-ids $(curl -s http://169.254.169.254/latest/me
 | Metric | Description | Target |
 |--------|-------------|--------|
 | Perplexity | Next-token prediction | Lower = better |
-| Perplexity Ratio | Student/Teacher PPL | < 1.5 (Excellent), < 2.0 (Good) |
+| Perplexity Ratio | Student/Teacher PPL | Size-dependent (see below) |
 | KL Divergence | Output distribution similarity | Lower = better |
 | Compression Ratio | Teacher/Student params | Report actual |
 | AA Distribution KL | vs natural protein distribution | < 0.05 |
+
+**Size-dependent perplexity ratio thresholds:**
+
+| Model | Params | % of Teacher | Threshold |
+|-------|--------|--------------|-----------|
+| Tiny | ~39M | 5% | < 3.0 |
+| Small | ~82M | 11% | < 2.5 |
+| Medium | ~200M | 27% | < 2.0 |
 
 ### 3.2 Evaluation Commands
 
@@ -295,7 +303,7 @@ done
 
 ### Must-Have (MVP)
 - [ ] Three baseline models trained (Tiny, Small, Medium)
-- [ ] Perplexity ratio < 2.0x for all models
+- [ ] Perplexity ratio meets size-dependent thresholds (Tiny < 3.0, Small < 2.5, Medium < 2.0)
 - [ ] Evaluation metrics documented
 - [ ] HuggingFace repos updated with new models and documentation
 
@@ -310,6 +318,21 @@ done
 
 ---
 
+## Decision Checkpoints
+
+### After Phase 3 Evaluation: Data Size Decision
+
+Check if each model meets its size-dependent perplexity ratio threshold:
+
+| Condition | Action |
+|-----------|--------|
+| Model meets its threshold | Proceed to Phase 4 (HuggingFace Update) |
+| Model exceeds its threshold | Retrain that model with `--train_size_prop 0.2` |
+| After 20% retrain, still exceeds | Retrain with `--train_size_prop 0.5` |
+| After 50% retrain, still exceeds | Keep existing HF model, document in paper |
+
+---
+
 ## Risk Mitigation
 
 ### If New Models Underperform Existing HF Models
@@ -317,7 +340,7 @@ done
 1. Try higher temperature (match T=10 from existing)
 2. Lower alpha toward 0.1
 3. Match embedding dimensions (512, 768, 1024)
-4. Increase training data to 20% or 50%
+4. Increase training data to 20% or 50% (see Decision Checkpoints above)
 5. **Fallback**: Keep existing HF models, report comparison in paper
 
 ### If Hyperparameter Sweeps Take Too Long
