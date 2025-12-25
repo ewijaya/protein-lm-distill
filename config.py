@@ -15,9 +15,9 @@ PROJECT_ROOT = Path(__file__).parent.absolute()
 DATA_DIR = Path(
     os.environ.get(
         "HF_DATASETS_CACHE",
-        "/home/ubuntu/storage2/various_hugging_face_data_and_models/data",
+        "/home/ubuntu/storage2/various_hugging_face_data_and_models",
     )
-)
+) / "data"
 
 # Model paths
 MODELS_DIR = PROJECT_ROOT / "models"
