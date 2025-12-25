@@ -16,7 +16,6 @@ import shutil
 import glob
 import argparse
 import logging
-import random
 from pathlib import Path
 
 import torch
@@ -157,16 +156,12 @@ def main():
         teacher_tokenizer.pad_token = teacher_tokenizer.eos_token
     teacher_tokenizer.padding_side = "left"
 
-    # Load dataset - only load subset of files proportional to train_size_prop
-    # Shuffle with fixed seed for reproducibility, then select subset
-    all_parquet_files = sorted(glob.glob(f"{config.DATA_DIR}/train*.parquet"))
-    random.seed(42)
-    shuffled_files = random.sample(all_parquet_files, len(all_parquet_files))
-    num_files_to_load = max(1, int(len(all_parquet_files) * args.train_size_prop))
-    selected_files = shuffled_files[:num_files_to_load]
-    print(f"Loading {num_files_to_load} of {len(all_parquet_files)} parquet files (randomly sampled, seed=42)")
+    # Load dataset from local fast storage (pre-copied random subset with seed=42)
+    local_parquet_dir = config.PROJECT_ROOT / "data" / "parquet_subset"
+    all_parquet_files = sorted(glob.glob(str(local_parquet_dir / "train*.parquet")))
+    print(f"Loading {len(all_parquet_files)} parquet files from {local_parquet_dir}")
 
-    data_files = {"train": selected_files}
+    data_files = {"train": all_parquet_files}
     dataset = load_dataset("parquet", data_files=data_files, trust_remote_code=True)
     print(f"Training dataset size: {len(dataset['train'])}")
     tokenized_dataset = DatasetDict({"train": dataset["train"]})
