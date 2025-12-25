@@ -109,3 +109,4 @@ Trained models saved to `./models/{model_name}/` with:
 | `src/distillation.py` | DistillationTrainer class |
 | `config.py` | Centralized configuration |
 | `scripts/evaluate.py` | Model quality evaluation |
+| `docs/PRD-master.md` | Comprehensive project requirements and roadmap |
