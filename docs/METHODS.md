@@ -685,14 +685,14 @@ serving as both inputs and labels for causal language modeling.
 
 ### 7.2 Protein-Specific Enhancements
 
-| Mathematical Formula                                    | Description          | Implementation Status |
-| ------------------------------------------------------- | -------------------- | --------------------- |
-| $u_t = -\sum_v p_T \log p_T$                            | Entropy computation  | Phase 0 (planned)     |
-| $w_t = 0.5 + 0.5 \cdot \text{norm}(u_t)$                | Position weighting   | Phase 0 (planned)     |
-| $L_{\text{soft}}^{\text{weighted}} = \frac{1}{\|\mathcal{T}\|} \sum w_t \cdot D_{KL}$ | Weighted soft loss | Phase 0 (planned) |
-| $\epsilon_t = \lambda (1 - \max p_T)$                   | Adaptive smoothing   | Phase 0 (planned)     |
-| $\bar{p}_T = (1-\epsilon_t) p_T + \epsilon_t / \|V\|$   | Label smoothing      | Phase 0 (planned)     |
-| $\text{ECE} = \sum \frac{\|B_m\|}{N} \|\text{acc} - \text{conf}\|$ | Calibration error | Phase 0 (planned) |
+| Mathematical Formula                                    | Description          | File                  | Lines     |
+| ------------------------------------------------------- | -------------------- | --------------------- | --------- |
+| $u_t = -\sum_v p_T \log p_T$                            | Entropy computation  | `src/distillation.py` | 77-103    |
+| $w_t = 0.5 + 0.5 \cdot \text{norm}(u_t)$                | Position weighting   | `src/distillation.py` | 105-165   |
+| $L_{\text{soft}}^{\text{weighted}} = \frac{1}{\|\mathcal{T}\|} \sum w_t \cdot D_{KL}$ | Weighted soft loss | `src/distillation.py` | 281-286 |
+| $\epsilon_t = \lambda (1 - \max p_T)$                   | Adaptive smoothing   | `src/distillation.py` | 167-203   |
+| $\bar{p}_T = (1-\epsilon_t) p_T + \epsilon_t / \|V\|$   | Label smoothing      | `src/distillation.py` | 197-201   |
+| $\text{ECE} = \sum \frac{\|B_m\|}{N} \|\text{acc} - \text{conf}\|$ | Calibration error | `scripts/evaluate.py` | 30-137 |
 
 ### 7.3 Evaluation Metrics
 

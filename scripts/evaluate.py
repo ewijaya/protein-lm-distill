@@ -27,6 +27,116 @@ warnings.filterwarnings("ignore")
 AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
 
 
+def compute_ece(model, tokenizer, sequences, device, n_bins=10, max_length=512):
+    """
+    Compute Expected Calibration Error (ECE) for a model.
+
+    ECE measures how well-calibrated a model's confidence estimates are.
+    A well-calibrated model's confidence should match its accuracy.
+
+    Mathematical formulation:
+        ECE = Σ (|B_m| / N) * |acc(B_m) - conf(B_m)|
+
+    where predictions are binned by confidence into M bins.
+
+    Args:
+        model: The model to evaluate
+        tokenizer: Tokenizer for the model
+        sequences: List of protein sequences to evaluate
+        device: Device to run on
+        n_bins: Number of confidence bins (default: 10)
+        max_length: Maximum sequence length
+
+    Returns:
+        dict with ECE, MCE (max calibration error), and per-bin statistics
+    """
+    model.eval()
+
+    # Collect all predictions
+    all_confidences = []
+    all_correct = []
+
+    for seq in sequences:
+        inputs = tokenizer(
+            seq,
+            return_tensors="pt",
+            truncation=True,
+            max_length=max_length,
+            padding=False,
+        ).to(device)
+
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+
+        # Shift for next-token prediction
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = inputs["input_ids"][..., 1:].contiguous()
+
+        # Get probabilities and predictions
+        probs = F.softmax(shift_logits, dim=-1)
+        confidences, predictions = probs.max(dim=-1)
+
+        # Check correctness
+        correct = (predictions == shift_labels).float()
+
+        # Flatten and collect
+        all_confidences.extend(confidences.view(-1).cpu().numpy())
+        all_correct.extend(correct.view(-1).cpu().numpy())
+
+    all_confidences = np.array(all_confidences)
+    all_correct = np.array(all_correct)
+
+    # Compute ECE
+    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    bin_lowers = bin_boundaries[:-1]
+    bin_uppers = bin_boundaries[1:]
+
+    ece = 0.0
+    mce = 0.0
+    bin_stats = []
+
+    for bin_lower, bin_upper in zip(bin_lowers, bin_uppers):
+        # Find samples in this bin
+        in_bin = (all_confidences > bin_lower) & (all_confidences <= bin_upper)
+        prop_in_bin = in_bin.mean()
+
+        if prop_in_bin > 0:
+            avg_confidence = all_confidences[in_bin].mean()
+            avg_accuracy = all_correct[in_bin].mean()
+            calibration_error = abs(avg_accuracy - avg_confidence)
+
+            ece += prop_in_bin * calibration_error
+            mce = max(mce, calibration_error)
+
+            bin_stats.append({
+                "bin_lower": float(bin_lower),
+                "bin_upper": float(bin_upper),
+                "count": int(in_bin.sum()),
+                "avg_confidence": float(avg_confidence),
+                "avg_accuracy": float(avg_accuracy),
+                "calibration_error": float(calibration_error),
+            })
+        else:
+            bin_stats.append({
+                "bin_lower": float(bin_lower),
+                "bin_upper": float(bin_upper),
+                "count": 0,
+                "avg_confidence": None,
+                "avg_accuracy": None,
+                "calibration_error": None,
+            })
+
+    return {
+        "ece": float(ece),
+        "mce": float(mce),
+        "n_samples": len(all_confidences),
+        "overall_accuracy": float(all_correct.mean()),
+        "overall_confidence": float(all_confidences.mean()),
+        "bin_stats": bin_stats,
+    }
+
+
 def load_model_and_tokenizer(model_path, device):
     """Load model and tokenizer, handling both local and HuggingFace paths."""
     try:
@@ -218,6 +328,12 @@ def main():
         default="cuda" if torch.cuda.is_available() else "cpu",
         help="Device to use",
     )
+    parser.add_argument(
+        "--compute_ece",
+        action="store_true",
+        default=False,
+        help="Compute Expected Calibration Error (ECE)",
+    )
     args = parser.parse_args()
 
     print(f"Using device: {args.device}")
@@ -291,6 +407,23 @@ def main():
           f"KL from natural: {student_analysis['kl_from_natural']:.4f}")
     print()
 
+    # Compute ECE if requested
+    teacher_ece_results = None
+    student_ece_results = None
+    if args.compute_ece:
+        print("Computing Expected Calibration Error (ECE)...")
+        teacher_ece_results = compute_ece(
+            teacher_model, teacher_tokenizer, test_sequences[:20], args.device
+        )
+        student_ece_results = compute_ece(
+            student_model, student_tokenizer, test_sequences[:20], args.device
+        )
+        print(f"  Teacher ECE: {teacher_ece_results['ece']:.4f}")
+        print(f"  Student ECE: {student_ece_results['ece']:.4f}")
+        ece_improvement = (teacher_ece_results['ece'] - student_ece_results['ece']) / teacher_ece_results['ece'] * 100
+        print(f"  ECE improvement: {ece_improvement:+.1f}%")
+        print()
+
     # Summary
     results = {
         "student_model": args.student_model,
@@ -303,6 +436,11 @@ def main():
         "teacher_generation": teacher_analysis,
         "student_generation": student_analysis,
     }
+
+    # Add ECE results if computed
+    if args.compute_ece:
+        results["teacher_ece"] = teacher_ece_results
+        results["student_ece"] = student_ece_results
 
     print("=" * 60)
     print("SUMMARY")

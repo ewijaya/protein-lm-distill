@@ -16,6 +16,7 @@ import shutil
 import glob
 import argparse
 import logging
+from pathlib import Path
 
 import torch
 import wandb
@@ -109,6 +110,37 @@ def main():
         default=config.DEFAULT_GRADIENT_ACCUMULATION_STEPS,
         help="Gradient accumulation steps",
     )
+    parser.add_argument(
+        "--num_train_epochs",
+        type=int,
+        default=config.DEFAULT_NUM_EPOCHS,
+        help="Number of training epochs",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default=None,
+        help="Output directory for model (default: auto-generated based on config)",
+    )
+    # Phase 0 enhancements
+    parser.add_argument(
+        "--use_uncertainty_weighting",
+        action="store_true",
+        default=False,
+        help="Enable uncertainty-aware position weighting (Phase 0 enhancement)",
+    )
+    parser.add_argument(
+        "--use_calibration_smoothing",
+        action="store_true",
+        default=False,
+        help="Enable calibration-aware label smoothing (Phase 0 enhancement)",
+    )
+    parser.add_argument(
+        "--smoothing_factor",
+        type=float,
+        default=0.1,
+        help="Base smoothing factor for calibration (default: 0.1)",
+    )
     args = parser.parse_args()
 
     # Set device
@@ -142,10 +174,15 @@ def main():
     student_model = GPT2LMHeadModel(student_config).to(device)
 
     # Model name encodes configuration
+    enhancement_suffix = ""
+    if args.use_uncertainty_weighting:
+        enhancement_suffix += "-uw"
+    if args.use_calibration_smoothing:
+        enhancement_suffix += f"-cs{args.smoothing_factor}"
     model_name = (
         f"protgpt2-distilled-t{args.temperature}-a{args.alpha}"
         f"-l{args.n_layer}-h{args.n_head}-e{args.n_embd}"
-        f"-p{args.train_size_prop}-lr{args.learning_rate:.0e}.uniprot"
+        f"-p{args.train_size_prop}-lr{args.learning_rate:.0e}{enhancement_suffix}.uniprot"
     )
 
     # Initialize W&B
@@ -156,7 +193,10 @@ def main():
     )
 
     # Setup output directory
-    output_dir = config.MODELS_DIR / model_name
+    if args.output_dir:
+        output_dir = Path(args.output_dir)
+    else:
+        output_dir = config.MODELS_DIR / model_name
     if output_dir.exists():
         print(f"Output directory {output_dir} exists. Deleting...")
         shutil.rmtree(output_dir)
@@ -164,7 +204,7 @@ def main():
     # Training arguments
     training_args = TrainingArguments(
         output_dir=str(output_dir),
-        num_train_epochs=config.DEFAULT_NUM_EPOCHS,
+        num_train_epochs=args.num_train_epochs,
         per_device_train_batch_size=args.batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
@@ -177,11 +217,22 @@ def main():
         fp16=True,
     )
 
+    # Log enhancement status
+    if args.use_uncertainty_weighting or args.use_calibration_smoothing:
+        print("Phase 0 Enhancements enabled:")
+        if args.use_uncertainty_weighting:
+            print("  - Uncertainty-aware position weighting")
+        if args.use_calibration_smoothing:
+            print(f"  - Calibration-aware smoothing (factor={args.smoothing_factor})")
+
     # Initialize trainer
     trainer = DistillationTrainer(
         temperature=args.temperature,
         alpha=args.alpha,
         teacher_model=teacher_model,
+        use_uncertainty_weighting=args.use_uncertainty_weighting,
+        use_calibration_smoothing=args.use_calibration_smoothing,
+        smoothing_factor=args.smoothing_factor,
         model=student_model,
         args=training_args,
         train_dataset=tokenized_dataset["train"],
@@ -208,6 +259,11 @@ def main():
             "n_embd": args.n_embd,
             "n_layer": args.n_layer,
             "n_head": args.n_head,
+        },
+        "phase0_enhancements": {
+            "use_uncertainty_weighting": args.use_uncertainty_weighting,
+            "use_calibration_smoothing": args.use_calibration_smoothing,
+            "smoothing_factor": args.smoothing_factor,
         },
     }
     with open(output_dir / "training_hyperparameters.json", "w") as f:
