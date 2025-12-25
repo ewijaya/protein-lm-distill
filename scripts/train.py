@@ -26,7 +26,11 @@ from transformers import (
     GPT2TokenizerFast,
     TrainingArguments,
 )
-from datasets import load_dataset, DatasetDict
+from datasets import load_dataset, DatasetDict, disable_caching
+
+# Enable progress bars for dataset loading
+from datasets.utils.logging import set_verbosity_info
+set_verbosity_info()
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -159,11 +163,11 @@ def main():
     # Load dataset from local fast storage (pre-copied random subset with seed=42)
     local_parquet_dir = config.PROJECT_ROOT / "data" / "parquet_subset"
     all_parquet_files = sorted(glob.glob(str(local_parquet_dir / "train*.parquet")))
-    print(f"Loading {len(all_parquet_files)} parquet files from {local_parquet_dir}")
+    print(f"Loading {len(all_parquet_files)} parquet files from {local_parquet_dir}", flush=True)
 
     data_files = {"train": all_parquet_files}
     dataset = load_dataset("parquet", data_files=data_files, trust_remote_code=True)
-    print(f"Training dataset size: {len(dataset['train'])}")
+    print(f"Training dataset size: {len(dataset['train'])}", flush=True)
     tokenized_dataset = DatasetDict({"train": dataset["train"]})
 
     # Create student model
