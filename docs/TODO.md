@@ -82,6 +82,163 @@
 - [ ] Visualization of improvements - pending training runs
 - [x] `docs/METHODS.md` updated with formulations
 
+### 0.4 Commands to Complete Phase 0 (Run After Phase 1 Finishes)
+
+**Prerequisites**: Phase 1 baseline training must be complete.
+
+**Step 1: Train ablation variants** (~2 hours total on g4dn.xlarge)
+
+```bash
+# Activate environment
+conda activate pepmlm
+cd /home/ubuntu/storage1/protein-lm-distill
+
+# Create results directory
+mkdir -p results
+
+# Train +Uncertainty only variant
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --num_train_epochs 3 \
+    --learning_rate 1e-3 \
+    --use_uncertainty_weighting \
+    --output_dir ./models/ablation-uncertainty
+
+# Train +Calibration only variant
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --num_train_epochs 3 \
+    --learning_rate 1e-3 \
+    --use_calibration_smoothing \
+    --smoothing_factor 0.1 \
+    --output_dir ./models/ablation-calibration
+
+# Train +Both enhancements variant
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --num_train_epochs 3 \
+    --learning_rate 1e-3 \
+    --use_uncertainty_weighting \
+    --use_calibration_smoothing \
+    --smoothing_factor 0.1 \
+    --output_dir ./models/ablation-both
+```
+
+**Step 2: Evaluate all variants** (~10 min)
+
+```bash
+# Find the Phase 1 baseline model directory
+BASELINE_MODEL=$(ls -td models/protgpt2-distilled-t2.0-a0.5-l4-h4-e512* 2>/dev/null | head -1)
+echo "Baseline model: $BASELINE_MODEL"
+
+# Evaluate baseline (from Phase 1)
+python scripts/evaluate.py \
+    --student_model "$BASELINE_MODEL" \
+    --num_samples 100 \
+    --compute_ece \
+    --output results/ablation_baseline.json
+
+# Evaluate +Uncertainty
+python scripts/evaluate.py \
+    --student_model ./models/ablation-uncertainty \
+    --num_samples 100 \
+    --compute_ece \
+    --output results/ablation_uncertainty.json
+
+# Evaluate +Calibration
+python scripts/evaluate.py \
+    --student_model ./models/ablation-calibration \
+    --num_samples 100 \
+    --compute_ece \
+    --output results/ablation_calibration.json
+
+# Evaluate +Both
+python scripts/evaluate.py \
+    --student_model ./models/ablation-both \
+    --num_samples 100 \
+    --compute_ece \
+    --output results/ablation_both.json
+```
+
+**Step 3: Generate comparison summary**
+
+```bash
+python -c "
+import json
+from pathlib import Path
+
+results_dir = Path('results')
+variants = ['baseline', 'uncertainty', 'calibration', 'both']
+
+print('=' * 70)
+print('PHASE 0 ABLATION STUDY RESULTS')
+print('=' * 70)
+print(f'{\"Configuration\":<25} {\"PPL Ratio\":>12} {\"KL Div\":>12} {\"ECE\":>12}')
+print('-' * 70)
+
+for variant in variants:
+    filepath = results_dir / f'ablation_{variant}.json'
+    if filepath.exists():
+        with open(filepath) as f:
+            data = json.load(f)
+        ppl = data.get('perplexity_ratio', 'N/A')
+        kl = data.get('kl_divergence', 'N/A')
+        ece = data.get('student_ece', {}).get('ece', 'N/A') if 'student_ece' in data else 'N/A'
+
+        ppl_str = f'{ppl:.4f}' if isinstance(ppl, (int, float)) else str(ppl)
+        kl_str = f'{kl:.4f}' if isinstance(kl, (int, float)) else str(kl)
+        ece_str = f'{ece:.4f}' if isinstance(ece, (int, float)) else str(ece)
+
+        label = {'baseline': 'Baseline', 'uncertainty': '+Uncertainty',
+                 'calibration': '+Calibration', 'both': '+Both'}[variant]
+        print(f'{label:<25} {ppl_str:>12} {kl_str:>12} {ece_str:>12}')
+    else:
+        print(f'{variant:<25} FILE NOT FOUND')
+
+print('=' * 70)
+print('Lower values are better for all metrics.')
+print()
+"
+```
+
+**Step 4: Run ablation notebook for visualizations**
+
+```bash
+jupyter nbconvert --execute notebooks/phase_0_ablation.ipynb --to html --output phase_0_ablation_results.html
+```
+
+**One-liner to run all steps** (for nohup):
+
+```bash
+nohup bash -c '
+conda activate pepmlm
+cd /home/ubuntu/storage1/protein-lm-distill
+mkdir -p results
+
+# Train variants
+python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 512 --train_size_prop 0.1 --num_train_epochs 3 --learning_rate 1e-3 --use_uncertainty_weighting --output_dir ./models/ablation-uncertainty && \
+python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 512 --train_size_prop 0.1 --num_train_epochs 3 --learning_rate 1e-3 --use_calibration_smoothing --smoothing_factor 0.1 --output_dir ./models/ablation-calibration && \
+python scripts/train.py --temperature 2.0 --alpha 0.5 --n_layer 4 --n_head 4 --n_embd 512 --train_size_prop 0.1 --num_train_epochs 3 --learning_rate 1e-3 --use_uncertainty_weighting --use_calibration_smoothing --smoothing_factor 0.1 --output_dir ./models/ablation-both && \
+
+# Evaluate all
+BASELINE_MODEL=$(ls -td models/protgpt2-distilled-t2.0-a0.5-l4-h4-e512* 2>/dev/null | head -1)
+python scripts/evaluate.py --student_model "$BASELINE_MODEL" --num_samples 100 --compute_ece --output results/ablation_baseline.json && \
+python scripts/evaluate.py --student_model ./models/ablation-uncertainty --num_samples 100 --compute_ece --output results/ablation_uncertainty.json && \
+python scripts/evaluate.py --student_model ./models/ablation-calibration --num_samples 100 --compute_ece --output results/ablation_calibration.json && \
+python scripts/evaluate.py --student_model ./models/ablation-both --num_samples 100 --compute_ece --output results/ablation_both.json && \
+
+echo "Phase 0 ablation study complete!"
+' > phase0_ablation.log 2>&1 &
+```
+
+**Monitor progress**:
+```bash
+tail -f phase0_ablation.log
+```
+
 ---
 
 ## Phase 1: Baseline Training (IN PROGRESS)
