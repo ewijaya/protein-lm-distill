@@ -1,10 +1,110 @@
 # Project TODO List
 
+**Updated**: December 25, 2025 - Added Phase 0 for methodological enhancements
+
+## Phase 0: Methodological Enhancements (NEW - PRIORITY)
+
+**Status**: To be implemented before hyperparameter sweeps
+
+**Objective**: Implement protein-specific distillation enhancements to upgrade publication from "first application" to "first application + novel techniques"
+
+### 0.1 Enhancement #1: Uncertainty-Aware Position Weighting
+
+**Timeline**: 1-2 days
+
+**Rationale**: Weight distillation loss by position-specific uncertainty (entropy) to focus learning on difficult regions (active sites, loops) vs. easy regions (conserved cores).
+
+**Implementation Steps**:
+- [ ] Add entropy computation function in `src/distillation.py`
+  ```python
+  def compute_uncertainty(teacher_probs):
+      """Compute position-wise entropy as uncertainty measure"""
+      entropy = -torch.sum(teacher_probs * torch.log(teacher_probs + 1e-10), dim=-1)
+      return entropy
+  ```
+- [ ] Add position weighting in `compute_loss()` method
+  ```python
+  # Compute uncertainty from teacher
+  teacher_probs = F.softmax(teacher_logits / T, dim=-1)
+  uncertainty = compute_uncertainty(teacher_probs)
+
+  # Normalize to weights [0.5, 1.0]
+  uncertainty_weight = 0.5 + 0.5 * normalize(uncertainty)
+
+  # Apply weights to soft loss
+  loss_soft_weighted = (uncertainty_weight * soft_loss).mean()
+  ```
+- [ ] Test on current Tiny baseline model
+- [ ] Compare: baseline vs. uncertainty-weighted (expect 15-25% improvement on difficult sequences)
+- [ ] Visualize position-wise uncertainty and weights
+- [ ] Document in `docs/METHODS.md` with mathematical formulation
+
+**References**:
+- CVPR 2025: [U-Know-DiffPAN](https://openaccess.thecvf.com/content/CVPR2025/html/Kim_U-Know-DiffPAN_An_Uncertainty-aware_Knowledge_Distillation_Diffusion_Framework_with_Details_Enhancement_CVPR_2025_paper.html)
+- IJCV 2025: [Uncertainty-Aware Distillation](https://link.springer.com/article/10.1007/s11263-025-02585-2)
+
+### 0.2 Enhancement #2: Calibration-Aware Distillation
+
+**Timeline**: 1 day
+
+**Rationale**: Apply dynamic label smoothing based on teacher confidence to ensure well-calibrated predictions for experimental prioritization.
+
+**Implementation Steps**:
+- [ ] Add dynamic label smoothing function
+  ```python
+  def dynamic_label_smoothing(teacher_probs, smoothing_factor=0.1):
+      """Apply confidence-dependent label smoothing"""
+      max_prob = teacher_probs.max(dim=-1, keepdim=True)[0]
+      adaptive_smoothing = smoothing_factor * (1 - max_prob)
+
+      vocab_size = teacher_probs.size(-1)
+      smoothed = (1 - adaptive_smoothing) * teacher_probs + \
+                 adaptive_smoothing / vocab_size
+      return smoothed
+  ```
+- [ ] Integrate with distillation loss
+  ```python
+  # Apply calibration-aware smoothing
+  smoothed_teacher = dynamic_label_smoothing(teacher_probs)
+  soft_loss = F.kl_div(student_log_probs, smoothed_teacher, reduction='none')
+  ```
+- [ ] Implement ECE (Expected Calibration Error) metric for evaluation
+- [ ] Test calibration improvements
+- [ ] Generate reliability diagrams
+- [ ] Document in `docs/METHODS.md`
+
+**References**:
+- ACCV 2024/Springer 2025: [Calibration Transfer via KD](https://link.springer.com/chapter/10.1007/978-981-96-0966-6_13)
+
+### 0.3 Ablation Study
+
+**Timeline**: 1 day (after implementing both enhancements)
+
+**Comparison Matrix**:
+- [ ] Baseline (current Hinton-style distillation)
+- [ ] Baseline + Uncertainty-Aware
+- [ ] Baseline + Calibration-Aware
+- [ ] Baseline + Both Enhancements (final)
+
+**Metrics to Compare**:
+- [ ] Perplexity on test set
+- [ ] Perplexity on difficult sequences (multi-domain proteins)
+- [ ] KL divergence
+- [ ] ECE (Expected Calibration Error)
+- [ ] Inference time (ensure no regression)
+
+**Deliverables**:
+- [ ] Ablation table for paper
+- [ ] Visualization of improvements
+- [ ] Updated `docs/METHODS.md` with ablation results
+
+---
+
 ## Phase 1: Baseline Training (IN PROGRESS)
 
 **Status**: Currently running via nohup (`training_baseline.log`)
 
-**Note**: Current training uses smaller architectures for initial baseline. After completion, we will retrain with architectures matching existing HuggingFace models.
+**Note**: Current training uses smaller architectures for initial baseline. Will serve as comparison for enhanced models.
 
 ### Current Training Progress
 
@@ -21,18 +121,22 @@ tail -f training_baseline.log
 
 **Checklist**:
 - [x] Training started via nohup
-- [ ] Tiny model completed
+- [ ] Tiny model completed (will serve as baseline for ablation)
 - [ ] Small model completed
 - [ ] Medium model completed
 - [ ] Instance auto-stops after completion
 
+**Note**: After Phase 0 enhancements are implemented, we'll proceed directly to Phase 2 with the enhanced approach.
+
 ---
 
-## Phase 2: Hyperparameter Sweeps
+## Phase 2: Hyperparameter Sweeps (WITH ENHANCEMENTS)
+
+**Important**: All hyperparameter sweeps will use the enhanced distillation method (uncertainty-aware + calibration-aware) from Phase 0.
 
 ### 2.1 Temperature Sweep (on Tiny model - fastest iteration)
 
-**Rationale**: Temperature controls softness of probability distributions. Current HF models use T=10, new baseline uses T=2.0.
+**Rationale**: Temperature controls softness of probability distributions. Current HF models use T=10, new baseline uses T=2.0. Optimal T may differ with enhancements.
 
 ```bash
 for temp in 1.0 2.0 4.0 6.0 8.0 10.0; do
@@ -238,38 +342,75 @@ done
 
 ---
 
-## Phase 5: Publication
+## Phase 5: Publication (ENHANCED)
 
 ### 5.1 Paper Structure
 
-**Title**: "Efficient Knowledge Distillation for Protein Language Models: Compressing ProtGPT2 for Rapid Protein Sequence Generation"
+**Title**: "Uncertainty-Aware Knowledge Distillation for Autoregressive Protein Language Models"
+
+**Alternative**: "Protein-Specific Knowledge Distillation: Uncertainty-Aware and Calibration-Conscious Compression of ProtGPT2"
 
 1. **Abstract** (~250 words)
-2. **Introduction** (1-2 pages) - Motivation, gap, contribution
-3. **Methods** (2-3 pages) - Distillation framework, architecture, training protocol
-4. **Results** (2-3 pages) - Hyperparameter analysis, model comparison, generation quality
-5. **Discussion** (1 page) - Comparison, limitations, future work
+   - First systematic study + protein-specific enhancements
+   - Key innovations: uncertainty weighting, calibration-aware distillation
+   - Results: compression ratios, quality, calibration improvements
+
+2. **Introduction** (1-2 pages)
+   - Motivation, gap, contributions
+   - Contribution 1: First causal protein LM distillation
+   - Contribution 2: Uncertainty-aware position weighting
+   - Contribution 3: Calibration-aware distillation
+   - Contribution 4: Systematic evaluation framework
+
+3. **Methods** (3-4 pages)
+   - Standard KD framework (Hinton et al. 2015)
+   - Enhancement #1: Uncertainty-aware weighting
+   - Enhancement #2: Calibration-aware distillation
+   - Model architectures, training protocol
+   - Evaluation metrics (including ECE, reliability)
+
+4. **Results** (3-4 pages)
+   - Ablation study (key figure)
+   - Hyperparameter analysis
+   - Model comparison
+   - Calibration analysis (ECE scores, reliability diagrams)
+   - Generation quality
+   - Inference speed
+
+5. **Discussion** (1-2 pages)
+   - Comparison with related work
+   - Importance of protein-specific enhancements
+   - Limitations and future work
+
 6. **Conclusion** (~0.5 page)
 
 ### 5.2 Key Figures
 
-| Figure | Content |
-|--------|---------|
-| Fig 1 | Temperature vs. Perplexity Ratio |
-| Fig 2 | Alpha vs. Perplexity Ratio |
-| Fig 3 | Compression Ratio vs. Quality (Pareto frontier) |
-| Fig 4 | AA Distribution: Teacher vs Student vs Natural |
-| Fig 5 | Inference Speed Benchmark |
+| Figure | Content | Priority |
+|--------|---------|----------|
+| Fig 1 | **Ablation Study: Baseline vs. +Uncertainty vs. +Both** | ⭐⭐⭐ Must-have |
+| Fig 2 | Temperature vs. Perplexity Ratio (with/without enhancements) | ⭐⭐⭐ Must-have |
+| Fig 3 | Alpha vs. Perplexity Ratio (with/without enhancements) | ⭐⭐ Should-have |
+| Fig 4 | Compression Ratio vs. Quality (Pareto frontier) | ⭐⭐⭐ Must-have |
+| Fig 5 | **Calibration Analysis: ECE scores and reliability diagrams** | ⭐⭐⭐ Must-have |
+| Fig 6 | AA Distribution: Teacher vs Student vs Natural | ⭐⭐ Should-have |
+| Fig 7 | Inference Speed Benchmark | ⭐⭐ Should-have |
+| Fig 8 | **Position-wise uncertainty heatmap and weight visualization** | ⭐⭐ Should-have |
 
 ### 5.3 Key Tables
 
-| Table | Content |
-|-------|---------|
-| Table 1 | Model configurations (params, layers, heads, embed) |
-| Table 2 | Evaluation metrics for all models |
-| Table 3 | Comparison with existing HF models |
+| Table | Content | Priority |
+|-------|---------|----------|
+| Table 1 | Model configurations (params, layers, heads, embed) | ⭐⭐⭐ Must-have |
+| Table 2 | **Ablation study metrics (baseline vs. enhancements)** | ⭐⭐⭐ Must-have |
+| Table 3 | Evaluation metrics for all models (with size-dependent thresholds) | ⭐⭐⭐ Must-have |
+| Table 4 | **Calibration metrics (ECE, MCE, Brier score)** | ⭐⭐⭐ Must-have |
+| Table 5 | **Comparison with related work (DistilProtBERT, MTDP, SpiderGPT)** | ⭐⭐ Should-have |
+| Table 6 | Inference speed and memory benchmarks | ⭐⭐ Should-have |
 
-### 5.4 Publication Strategy
+### 5.4 Publication Strategy (ENHANCED - Higher-Tier Venues)
+
+**With protein-specific enhancements, we can target top-tier venues:**
 
 **Step 1: bioRxiv Preprint** (Immediate upon completion)
 - Submit to establish priority
@@ -278,19 +419,28 @@ done
 
 **Step 2: Journal Submission** (After preprint)
 
-| Venue | Type | Notes |
-|-------|------|-------|
-| Bioinformatics | Journal | High visibility in computational biology |
-| PLOS Comp Bio | Journal | Open access, good for methods papers |
-| Briefings in Bioinformatics | Journal | Review-style, high impact |
+**Primary Target: Nature Communications**
+- Rationale: Methodological novelty + protein-specific innovations
+- Original ProtGPT2 was published in Nature Communications
+- Timeline: 3-4 months review
+
+**Backup Targets** (in priority order):
+1. **PNAS** (2-3 months, computational biology focus)
+2. **Cell Systems** (3-4 months, computational methods focus)
+3. **Bioinformatics** (2-3 months, safe choice, highly cited)
+4. **PLOS Computational Biology** (2-3 months, open access)
+
+**Alternative: ML Venues**
+- ICML/NeurIPS computational biology track (6-8 months)
 
 **Checklist**:
-- [ ] Paper draft complete
-- [ ] Figures generated
-- [ ] Tables completed
+- [ ] Paper draft complete with ablation studies
+- [ ] All figures generated (especially Fig 1: ablation, Fig 5: calibration)
+- [ ] All tables completed (especially Table 2: ablation, Table 4: calibration)
 - [ ] Internal review done
 - [ ] bioRxiv submitted
-- [ ] Journal submitted
+- [ ] **Nature Communications** submitted (primary choice)
+- [ ] Backup venue ready if rejected
 
 ### 5.5 Existing Resources
 
@@ -302,19 +452,29 @@ done
 ## Success Criteria
 
 ### Must-Have (MVP)
-- [ ] Three baseline models trained (Tiny, Small, Medium)
-- [ ] Perplexity ratio meets size-dependent thresholds (Tiny < 3.0, Small < 2.5, Medium < 2.0)
+- [ ] **Phase 0: Enhancements implemented and validated**
+  - [ ] Uncertainty-aware position weighting functional
+  - [ ] Calibration-aware distillation functional
+  - [ ] Ablation study completed (baseline vs. enhanced)
+  - [ ] ECE metric implemented and tested
+- [ ] Three models trained (Tiny, Small, Medium) **with enhancements**
+- [ ] Models match HF architectures (512E, 768E, 1024E)
+- [ ] Perplexity ratio meets size-dependent thresholds
+- [ ] **Calibration improvements demonstrated** (ECE scores)
 - [ ] Evaluation metrics documented
-- [ ] HuggingFace repos updated with new models and documentation
+- [ ] HuggingFace repos updated with enhanced models
 
 ### Should-Have
-- [ ] Optimal hyperparameters from sweeps
+- [ ] Optimal hyperparameters from sweeps (with enhancements)
 - [ ] pLDDT evaluation completed
-- [ ] Paper draft complete
+- [ ] Position-wise uncertainty visualization
+- [ ] Reliability diagrams for calibration
+- [ ] Paper draft complete with ablation studies
 
 ### Nice-to-Have
-- [ ] Paper submitted to preprint
-- [ ] Comparison with other distillation methods
+- [ ] Paper submitted to **Nature Communications** (upgraded from Bioinformatics)
+- [ ] Comparison with SpiderGPT and other distillation methods
+- [ ] Interactive demo on HuggingFace Spaces
 
 ---
 

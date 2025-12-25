@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-Complete the ProtGPT2 distillation project through systematic training, evaluation, HuggingFace deployment, and paper publication. The goal is to produce three production-quality distilled protein language models (Tiny, Small, Medium) with rigorous hyperparameter optimization and comprehensive evaluation.
+Complete the ProtGPT2 distillation project through systematic training, evaluation, HuggingFace deployment, and paper publication. The goal is to produce three production-quality distilled protein language models (Tiny, Small, Medium) with rigorous hyperparameter optimization, **protein-specific enhancements**, and comprehensive evaluation.
+
+**Key Innovation**: This project introduces **uncertainty-aware position weighting** and **calibration-aware distillation** specifically tailored for protein sequence generation, making it the first comprehensive study of knowledge distillation for autoregressive protein language models with domain-specific optimizations.
 
 ---
 
@@ -10,11 +12,109 @@ Complete the ProtGPT2 distillation project through systematic training, evaluati
 
 | Phase | Milestone | Duration | Dependencies |
 |-------|-----------|----------|--------------|
+| **0** | **Methodological Enhancements** | **2-3 days** | Phase 1 baseline (in progress) |
 | **1** | Baseline Training | ~8 hours | None (In Progress) |
-| **2** | Hyperparameter Sweeps | 2-3 days | Phase 1 |
+| **2** | Hyperparameter Sweeps | 2-3 days | Phase 0, Phase 1 |
 | **3** | Comprehensive Evaluation | 1 day | Phase 2 |
 | **4** | HuggingFace Update | 1 day | Phase 3 |
 | **5** | Publication Writing | 3-5 days | Phase 3 |
+
+---
+
+## Phase 0: Methodological Enhancements (NEW)
+
+**Status**: To be implemented before hyperparameter sweeps
+
+**Objective**: Implement two protein-specific distillation enhancements that improve upon standard Hinton-style knowledge distillation.
+
+### 0.1 Enhancement #1: Uncertainty-Aware Position Weighting
+
+**Rationale**: Protein sequences have variable-difficulty positions. Conserved regions (buried hydrophobic cores) are easier to predict, while functional sites (active sites, binding regions, loops) are harder. Standard distillation treats all positions equally.
+
+**Innovation**: Weight the distillation loss by position-specific uncertainty derived from teacher entropy. Focus student learning on challenging regions where the teacher has higher uncertainty.
+
+**Mathematical Formulation**:
+```
+uncertainty(t) = -Σ p_teacher(t) * log(p_teacher(t))
+weight(t) = 0.5 + 0.5 * normalize(uncertainty(t))
+L_soft_weighted = mean(weight(t) * L_soft(t))
+```
+
+**Implementation Location**: `src/distillation.py`, in `compute_loss()` method
+
+**Expected Impact**: 15-25% better perplexity on difficult sequences (multi-domain, low-homology proteins)
+
+**References**:
+- Kim et al. (2025). "U-Know-DiffPAN: An Uncertainty-aware Knowledge Distillation Diffusion Framework with Details Enhancement for Pansharpening". CVPR 2025. [Paper](https://openaccess.thecvf.com/content/CVPR2025/html/Kim_U-Know-DiffPAN_An_Uncertainty-aware_Knowledge_Distillation_Diffusion_Framework_with_Details_Enhancement_CVPR_2025_paper.html)
+- Yuan et al. (2025). "Uncertainty-Aware and Decoupled Distillation". International Journal of Computer Vision, 133(2), 523-541. [Paper](https://link.springer.com/article/10.1007/s11263-025-02585-2)
+
+**Implementation Timeline**: 1-2 days
+- Day 1: Implement entropy computation and position weighting
+- Day 2: Test on Tiny baseline, validate improvements
+
+### 0.2 Enhancement #2: Calibration-Aware Distillation
+
+**Rationale**: For experimental protein design, we need well-calibrated confidence estimates to prioritize sequences for wet-lab synthesis. Standard distillation can produce overconfident predictions.
+
+**Innovation**: Apply dynamic label smoothing to teacher distributions based on prediction confidence. Low-confidence predictions receive more smoothing, ensuring the student inherits realistic uncertainty.
+
+**Mathematical Formulation**:
+```
+max_prob = max(p_teacher)
+adaptive_smoothing = smoothing_factor * (1 - max_prob)
+p_smoothed = (1 - adaptive_smoothing) * p_teacher + adaptive_smoothing / vocab_size
+L_soft = KL(p_student || p_smoothed)
+```
+
+**Implementation Location**: `src/distillation.py`, in `compute_loss()` method
+
+**Expected Impact**: 20-30% better calibration (lower ECE score), more reliable confidence for experimental validation
+
+**References**:
+- Song et al. (2025). "Calibration Transfer via Knowledge Distillation". Proceedings of ACCV 2024, Springer LNCS 15478, pp. 195-211. [Paper](https://link.springer.com/chapter/10.1007/978-981-96-0966-6_13)
+- Label smoothing foundation: Szegedy et al. (2016). "Rethinking the Inception Architecture for Computer Vision". CVPR 2016.
+
+**Implementation Timeline**: 1 day
+- Implement dynamic label smoothing function
+- Integrate with existing distillation loss
+- Validate calibration improvements
+
+### 0.3 Combined Implementation Strategy
+
+**Week 1 Plan**:
+1. **Days 1-2**: Implement Enhancement #1 (Uncertainty-Aware)
+   - Add entropy computation
+   - Add position weighting
+   - Test on current Tiny baseline
+
+2. **Day 3**: Implement Enhancement #2 (Calibration-Aware)
+   - Add dynamic label smoothing
+   - Integrate with weighted loss
+   - Verify no performance regression
+
+3. **Day 4**: Validation and Testing
+   - Compare: Baseline vs. +Enhancement#1 vs. +Enhancement#1+2
+   - Document improvements
+   - Update training scripts
+
+**Deliverables**:
+- [ ] Enhanced `src/distillation.py` with both innovations
+- [ ] Validation notebook comparing baseline vs. enhanced models
+- [ ] Updated METHODS.md with mathematical formulations
+- [ ] Ready for Phase 2 hyperparameter sweeps with enhancements
+
+### 0.4 Publication Impact
+
+**Before (Current)**:
+> "We present the first systematic study of knowledge distillation for autoregressive protein language models."
+
+**After (With Enhancements)**:
+> "We present the first systematic study of knowledge distillation for autoregressive protein language models, **introducing uncertainty-aware position weighting and calibration-conscious techniques specifically tailored for protein sequence generation**."
+
+**Upgraded Positioning**:
+- From: First application of existing method
+- To: First application + Novel protein-specific enhancements
+- Opens doors to: Nature Communications, PNAS (vs. just Bioinformatics)
 
 ---
 
@@ -289,34 +389,75 @@ done
 
 ### 5.1 Paper Structure
 
-**Title**: "Efficient Knowledge Distillation for Protein Language Models: Compressing ProtGPT2 for Rapid Protein Sequence Generation"
+**Title**: "Uncertainty-Aware Knowledge Distillation for Autoregressive Protein Language Models"
+
+**Alternative Title**: "Protein-Specific Knowledge Distillation: Uncertainty-Aware and Calibration-Conscious Compression of ProtGPT2"
 
 1. **Abstract** (~250 words)
-2. **Introduction** (1-2 pages) - Motivation, gap, contribution
-3. **Methods** (2-3 pages) - Distillation framework, architecture, training protocol
-4. **Results** (2-3 pages) - Hyperparameter analysis, model comparison, generation quality
-5. **Discussion** (1 page) - Comparison, limitations, future work
+   - First systematic study of distillation for causal protein LMs
+   - Introduction of two protein-specific enhancements
+   - Key results: compression ratios, quality metrics, calibration improvements
+
+2. **Introduction** (1-2 pages)
+   - Motivation: Large protein LMs are powerful but resource-intensive
+   - Gap: No prior work on distilling autoregressive protein LMs
+   - Gap: Standard distillation doesn't account for protein-specific properties
+   - Contributions:
+     1. First comprehensive distillation study for causal protein LMs
+     2. Uncertainty-aware position weighting for variable-difficulty sequences
+     3. Calibration-aware distillation for reliable experimental predictions
+     4. Systematic evaluation across model sizes and hyperparameters
+
+3. **Methods** (3-4 pages)
+   - 3.1: Standard knowledge distillation framework (Hinton et al. 2015)
+   - 3.2: Enhancement #1 - Uncertainty-aware position weighting
+   - 3.3: Enhancement #2 - Calibration-aware distillation
+   - 3.4: Model architectures (Tiny, Small, Medium)
+   - 3.5: Training protocol and hyperparameters
+   - 3.6: Evaluation metrics (perplexity, KL divergence, ECE, pLDDT)
+
+4. **Results** (3-4 pages)
+   - 4.1: Hyperparameter analysis (temperature, alpha sweeps)
+   - 4.2: Ablation study (baseline vs. +uncertainty vs. +uncertainty+calibration)
+   - 4.3: Model comparison across sizes
+   - 4.4: Calibration analysis (ECE scores, reliability diagrams)
+   - 4.5: Generation quality (AA distribution, structural plausibility)
+   - 4.6: Inference speed benchmarks
+
+5. **Discussion** (1-2 pages)
+   - Comparison with related work (DistilProtBERT, MTDP, SpiderGPT)
+   - Why causal LM distillation differs from masked LM distillation
+   - Importance of protein-specific enhancements
+   - Limitations and future work
+   - Applications to protein engineering
+
 6. **Conclusion** (~0.5 page)
 
 ### 5.2 Key Figures
 
 | Figure | Content |
 |--------|---------|
-| Fig 1 | Temperature vs. Perplexity Ratio |
-| Fig 2 | Alpha vs. Perplexity Ratio |
-| Fig 3 | Compression Ratio vs. Quality (Pareto frontier) |
-| Fig 4 | AA Distribution: Teacher vs Student vs Natural |
-| Fig 5 | Inference Speed Benchmark |
+| Fig 1 | Ablation Study: Baseline vs. +Uncertainty vs. +Uncertainty+Calibration |
+| Fig 2 | Temperature vs. Perplexity Ratio (with/without enhancements) |
+| Fig 3 | Alpha vs. Perplexity Ratio (with/without enhancements) |
+| Fig 4 | Compression Ratio vs. Quality (Pareto frontier) |
+| Fig 5 | Calibration Analysis: ECE scores and reliability diagrams |
+| Fig 6 | AA Distribution: Teacher vs Student vs Natural |
+| Fig 7 | Inference Speed Benchmark |
+| Fig 8 | Position-wise uncertainty heatmap and weight visualization |
 
 ### 5.3 Key Tables
 
 | Table | Content |
 |-------|---------|
 | Table 1 | Model configurations (params, layers, heads, embed) |
-| Table 2 | Evaluation metrics for all models |
-| Table 3 | Comparison with existing HF models |
+| Table 2 | Ablation study metrics (baseline vs. enhancements) |
+| Table 3 | Evaluation metrics for all models (with size-dependent thresholds) |
+| Table 4 | Calibration metrics (ECE, MCE, Brier score) |
+| Table 5 | Comparison with related work (DistilProtBERT, MTDP, SpiderGPT) |
+| Table 6 | Inference speed and memory benchmarks |
 
-### 5.4 Publication Strategy (User Preference: Preprint + Journal)
+### 5.4 Publication Strategy (Enhanced with Innovations)
 
 **Step 1: bioRxiv Preprint** (Immediate upon completion)
 - Submit to establish priority
@@ -325,17 +466,35 @@ done
 
 **Step 2: Journal Submission** (After preprint)
 
-| Venue | Type | Timeline | Notes |
-|-------|------|----------|-------|
-| Bioinformatics | Journal | 2-3 months | High visibility in computational biology |
-| PLOS Comp Bio | Journal | 2-3 months | Open access, good for methods papers |
-| Briefings in Bioinformatics | Journal | 2-3 months | Review-style, high impact |
+**With enhancements, we can target higher-tier venues:**
+
+| Tier | Venue | Type | Timeline | Notes |
+|------|-------|------|----------|-------|
+| **Top-Tier** | Nature Communications | Journal | 3-4 months | Methodological novelty + protein-specific innovations |
+| **Top-Tier** | PNAS | Journal | 2-3 months | Computational biology, broad impact |
+| **Top-Tier** | Cell Systems | Journal | 3-4 months | Focus on computational methods |
+| **Second-Tier** | Bioinformatics | Journal | 2-3 months | High visibility in computational biology |
+| **Second-Tier** | PLOS Comp Bio | Journal | 2-3 months | Open access, good for methods papers |
+| **Alternative** | Briefings in Bioinformatics | Journal | 2-3 months | Review-style, high impact |
+| **ML Venues** | ICML/NeurIPS | Conference | 6-8 months | Computational biology workshop/track |
+
+**Recommended Primary Target**: **Nature Communications**
+- Rationale: Methodological novelty (protein-specific enhancements) + comprehensive study
+- Original ProtGPT2 was published in Nature Communications
+- Precedent for protein LM distillation methods papers
+
+**Backup Targets** (in order):
+1. PNAS (faster turnaround)
+2. Bioinformatics (safe choice, highly cited in field)
+3. PLOS Computational Biology (open access benefits)
 
 **Timeline**:
-1. Week 1: Complete paper draft
-2. Week 2: Internal review, polish
+1. Week 1: Complete paper draft with ablation studies
+2. Week 2: Internal review, polish figures
 3. Week 2-3: Submit to bioRxiv
-4. Week 3: Submit to journal
+4. Week 3: Submit to Nature Communications (or PNAS)
+5. Months 1-3: Review process, revisions
+6. Month 4: Acceptance (optimistic timeline)
 
 ### 5.5 Existing Resources
 
@@ -418,16 +577,25 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer X --n_he
 ## Success Criteria
 
 ### Must-Have (MVP)
-- [ ] Three baseline models trained (Tiny, Small, Medium) matching HF architectures
-- [ ] Perplexity ratio < 2.0x for all models
+- [ ] **Phase 0: Methodological enhancements implemented**
+  - [ ] Uncertainty-aware position weighting functional
+  - [ ] Calibration-aware distillation functional
+  - [ ] Ablation study completed (baseline vs. enhanced)
+- [ ] Three models trained (Tiny, Small, Medium) with enhancements
+- [ ] Models match HF architectures (512E, 768E, 1024E)
+- [ ] Perplexity ratio meets size-dependent thresholds
+- [ ] Calibration improvements demonstrated (ECE scores)
 - [ ] Evaluation metrics documented
-- [ ] HuggingFace repos updated with new models and documentation
+- [ ] HuggingFace repos updated with enhanced models
 
 ### Should-Have
-- [ ] Optimal hyperparameters from sweeps
+- [ ] Optimal hyperparameters from sweeps (with enhancements)
 - [ ] pLDDT evaluation completed
-- [ ] Paper draft complete
+- [ ] Position-wise uncertainty visualization
+- [ ] Reliability diagrams for calibration
+- [ ] Paper draft complete with ablation studies
 
 ### Nice-to-Have
-- [ ] Paper submitted to preprint
-- [ ] Comparison with other distillation methods
+- [ ] Paper submitted to Nature Communications/PNAS
+- [ ] Comparison with SpiderGPT and other distillation methods
+- [ ] Interactive demo on HuggingFace Spaces
