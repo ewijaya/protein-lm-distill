@@ -153,7 +153,9 @@ def main():
 
     # Use fast gp3 storage for HuggingFace cache
     os.environ["HF_HOME"] = str(config.HF_CACHE_DIR)
+    os.environ["HF_DATASETS_CACHE"] = str(config.FAST_STORAGE / "datasets_cache")
     print(f"Using HF cache: {config.HF_CACHE_DIR}", flush=True)
+    print(f"Using datasets cache: {config.FAST_STORAGE / 'datasets_cache'}", flush=True)
 
     # Load teacher model
     print(f"Loading teacher model: {config.TEACHER_MODEL}", flush=True)
