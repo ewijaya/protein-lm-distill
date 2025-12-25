@@ -23,6 +23,10 @@ DATA_DIR = Path(
 MODELS_DIR = PROJECT_ROOT / "models"
 TEACHER_MODEL = "nferruz/ProtGPT2"
 
+# Fast storage paths (gp3 volume)
+FAST_STORAGE = Path("/home/ubuntu/storage3")
+HF_CACHE_DIR = FAST_STORAGE / "hf_cache"
+
 # Default training hyperparameters
 DEFAULT_TEMPERATURE = 2.0
 DEFAULT_ALPHA = 0.5

@@ -149,10 +149,14 @@ def main():
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print(f"Using device: {device}", flush=True)
+
+    # Use fast gp3 storage for HuggingFace cache
+    os.environ["HF_HOME"] = str(config.HF_CACHE_DIR)
+    print(f"Using HF cache: {config.HF_CACHE_DIR}", flush=True)
 
     # Load teacher model
-    print(f"Loading teacher model: {config.TEACHER_MODEL}")
+    print(f"Loading teacher model: {config.TEACHER_MODEL}", flush=True)
     teacher_model = GPT2LMHeadModel.from_pretrained(config.TEACHER_MODEL).to(device)
     teacher_tokenizer = GPT2TokenizerFast.from_pretrained(config.TEACHER_MODEL)
 
@@ -160,8 +164,8 @@ def main():
         teacher_tokenizer.pad_token = teacher_tokenizer.eos_token
     teacher_tokenizer.padding_side = "left"
 
-    # Load dataset from local fast storage (pre-copied random subset with seed=42)
-    local_parquet_dir = config.PROJECT_ROOT / "data" / "parquet_subset"
+    # Load dataset from fast gp3 storage (pre-copied random subset with seed=42)
+    local_parquet_dir = Path("/home/ubuntu/storage3/data/parquet_subset")
     all_parquet_files = sorted(glob.glob(str(local_parquet_dir / "train*.parquet")))
     print(f"Loading {len(all_parquet_files)} parquet files from {local_parquet_dir}", flush=True)
 
