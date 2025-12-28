@@ -18,7 +18,7 @@ This project trains compact "student" GPT-2 models to mimic the behavior of the 
 
 The combined loss enables student models to learn both the teacher's output distribution and the correct token predictions.
 
-### Why Distillation Matters for Drug Discovery
+### Applications in Biopharma
 
 In therapeutic protein and peptide development, computational cost and iteration speed directly impact time-to-clinic. While ProtGPT2 generates high-quality protein sequences, its 738M parameters create bottlenecks in high-throughput screening workflows and limit deployment options. Distilled models reduce compute costs by 10-50x while maintaining generation quality—enabling rapid design-test-learn cycles essential for lead optimization. Smaller models also unlock edge deployment for secure on-premise use, a key requirement for protecting proprietary therapeutic targets and sequence libraries in competitive biopharma environments.
 
