@@ -141,6 +141,7 @@ sequences = pipeline(
 Pre-trained distilled models available on Hugging Face:
 
 - [littleworth/protgpt2-distilled-tiny](https://huggingface.co/littleworth/protgpt2-distilled-tiny) - Smallest variant
+- [littleworth/protgpt2-distilled-small](https://huggingface.co/littleworth/protgpt2-distilled-small) - Small variant
 - [littleworth/protgpt2-distilled-medium](https://huggingface.co/littleworth/protgpt2-distilled-medium) - Medium variant
 
 ### Upload Your Own Model
