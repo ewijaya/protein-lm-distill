@@ -2,6 +2,9 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Transformers](https://img.shields.io/badge/Transformers-4.30+-orange?logo=huggingface&logoColor=white)](https://huggingface.co/docs/transformers)
+[![arXiv](https://img.shields.io/badge/arXiv-1503.02531-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/1503.02531)
 [![W&B](https://img.shields.io/badge/W%26B-Experiments-1F1F1F?logo=weightsandbiases&logoColor=white)](https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION)
 
 Knowledge distillation for [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2), creating smaller and faster protein language models that retain the generative capabilities of the original model.
