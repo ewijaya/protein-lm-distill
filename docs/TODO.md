@@ -10,7 +10,7 @@
 |-------|--------|-------------|
 | **Phase 0** | ⏳ Evaluation Running | Methodological enhancements + ablation study |
 | **Phase 1** | ✅ Complete | Baseline training (4 model sizes) |
-| **Phase 2** | ⏸️ Pending | Hyperparameter sweeps |
+| **Phase 2** | ⏭️ Optional | Hyperparameter sweeps (skip if ablation validates method) |
 | **Phase 3** | ⏸️ Pending | Comprehensive evaluation |
 | **Phase 4** | ⏸️ Pending | HuggingFace update |
 | **Phase 5** | ⏸️ Pending | Publication |
@@ -100,9 +100,17 @@ Current models don't match HF architectures. Final training will use:
 
 ---
 
-## Phase 2: Hyperparameter Sweeps (PENDING)
+## Phase 2: Hyperparameter Sweeps (OPTIONAL ⏭️)
 
-**Prerequisites**: Phase 0 ablation results
+**Status**: Can be skipped if Phase 0 ablation validates the method
+
+**Rationale for skipping**:
+- Core novelty is uncertainty-aware + calibration-aware distillation (validated by ablation)
+- T=2.0 and α=0.5 are well-established defaults from Hinton et al. (2015)
+- Can cite prior work: *"We use T=2.0 and α=0.5 following standard practice [Hinton 2015]"*
+- If reviewers request sensitivity analysis, add minimal sweep (T ∈ {1,2,4}) during revision
+
+**If you choose to run sweeps**:
 
 ### 2.1 Temperature Sweep
 
@@ -269,7 +277,9 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
    "
    ```
 
-3. **Decide on enhancements** based on results, then proceed to Phase 2
+3. **Decide on enhancements** based on results:
+   - If +Both or single enhancement shows clear improvement → Skip Phase 2, proceed to Phase 3
+   - If results are inconclusive → Consider minimal sensitivity analysis (T ∈ {1,2,4})
 
 ---
 
