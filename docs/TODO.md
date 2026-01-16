@@ -188,7 +188,7 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ### 3.3 HF-Matching Architecture Training (RUNNING ⏳)
 
-**Status**: Training pipeline launched January 16, 2026.
+**Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
 
 **Objective**: Train +Both on same architectures as published HF models for direct comparison.
 
@@ -197,6 +197,141 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 | Tiny | 4L/4H/512E | `./models/synergy-tiny` | ⏳ Running |
 | Small | 6L/8H/768E | `./models/synergy-small` | ⏳ Queued |
 | Medium | 12L/16H/1024E | `./models/synergy-medium` | ⏳ Queued |
+
+**Monitor progress**:
+```bash
+tail -f nohup_synergy_training.out
+```
+
+<details>
+<summary><strong>Training Command (for reference)</strong></summary>
+
+```bash
+nohup bash -c '
+cd /home/ubuntu/storage1/protein-lm-distill && \
+echo "=== Starting Synergy Training Pipeline ===" && \
+echo "Start time: $(date)" && \
+\
+echo "=== [1/6] Training Tiny (4L/4H/512E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --learning_rate 1e-3 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-tiny && \
+\
+echo "=== [2/6] Evaluating Tiny ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-tiny \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_tiny.json && \
+\
+echo "=== [3/6] Training Small (6L/8H/768E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 6 --n_head 8 --n_embd 768 \
+    --train_size_prop 0.1 --learning_rate 5e-4 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-small && \
+\
+echo "=== [4/6] Evaluating Small ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-small \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_small.json && \
+\
+echo "=== [5/6] Training Medium (12L/16H/1024E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 12 --n_head 16 --n_embd 1024 \
+    --train_size_prop 0.1 --learning_rate 1e-4 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-medium && \
+\
+echo "=== [6/6] Evaluating Medium ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-medium \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_medium.json && \
+\
+echo "=== Pipeline Complete ===" && \
+echo "End time: $(date)" && \
+/home/ubuntu/bin/stopinstance
+' > nohup_synergy_training.out 2>&1 &
+```
+
+</details>
+
+#### When Training Completes
+
+**Step 1: Verify Training Success**
+```bash
+# Check all models exist
+ls -la models/synergy-tiny models/synergy-small models/synergy-medium
+
+# Check all evaluation results exist
+ls -la results/eval_synergy_*.json
+
+# Check training log for errors
+grep -i "error\|exception\|failed" nohup_synergy_training.out || echo "No errors found"
+
+# View training completion time
+tail -20 nohup_synergy_training.out
+```
+
+**Step 2: Compare All Results**
+```bash
+python -c "
+import json
+models = {
+    'Ablation +Both (256E)': 'results/ablation_both.json',
+    'HF-tiny old (512E)': 'results/eval_hf_tiny_old.json',
+    'Synergy-tiny (512E)': 'results/eval_synergy_tiny.json',
+    'Synergy-small (768E)': 'results/eval_synergy_small.json',
+    'Synergy-medium (1024E)': 'results/eval_synergy_medium.json',
+}
+print(f'{\"Model\":<26} {\"PPL Ratio\":>10} {\"KL Div\":>10} {\"ECE\":>10}')
+print('-' * 60)
+for name, path in models.items():
+    try:
+        d = json.load(open(path))
+        ppl = d.get('perplexity_ratio', float('nan'))
+        kl = d.get('kl_divergence', float('nan'))
+        ece = d.get('student_ece', {}).get('ece', float('nan'))
+        print(f'{name:<26} {ppl:>10.2f} {kl:>10.4f} {ece:>10.4f}')
+    except FileNotFoundError:
+        print(f'{name:<26} {\"---\":>10} {\"---\":>10} {\"---\":>10}')
+"
+```
+
+**Step 3: Evaluate Results** (synergy-tiny vs HF-tiny at same 512E size)
+
+| Scenario | PPL Ratio | KL Div | ECE | Action |
+|----------|-----------|--------|-----|--------|
+| **Best case** | Synergy < HF | Synergy < HF | Synergy < HF | Strong paper: new method beats old at same size |
+| **Good case** | Synergy ≈ HF | Synergy < HF | Synergy < HF | Good paper: comparable PPL but better calibration |
+| **Okay case** | Synergy > HF | Synergy < HF | Synergy < HF | Paper focuses on calibration benefits |
+| **Investigate** | Synergy > HF | Synergy > HF | Synergy > HF | Check training logs, may need hyperparameter tuning |
+
+**Step 4: Proceed to Next Phase**
+
+If results are good (Scenario 1-3):
+1. Update this TODO.md - Mark Phase 3 complete, fill in results
+2. Proceed to Phase 4 - Upload to HuggingFace (see Section 4)
+3. Proceed to Phase 5 - Start paper draft
+
+If results need investigation:
+1. Check W&B dashboard: https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
+2. Compare loss curves between synergy models and old HF models
+3. Consider re-running with different learning rates or longer training
+
+**Step 5: Git Commit Results**
+```bash
+cd /home/ubuntu/storage1/protein-lm-distill
+git add results/eval_synergy_*.json nohup_synergy_training.out
+git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
+git push origin HEAD && git push github HEAD
+```
 
 ### 3.4 Size-Dependent Thresholds
 
@@ -212,9 +347,11 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 - [x] HF-tiny baseline evaluated
 - [x] Comparison table generated (ablation vs HF-tiny)
 - [x] Publication viability assessed: **Strong** (synergistic effect is novel)
-- [ ] +Both trained on HF-matching architectures (Tiny/Small/Medium)
+- [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
+- [ ] +Both trained on HF-matching architectures (Tiny/Small/Medium) ← **RUNNING**
 - [ ] +Both HF-matching models evaluated
 - [ ] Final comparison table (new +Both vs old HF models)
+- [ ] Mechanistic explanation drafted
 
 ---
 
@@ -275,178 +412,6 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 | 1 | Nature Communications | 3-4 months |
 | 2 | PNAS | 2-3 months |
 | 3 | Bioinformatics | 2-3 months |
-
----
-
-## Immediate Next Actions
-
-### Train +Both on HF-Matching Architectures (RUNNING ⏳)
-
-**Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
-
-**Objective**: Enable direct comparison with published HF models by training +Both at same sizes.
-
-**Pastable command** (sequential, with auto-shutdown):
-
-```bash
-nohup bash -c '
-cd /home/ubuntu/storage1/protein-lm-distill && \
-echo "=== Starting Synergy Training Pipeline ===" && \
-echo "Start time: $(date)" && \
-\
-echo "=== [1/6] Training Tiny (4L/4H/512E) ===" && \
-python scripts/train.py \
-    --temperature 2.0 --alpha 0.5 \
-    --n_layer 4 --n_head 4 --n_embd 512 \
-    --train_size_prop 0.1 --learning_rate 1e-3 \
-    --use_uncertainty_weighting --use_calibration_smoothing \
-    --output_dir ./models/synergy-tiny && \
-\
-echo "=== [2/6] Evaluating Tiny ===" && \
-python scripts/evaluate.py \
-    --student_model ./models/synergy-tiny \
-    --num_samples 100 --compute_ece \
-    --output results/eval_synergy_tiny.json && \
-\
-echo "=== [3/6] Training Small (6L/8H/768E) ===" && \
-python scripts/train.py \
-    --temperature 2.0 --alpha 0.5 \
-    --n_layer 6 --n_head 8 --n_embd 768 \
-    --train_size_prop 0.1 --learning_rate 5e-4 \
-    --use_uncertainty_weighting --use_calibration_smoothing \
-    --output_dir ./models/synergy-small && \
-\
-echo "=== [4/6] Evaluating Small ===" && \
-python scripts/evaluate.py \
-    --student_model ./models/synergy-small \
-    --num_samples 100 --compute_ece \
-    --output results/eval_synergy_small.json && \
-\
-echo "=== [5/6] Training Medium (12L/16H/1024E) ===" && \
-python scripts/train.py \
-    --temperature 2.0 --alpha 0.5 \
-    --n_layer 12 --n_head 16 --n_embd 1024 \
-    --train_size_prop 0.1 --learning_rate 1e-4 \
-    --use_uncertainty_weighting --use_calibration_smoothing \
-    --output_dir ./models/synergy-medium && \
-\
-echo "=== [6/6] Evaluating Medium ===" && \
-python scripts/evaluate.py \
-    --student_model ./models/synergy-medium \
-    --num_samples 100 --compute_ece \
-    --output results/eval_synergy_medium.json && \
-\
-echo "=== Pipeline Complete ===" && \
-echo "End time: $(date)" && \
-/home/ubuntu/bin/stopinstance
-' > nohup_synergy_training.out 2>&1 &
-```
-
-**Monitor progress**:
-```bash
-tail -f nohup_synergy_training.out
-```
-
-### After Training Completes (WHEN NOHUP FINISHES)
-
-#### Step 1: Verify Training Success
-
-```bash
-# Check all models exist
-ls -la models/synergy-tiny models/synergy-small models/synergy-medium
-
-# Check all evaluation results exist
-ls -la results/eval_synergy_*.json
-
-# Check training log for errors
-grep -i "error\|exception\|failed" nohup_synergy_training.out || echo "No errors found"
-
-# View training completion time
-tail -20 nohup_synergy_training.out
-```
-
-#### Step 2: Compare All Results
-
-```bash
-python -c "
-import json
-models = {
-    'Ablation +Both (256E)': 'results/ablation_both.json',
-    'HF-tiny old (512E)': 'results/eval_hf_tiny_old.json',
-    'Synergy-tiny (512E)': 'results/eval_synergy_tiny.json',
-    'Synergy-small (768E)': 'results/eval_synergy_small.json',
-    'Synergy-medium (1024E)': 'results/eval_synergy_medium.json',
-}
-print(f'{\"Model\":<26} {\"PPL Ratio\":>10} {\"KL Div\":>10} {\"ECE\":>10}')
-print('-' * 60)
-for name, path in models.items():
-    try:
-        d = json.load(open(path))
-        ppl = d.get('perplexity_ratio', float('nan'))
-        kl = d.get('kl_divergence', float('nan'))
-        ece = d.get('student_ece', {}).get('ece', float('nan'))
-        print(f'{name:<26} {ppl:>10.2f} {kl:>10.4f} {ece:>10.4f}')
-    except FileNotFoundError:
-        print(f'{name:<26} {\"---\":>10} {\"---\":>10} {\"---\":>10}')
-"
-```
-
-#### Step 3: Evaluate Results and Decide Next Steps
-
-**Expected outcomes** (synergy-tiny vs HF-tiny at same 512E size):
-
-| Scenario | PPL Ratio | KL Div | ECE | Action |
-|----------|-----------|--------|-----|--------|
-| **Best case** | Synergy < HF | Synergy < HF | Synergy < HF | Strong paper: new method beats old at same size |
-| **Good case** | Synergy ≈ HF | Synergy < HF | Synergy < HF | Good paper: comparable PPL but better calibration |
-| **Okay case** | Synergy > HF | Synergy < HF | Synergy < HF | Paper focuses on calibration benefits |
-| **Investigate** | Synergy > HF | Synergy > HF | Synergy > HF | Check training logs, may need hyperparameter tuning |
-
-#### Step 4: Update Documentation
-
-```bash
-# Update TODO.md with results (replace placeholders with actual values)
-# Update Phase 3.3 table with completion status
-# Update checklist items
-```
-
-#### Step 5: Proceed to Next Phase
-
-**If results are good (Scenario 1-3):**
-
-1. **Update TODO.md** - Mark Phase 3 complete
-2. **Create results summary** - Add final comparison table to lesson-learned doc
-3. **Proceed to Phase 4** - Upload to HuggingFace:
-   ```bash
-   python tools/upload_to_hf.py --model_dir ./models/synergy-tiny --repo_id littleworth/protgpt2-distilled-tiny
-   python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
-   python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littleworth/protgpt2-distilled-medium
-   ```
-4. **Proceed to Phase 5** - Start paper draft
-
-**If results need investigation (Scenario 4):**
-
-1. Check W&B dashboard for training curves: https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
-2. Compare loss curves between synergy models and old HF models
-3. Consider re-running with different learning rates or longer training
-
-#### Step 6: Git Commit Results
-
-```bash
-cd /home/ubuntu/storage1/protein-lm-distill
-git add results/eval_synergy_*.json nohup_synergy_training.out
-git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
-git push origin HEAD && git push github HEAD
-```
-
-### Publication Readiness Checklist
-
-- [x] Ablation study complete with synergistic effect finding
-- [x] HF-tiny comparison complete (shows +Both wins on calibration/KL)
-- [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
-- [ ] +Both trained on HF-matching architectures
-- [ ] Final comparison showing +Both beats HF models at same size
-- [ ] Mechanistic explanation drafted
 
 ---
 
