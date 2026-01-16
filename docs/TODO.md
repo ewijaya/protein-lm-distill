@@ -327,7 +327,32 @@ git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
 git push origin HEAD && git push github HEAD
 ```
 
-### 3.3 Size-Dependent Thresholds
+### 3.3 Matching Baseline Training (PENDING)
+
+**Objective**: Train baselines with matching architectures (no enhancements) for fair comparison against synergy models.
+
+| Size | Architecture | Synergy Model | Baseline Model |
+|------|--------------|---------------|----------------|
+| Tiny | 4L/4H/512E | `synergy-tiny` | `baseline-tiny` |
+| Small | 6L/8H/768E | `synergy-small` | `baseline-small` |
+| Medium | 12L/16H/1024E | `synergy-medium` | `baseline-medium` |
+
+**Run with**:
+```bash
+nohup ./scripts/batch_baseline.sh > nohup_baseline_training.out 2>&1 &
+```
+
+**Or with auto-shutdown**:
+```bash
+nohup bash -c './scripts/batch_baseline.sh && /home/ubuntu/bin/stopinstance' > nohup_baseline_training.out 2>&1 &
+```
+
+**Results will be saved to**:
+- `results/eval_baseline_tiny.json`
+- `results/eval_baseline_small.json`
+- `results/eval_baseline_medium.json`
+
+### 3.4 Size-Dependent Thresholds
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
@@ -335,13 +360,14 @@ git push origin HEAD && git push github HEAD
 | Small | ~82M | 11% | < 4.0 |
 | Medium | ~200M | 27% | < 3.0 |
 
-### 3.4 Checklist
+### 3.5 Checklist
 
 - [x] Ablation study complete (core paper finding: complementary effect)
 - [x] Publication viability assessed: **Strong** (complementary effect is novel)
 - [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
-- [ ] New models trained (Tiny/Small/Medium) ← **RUNNING**
-- [ ] New models evaluated and meet quality thresholds
+- [ ] Synergy models trained (Tiny/Small/Medium) ← **RUNNING**
+- [ ] Synergy models evaluated and meet quality thresholds
+- [ ] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [ ] Mechanistic explanation drafted for paper
 
 ---
