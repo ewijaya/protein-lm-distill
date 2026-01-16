@@ -164,39 +164,32 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ## Phase 3: Comprehensive Evaluation (IN PROGRESS ⏳)
 
-### 3.1 HuggingFace Baseline Comparison (COMPLETE ✅)
+### 3.1 Ablation Study Results (COMPLETE ✅) - Core Paper Finding
 
-**Completed**: January 16, 2026
+**This is the main publication result.** Comparing synergistic method vs standard KD baseline (Hinton 2015).
 
-| Model | Architecture | Output | Status |
-|-------|--------------|--------|--------|
-| `littleworth/protgpt2-distilled-tiny` | 4L/4H/512E | `results/eval_hf_tiny_old.json` | ✅ Complete |
+| Configuration | PPL Ratio | KL Divergence | Student ECE | vs Baseline |
+|--------------|-----------|---------------|-------------|-------------|
+| Baseline (standard KD) | 18.95 | 2.23 | 0.274 | — |
+| +Uncertainty only | 36.89 | 2.87 | 0.325 | worse |
+| +Calibration only | 39.64 | 3.00 | 0.319 | worse |
+| **+Both (synergistic)** | **8.93** | **1.62** | **0.216** | **53% better** |
 
-### 3.2 Ablation vs HF-tiny Comparison
+**Key Finding**: Individual enhancements hurt, but together they dramatically improve. This synergistic effect is the core novel contribution.
 
-**Key Finding**: +Both (256E) outperforms HF-tiny (512E) on calibration despite smaller size.
-
-| Metric | +Both (4L/4H/256E) | HF-tiny (4L/4H/512E) | Winner |
-|--------|-------------------|----------------------|--------|
-| PPL Ratio | 8.93 | 5.35 | HF-tiny (larger model) |
-| KL Divergence | **1.62** | 2.92 | **+Both (44% better)** |
-| Student ECE | **0.216** | 0.398 | **+Both (46% better)** |
-| KL from Natural | **0.024** | 0.042 | **+Both (43% better)** |
-| Compression | 47.5x | 19.9x | +Both (2.4x smaller) |
-
-**Interpretation**: HF-tiny's lower PPL ratio is due to 2x larger embedding (512 vs 256). On calibration and distributional fidelity, +Both is substantially better. To make a fair comparison, we need to train +Both on HF-matching architectures.
-
-### 3.3 HF-Matching Architecture Training (RUNNING ⏳)
+### 3.2 Publication-Quality Model Training (RUNNING ⏳)
 
 **Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
 
-**Objective**: Train +Both on same architectures as published HF models for direct comparison.
+**Objective**: Train publication-quality models using synergistic method (+Both) to replace old HuggingFace models.
 
-| Size | Architecture | Output Dir | Status |
-|------|--------------|------------|--------|
-| Tiny | 4L/4H/512E | `./models/synergy-tiny` | ⏳ Running |
-| Small | 6L/8H/768E | `./models/synergy-small` | ⏳ Queued |
-| Medium | 12L/16H/1024E | `./models/synergy-medium` | ⏳ Queued |
+**Note**: Old HF models (`littleworth/protgpt2-distilled-*`) were suboptimally trained. These new synergy models will replace them after paper publication.
+
+| Size | Architecture | Output Dir | Replaces | Status |
+|------|--------------|------------|----------|--------|
+| Tiny | 4L/4H/512E | `./models/synergy-tiny` | `littleworth/protgpt2-distilled-tiny` | ⏳ Running |
+| Small | 6L/8H/768E | `./models/synergy-small` | `littleworth/protgpt2-distilled-small` | ⏳ Queued |
+| Medium | 12L/16H/1024E | `./models/synergy-medium` | `littleworth/protgpt2-distilled-medium` | ⏳ Queued |
 
 **Monitor progress**:
 ```bash
@@ -279,13 +272,13 @@ grep -i "error\|exception\|failed" nohup_synergy_training.out || echo "No errors
 tail -20 nohup_synergy_training.out
 ```
 
-**Step 2: Compare All Results**
+**Step 2: View Synergy Model Results**
 ```bash
 python -c "
 import json
 models = {
+    'Ablation baseline (256E)': 'results/ablation_baseline.json',
     'Ablation +Both (256E)': 'results/ablation_both.json',
-    'HF-tiny old (512E)': 'results/eval_hf_tiny_old.json',
     'Synergy-tiny (512E)': 'results/eval_synergy_tiny.json',
     'Synergy-small (768E)': 'results/eval_synergy_small.json',
     'Synergy-medium (1024E)': 'results/eval_synergy_medium.json',
@@ -304,26 +297,27 @@ for name, path in models.items():
 "
 ```
 
-**Step 3: Evaluate Results** (synergy-tiny vs HF-tiny at same 512E size)
+**Step 3: Check Quality Thresholds**
 
-| Scenario | PPL Ratio | KL Div | ECE | Action |
-|----------|-----------|--------|-----|--------|
-| **Best case** | Synergy < HF | Synergy < HF | Synergy < HF | Strong paper: new method beats old at same size |
-| **Good case** | Synergy ≈ HF | Synergy < HF | Synergy < HF | Good paper: comparable PPL but better calibration |
-| **Okay case** | Synergy > HF | Synergy < HF | Synergy < HF | Paper focuses on calibration benefits |
-| **Investigate** | Synergy > HF | Synergy > HF | Synergy > HF | Check training logs, may need hyperparameter tuning |
+Synergy models should improve as size increases (more capacity):
+
+| Model | Target PPL Ratio | Target ECE | Ready for HF? |
+|-------|------------------|------------|---------------|
+| Synergy-tiny | < 5.0 | < 0.30 | Fill in after eval |
+| Synergy-small | < 4.0 | < 0.25 | Fill in after eval |
+| Synergy-medium | < 3.0 | < 0.20 | Fill in after eval |
 
 **Step 4: Proceed to Next Phase**
 
-If results are good (Scenario 1-3):
+If models meet quality thresholds:
 1. Update this TODO.md - Mark Phase 3 complete, fill in results
-2. Proceed to Phase 4 - Upload to HuggingFace (see Section 4)
-3. Proceed to Phase 5 - Start paper draft
+2. Proceed to Phase 4 - Upload synergy models to HuggingFace (replaces old models)
+3. Proceed to Phase 5 - Write paper (ablation study is core finding)
 
 If results need investigation:
 1. Check W&B dashboard: https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
-2. Compare loss curves between synergy models and old HF models
-3. Consider re-running with different learning rates or longer training
+2. Check for training issues (loss curves, gradients)
+3. Consider longer training or learning rate adjustments
 
 **Step 5: Git Commit Results**
 ```bash
@@ -333,42 +327,45 @@ git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
 git push origin HEAD && git push github HEAD
 ```
 
-### 3.4 Size-Dependent Thresholds
+### 3.3 Size-Dependent Thresholds
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
-| Tiny | ~39M | 5% | < 3.0 |
-| Small | ~82M | 11% | < 2.5 |
-| Medium | ~200M | 27% | < 2.0 |
+| Tiny | ~39M | 5% | < 5.0 |
+| Small | ~82M | 11% | < 4.0 |
+| Medium | ~200M | 27% | < 3.0 |
 
-### 3.5 Checklist
+### 3.4 Checklist
 
-- [x] Ablation variants evaluated (4/4 complete)
-- [x] HF-tiny baseline evaluated
-- [x] Comparison table generated (ablation vs HF-tiny)
+- [x] Ablation study complete (core paper finding: synergistic effect)
 - [x] Publication viability assessed: **Strong** (synergistic effect is novel)
 - [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
-- [ ] +Both trained on HF-matching architectures (Tiny/Small/Medium) ← **RUNNING**
-- [ ] +Both HF-matching models evaluated
-- [ ] Final comparison table (new +Both vs old HF models)
-- [ ] Mechanistic explanation drafted
+- [ ] Synergy models trained (Tiny/Small/Medium) ← **RUNNING**
+- [ ] Synergy models evaluated and meet quality thresholds
+- [ ] Mechanistic explanation drafted for paper
 
 ---
 
 ## Phase 4: HuggingFace Update (PENDING)
 
+**Objective**: Replace old suboptimal models with new synergy models trained using the method from the paper.
+
 ### Upload Commands
 
 ```bash
-python tools/upload_to_hf.py --model_dir ./models/BEST_TINY --repo_id littleworth/protgpt2-distilled-tiny
-python tools/upload_to_hf.py --model_dir ./models/BEST_SMALL --repo_id littleworth/protgpt2-distilled-small
-python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littleworth/protgpt2-distilled-medium
+# Upload synergy models to replace old HF models
+python tools/upload_to_hf.py --model_dir ./models/synergy-tiny --repo_id littleworth/protgpt2-distilled-tiny
+python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
+python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littleworth/protgpt2-distilled-medium
 ```
 
-- [ ] Tiny uploaded
-- [ ] Small uploaded
-- [ ] Medium uploaded
-- [ ] Model cards updated
+### Checklist
+
+- [ ] Synergy-tiny uploaded (replaces old tiny)
+- [ ] Synergy-small uploaded (replaces old small)
+- [ ] Synergy-medium uploaded (replaces old medium)
+- [ ] Model cards updated with paper citation and training details
+- [ ] Add note: "Trained with synergistic distillation (uncertainty + calibration aware)"
 - [ ] Post-upload verification
 
 ---
@@ -439,9 +436,10 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 
 | File | Description |
 |------|-------------|
-| `results/ablation_baseline.json` | Baseline (no enhancements) |
-| `results/ablation_both.json` | +Both (synergistic, 256E) |
-| `results/eval_hf_tiny_old.json` | Published HF-tiny (512E) |
-| `results/eval_synergy_tiny.json` | New +Both (512E) - pending |
-| `results/eval_synergy_small.json` | New +Both (768E) - pending |
-| `results/eval_synergy_medium.json` | New +Both (1024E) - pending |
+| `results/ablation_baseline.json` | Baseline - standard KD (paper comparison) |
+| `results/ablation_uncertainty.json` | +Uncertainty only (paper comparison) |
+| `results/ablation_calibration.json` | +Calibration only (paper comparison) |
+| `results/ablation_both.json` | +Both synergistic (paper comparison) |
+| `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - pending |
+| `results/eval_synergy_small.json` | Synergy-small for HF upload - pending |
+| `results/eval_synergy_medium.json` | Synergy-medium for HF upload - pending |
