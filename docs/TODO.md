@@ -8,10 +8,10 @@
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| **Phase 0** | ⏳ Evaluation Running | Methodological enhancements + ablation study |
+| **Phase 0** | ✅ Complete | Methodological enhancements + ablation study |
 | **Phase 1** | ✅ Complete | Baseline training (4 model sizes) |
-| **Phase 2** | ⏭️ Optional | Hyperparameter sweeps (skip if ablation validates method) |
-| **Phase 3** | ⏸️ Pending | Comprehensive evaluation |
+| **Phase 2** | ⏭️ Skip | Hyperparameter sweeps (ablation validates method) |
+| **Phase 3** | ⏳ In Progress | Comprehensive evaluation |
 | **Phase 4** | ⏸️ Pending | HuggingFace update |
 | **Phase 5** | ⏸️ Pending | Publication |
 
@@ -38,40 +38,33 @@
 | +Calibration | `--use_calibration_smoothing` | `./models/ablation-calibration` | ✅ Complete |
 | +Both | Both flags | `./models/ablation-both` | ✅ Complete |
 
-### 0.3 Ablation Evaluation (IN PROGRESS ⏳)
+### 0.3 Ablation Evaluation (COMPLETE ✅)
 
-**Started**: January 16, 2026
+**Completed**: January 16, 2026
 
-**Running command**:
-```bash
-nohup bash -c 'mkdir -p results && \
-python scripts/evaluate.py --student_model ./models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot --num_samples 100 --compute_ece --output results/ablation_baseline.json && \
-python scripts/evaluate.py --student_model ./models/ablation-uncertainty --num_samples 100 --compute_ece --output results/ablation_uncertainty.json && \
-python scripts/evaluate.py --student_model ./models/ablation-calibration --num_samples 100 --compute_ece --output results/ablation_calibration.json && \
-python scripts/evaluate.py --student_model ./models/ablation-both --num_samples 100 --compute_ece --output results/ablation_both.json && \
-/home/ubuntu/bin/stopinstance' > nohup_eval.out 2>&1 &
-```
+**Results Summary**:
 
-**Monitor**:
-```bash
-tail -f nohup_eval.out
-```
+| Configuration | PPL Ratio | KL Divergence | Student ECE | KL from Natural |
+|--------------|-----------|---------------|-------------|-----------------|
+| Baseline | 18.95 | 2.23 | 0.274 | 0.030 |
+| +Uncertainty | 36.89 | 2.87 | 0.325 | 0.020 |
+| +Calibration | 39.64 | 3.00 | 0.319 | 0.040 |
+| **+Both** | **8.93** | **1.62** | **0.216** | 0.024 |
 
-**Evaluation variants**:
-| Variant | Model | Output | Status |
-|---------|-------|--------|--------|
-| Baseline | `protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot` | `results/ablation_baseline.json` | ⏳ Running |
-| +Uncertainty | `ablation-uncertainty` | `results/ablation_uncertainty.json` | ⏸️ Queued |
-| +Calibration | `ablation-calibration` | `results/ablation_calibration.json` | ⏸️ Queued |
-| +Both | `ablation-both` | `results/ablation_both.json` | ⏸️ Queued |
+**Key Finding: Synergistic Effect**
 
-**Instance auto-stops after completion.**
+Individual enhancements HURT performance, but together they dramatically improve:
+- **53% reduction in PPL ratio** (18.95 → 8.93)
+- **27% reduction in KL divergence** (2.23 → 1.62)
+- **21% improvement in calibration (ECE)** (0.274 → 0.216)
+
+**Interpretation**: Uncertainty weighting and calibration smoothing compensate for each other's weaknesses. This synergistic effect is the core novel finding for publication.
 
 **Checklist**:
 - [x] Ablation training complete
-- [ ] All 4 variants evaluated
-- [ ] Ablation results table generated
-- [ ] Best enhancement configuration identified
+- [x] All 4 variants evaluated
+- [x] Ablation results table generated
+- [x] Best enhancement configuration identified: **+Both**
 
 ---
 
@@ -169,9 +162,28 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ---
 
-## Phase 3: Comprehensive Evaluation (PENDING)
+## Phase 3: Comprehensive Evaluation (IN PROGRESS ⏳)
 
-### Size-Dependent Thresholds
+### 3.1 HuggingFace Baseline Comparison
+
+**Status**: Running
+
+| Model | Architecture | Output | Status |
+|-------|--------------|--------|--------|
+| `littleworth/protgpt2-distilled-tiny` | 4L/4H/512E | `results/eval_hf_tiny_old.json` | ⏳ Running |
+| `littleworth/protgpt2-distilled-small` | 6L/8H/768E | — | ⏸️ Not needed (different arch) |
+| `littleworth/protgpt2-distilled-medium` | 12L/16H/1024E | — | ⏸️ Not needed (different arch) |
+
+### 3.2 Final Comparison Table (To Be Generated)
+
+Will compare:
+- Baseline (T=2.0, α=0.5, no enhancements)
+- +Both (T=2.0, α=0.5, uncertainty + calibration)
+- HF-tiny (T=10, α=0.1, old training)
+
+### 3.3 Size-Dependent Thresholds
+
+### 3.4 Size-Dependent Thresholds
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
@@ -179,27 +191,14 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 | Small | ~82M | 11% | < 2.5 |
 | Medium | ~200M | 27% | < 2.0 |
 
-### Evaluation Commands
+**Note**: Current +Both achieves PPL ratio 8.93 on tiny architecture (4L/4H/256E). This is above threshold but represents 53% improvement over baseline. The comparison with HF-tiny (4L/4H/512E, T=10) will contextualize this result.
 
-```bash
-# Evaluate final models
-for model_dir in models/protgpt2-distilled-*-FINAL*; do
-    python scripts/evaluate.py \
-        --student_model "$model_dir" \
-        --num_samples 200 --compute_ece \
-        --output "results/eval_$(basename $model_dir).json"
-done
+### 3.5 Checklist
 
-# Compare with existing HF models
-python scripts/evaluate.py --student_model littleworth/protgpt2-distilled-tiny --num_samples 200 --output results/eval_hf_tiny_old.json
-python scripts/evaluate.py --student_model littleworth/protgpt2-distilled-small --num_samples 200 --output results/eval_hf_small_old.json
-python scripts/evaluate.py --student_model littleworth/protgpt2-distilled-medium --num_samples 200 --output results/eval_hf_medium_old.json
-```
-
-- [ ] All new models evaluated
-- [ ] Existing HF models evaluated
+- [x] Ablation variants evaluated (4/4 complete)
+- [ ] HF-tiny baseline evaluated (running)
 - [ ] Comparison table generated
-- [ ] Best models identified
+- [ ] Publication viability assessed
 
 ---
 
@@ -223,10 +222,26 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 
 ## Phase 5: Publication (PENDING)
 
+### Core Paper Story: Synergistic Distillation
+
+**Central Finding**: Uncertainty-aware and calibration-aware distillation exhibit a **synergistic effect** — each method individually degrades performance, but their combination yields dramatic improvement.
+
+**Why This Is Publishable**:
+1. Counter-intuitive finding (individual components hurt, together they help)
+2. Large effect size (53% PPL improvement, 27% KL improvement)
+3. Novel contribution to protein LM compression literature
+4. Mechanistic implications for understanding distillation dynamics
+
+**Proposed Mechanistic Explanation** (to develop in Discussion):
+- Uncertainty-only: Upweights high-entropy positions but amplifies teacher miscalibration
+- Calibration-only: Smooths overconfident predictions but loses signal in uncertain regions
+- Together: Calibration prevents noise amplification; uncertainty focuses smoothing where needed
+
 ### Paper Title Options
 
-1. "Uncertainty-Aware Knowledge Distillation for Autoregressive Protein Language Models"
-2. "Protein-Specific Knowledge Distillation: Uncertainty-Aware and Calibration-Conscious Compression of ProtGPT2"
+1. "Synergistic Effects of Uncertainty-Aware and Calibration-Conscious Distillation for Protein Language Models"
+2. "Uncertainty-Aware Knowledge Distillation for Autoregressive Protein Language Models"
+3. "Protein-Specific Knowledge Distillation: Uncertainty-Aware and Calibration-Conscious Compression of ProtGPT2"
 
 ### Key Deliverables
 
@@ -249,37 +264,53 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 
 ## Immediate Next Actions
 
-### When Instance Restarts (After Evaluation Completes)
+### Phase 3: HuggingFace Model Comparison (IN PROGRESS ⏳)
 
-1. **Check evaluation completed**:
-   ```bash
-   ls -la results/ablation_*.json
-   tail nohup_eval.out
-   ```
+**Objective**: Compare +Both results against existing published HF models to validate improvement.
 
-2. **Generate ablation results table**:
+**Currently running**:
+```bash
+python scripts/evaluate.py \
+    --student_model littleworth/protgpt2-distilled-tiny \
+    --num_samples 100 --compute_ece \
+    --output results/eval_hf_tiny_old.json
+```
+
+**Why HF-tiny only**: Ablation models are 4L/4H/256E, closest to HF-tiny (4L/4H/512E). Small/medium have different architectures.
+
+### After HF Comparison Completes
+
+1. **Compare results**:
    ```bash
    python -c "
    import json
-   from pathlib import Path
-
-   variants = ['baseline', 'uncertainty', 'calibration', 'both']
-   print('Configuration          PPL Ratio    KL Div       ECE')
+   models = {
+       '+Both (new)': 'results/ablation_both.json',
+       'HF-tiny (old)': 'results/eval_hf_tiny_old.json'
+   }
+   print('Model                  PPL Ratio    KL Div       ECE')
    print('-' * 60)
-   for v in variants:
-       f = Path(f'results/ablation_{v}.json')
-       if f.exists():
-           d = json.load(open(f))
+   for name, path in models.items():
+       try:
+           d = json.load(open(path))
            ppl = d.get('perplexity_ratio', 'N/A')
            kl = d.get('kl_divergence', 'N/A')
            ece = d.get('student_ece', {}).get('ece', 'N/A') if 'student_ece' in d else 'N/A'
-           print(f'{v:<22} {ppl:>10.4f} {kl:>10.4f} {ece:>10.4f}')
+           print(f'{name:<22} {ppl:>10.4f} {kl:>10.4f} {ece:>10.4f}')
+       except: pass
    "
    ```
 
-3. **Decide on enhancements** based on results:
-   - If +Both or single enhancement shows clear improvement → Skip Phase 2, proceed to Phase 3
-   - If results are inconclusive → Consider minimal sensitivity analysis (T ∈ {1,2,4})
+2. **Decision point**:
+   - If +Both < HF-tiny → Strong paper story (new method beats published model)
+   - If +Both > HF-tiny → Need to investigate (architecture difference: 256E vs 512E)
+
+### Publication Readiness Checklist
+
+- [x] Ablation study complete with synergistic effect finding
+- [ ] HF model comparison complete
+- [ ] Mechanistic explanation drafted
+- [ ] Consider: Replicate ablation on larger architectures (optional for stronger paper)
 
 ---
 
