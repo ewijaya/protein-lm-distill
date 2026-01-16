@@ -462,6 +462,17 @@ protgpt2-distilled-t{temp}-a{alpha}-l{layers}-h{heads}-e{embed}-p{prop}-lr{lr}.u
 
 New models use temp names: `synergy-tiny`, `synergy-small`, `synergy-medium` (will be uploaded as `protgpt2-distilled-*`)
 
+### Synergy Model Sizes & Aliases
+
+| Size | Architecture | Directory | Alias/Symlink |
+|------|--------------|-----------|---------------|
+| **Nano** | 4L/4H/256E | `ablation-both` | `synergy-nano` → `ablation-both` |
+| Tiny | 4L/4H/512E | `synergy-tiny` | — |
+| Small | 6L/8H/768E | `synergy-small` | — |
+| Medium | 12L/16H/1024E | `synergy-medium` | — |
+
+> **Note**: `synergy-nano` is a symlink to `ablation-both` (the +Both ablation model with 256E architecture). This preserves ablation study naming while providing consistent synergy naming.
+
 ### W&B Dashboard
 
 https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
@@ -473,7 +484,7 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/ablation_baseline.json` | Baseline - standard KD (paper comparison) |
 | `results/ablation_uncertainty.json` | +Uncertainty only (paper comparison) |
 | `results/ablation_calibration.json` | +Calibration only (paper comparison) |
-| `results/ablation_both.json` | +Both combined (paper comparison) |
+| `results/ablation_both.json` | +Both combined = synergy-nano (paper comparison) |
 | `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - pending |
 | `results/eval_synergy_small.json` | Synergy-small for HF upload - pending |
 | `results/eval_synergy_medium.json` | Synergy-medium for HF upload - pending |
