@@ -51,14 +51,14 @@
 | +Calibration | 39.64 | 3.00 | 0.319 | 0.040 |
 | **+Both** | **8.93** | **1.62** | **0.216** | 0.024 |
 
-**Key Finding: Synergistic Effect**
+**Key Finding: Complementary Effect**
 
 Individual enhancements HURT performance, but together they dramatically improve:
 - **53% reduction in PPL ratio** (18.95 → 8.93)
 - **27% reduction in KL divergence** (2.23 → 1.62)
 - **21% improvement in calibration (ECE)** (0.274 → 0.216)
 
-**Interpretation**: Uncertainty weighting and calibration smoothing compensate for each other's weaknesses. This synergistic effect is the core novel finding for publication.
+**Interpretation**: Uncertainty weighting and calibration smoothing compensate for each other's weaknesses. This complementary effect is the core novel finding for publication.
 
 **Checklist**:
 - [x] Ablation training complete
@@ -166,24 +166,24 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ### 3.1 Ablation Study Results (COMPLETE ✅) - Core Paper Finding
 
-**This is the main publication result.** Comparing synergistic method vs standard KD baseline (Hinton 2015).
+**This is the main publication result.** Comparing combined method vs standard KD baseline (Hinton 2015).
 
 | Configuration | PPL Ratio | KL Divergence | Student ECE | vs Baseline |
 |--------------|-----------|---------------|-------------|-------------|
 | Baseline (standard KD) | 18.95 | 2.23 | 0.274 | — |
 | +Uncertainty only | 36.89 | 2.87 | 0.325 | worse |
 | +Calibration only | 39.64 | 3.00 | 0.319 | worse |
-| **+Both (synergistic)** | **8.93** | **1.62** | **0.216** | **53% better** |
+| **+Both (combined)** | **8.93** | **1.62** | **0.216** | **53% better** |
 
-**Key Finding**: Individual enhancements hurt, but together they dramatically improve. This synergistic effect is the core novel contribution.
+**Key Finding**: Individual enhancements hurt, but together they dramatically improve. This complementary effect is the core novel contribution.
 
 ### 3.2 Publication-Quality Model Training (RUNNING ⏳)
 
 **Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
 
-**Objective**: Train publication-quality models using synergistic method (+Both) to replace old HuggingFace models.
+**Objective**: Train publication-quality models using combined method (+Both) to replace old HuggingFace models.
 
-**Note**: Old HF models (`littleworth/protgpt2-distilled-*`) were suboptimally trained. These new synergy models will replace them after paper publication.
+**Note**: Old HF models (`littleworth/protgpt2-distilled-*`) were suboptimally trained. These new models will replace them after paper publication.
 
 | Size | Architecture | Output Dir | Replaces | Status |
 |------|--------------|------------|----------|--------|
@@ -272,7 +272,7 @@ grep -i "error\|exception\|failed" nohup_synergy_training.out || echo "No errors
 tail -20 nohup_synergy_training.out
 ```
 
-**Step 2: View Synergy Model Results**
+**Step 2: View Model Results**
 ```bash
 python -c "
 import json
@@ -299,7 +299,7 @@ for name, path in models.items():
 
 **Step 3: Check Quality Thresholds**
 
-Synergy models should improve as size increases (more capacity):
+Models should improve as size increases (more capacity):
 
 | Model | Target PPL Ratio | Target ECE | Ready for HF? |
 |-------|------------------|------------|---------------|
@@ -311,7 +311,7 @@ Synergy models should improve as size increases (more capacity):
 
 If models meet quality thresholds:
 1. Update this TODO.md - Mark Phase 3 complete, fill in results
-2. Proceed to Phase 4 - Upload synergy models to HuggingFace (replaces old models)
+2. Proceed to Phase 4 - Upload new models to HuggingFace (replaces old models)
 3. Proceed to Phase 5 - Write paper (ablation study is core finding)
 
 If results need investigation:
@@ -337,23 +337,23 @@ git push origin HEAD && git push github HEAD
 
 ### 3.4 Checklist
 
-- [x] Ablation study complete (core paper finding: synergistic effect)
-- [x] Publication viability assessed: **Strong** (synergistic effect is novel)
+- [x] Ablation study complete (core paper finding: complementary effect)
+- [x] Publication viability assessed: **Strong** (complementary effect is novel)
 - [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
-- [ ] Synergy models trained (Tiny/Small/Medium) ← **RUNNING**
-- [ ] Synergy models evaluated and meet quality thresholds
+- [ ] New models trained (Tiny/Small/Medium) ← **RUNNING**
+- [ ] New models evaluated and meet quality thresholds
 - [ ] Mechanistic explanation drafted for paper
 
 ---
 
 ## Phase 4: HuggingFace Update (PENDING)
 
-**Objective**: Replace old suboptimal models with new synergy models trained using the method from the paper.
+**Objective**: Replace old suboptimal models with new models trained using the combined uncertainty + calibration method from the paper.
 
 ### Upload Commands
 
 ```bash
-# Upload synergy models to replace old HF models
+# Upload new models to replace old HF models
 python tools/upload_to_hf.py --model_dir ./models/synergy-tiny --repo_id littleworth/protgpt2-distilled-tiny
 python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
 python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littleworth/protgpt2-distilled-medium
@@ -365,16 +365,16 @@ python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littl
 - [ ] Synergy-small uploaded (replaces old small)
 - [ ] Synergy-medium uploaded (replaces old medium)
 - [ ] Model cards updated with paper citation and training details
-- [ ] Add note: "Trained with synergistic distillation (uncertainty + calibration aware)"
+- [ ] Add note: "Trained with uncertainty-aware calibration-conscious distillation"
 - [ ] Post-upload verification
 
 ---
 
 ## Phase 5: Publication (PENDING)
 
-### Core Paper Story: Synergistic Distillation
+### Core Paper Story: Complementary Distillation
 
-**Central Finding**: Uncertainty-aware and calibration-aware distillation exhibit a **synergistic effect** — each method individually degrades performance, but their combination yields dramatic improvement.
+**Central Finding**: Uncertainty-aware and calibration-aware distillation exhibit a **complementary effect** — each method individually degrades performance, but their combination yields dramatic improvement.
 
 **Why This Is Publishable**:
 1. Counter-intuitive finding (individual components hurt, together they help)
@@ -389,9 +389,17 @@ python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littl
 
 ### Paper Title Options
 
-1. "Synergistic Effects of Uncertainty-Aware and Calibration-Conscious Distillation for Protein Language Models"
-2. "Uncertainty-Aware Knowledge Distillation for Autoregressive Protein Language Models"
-3. "Protein-Specific Knowledge Distillation: Uncertainty-Aware and Calibration-Conscious Compression of ProtGPT2"
+**Short and punchy (preferred):**
+1. "Uncertainty Meets Calibration: Improved Distillation for Protein Language Models"
+2. "Calibrated Distillation for Protein Language Models"
+3. "When Uncertainty Meets Calibration in Protein LM Distillation"
+
+**Method-focused:**
+4. "Uncertainty-Aware Calibration-Conscious Distillation for Protein Language Models"
+5. "Improved Protein Language Model Distillation via Joint Uncertainty and Calibration Awareness"
+
+**Finding-focused:**
+6. "Complementary Effects in Protein LM Distillation: Uncertainty Weighting Meets Calibration Smoothing"
 
 ### Key Deliverables
 
@@ -426,7 +434,7 @@ tail -f nohup_synergy_training.out
 protgpt2-distilled-t{temp}-a{alpha}-l{layers}-h{heads}-e{embed}-p{prop}-lr{lr}.uniprot
 ```
 
-New synergy models use simplified names: `synergy-tiny`, `synergy-small`, `synergy-medium`
+New models use temp names: `synergy-tiny`, `synergy-small`, `synergy-medium` (will be uploaded as `protgpt2-distilled-*`)
 
 ### W&B Dashboard
 
@@ -439,7 +447,7 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/ablation_baseline.json` | Baseline - standard KD (paper comparison) |
 | `results/ablation_uncertainty.json` | +Uncertainty only (paper comparison) |
 | `results/ablation_calibration.json` | +Calibration only (paper comparison) |
-| `results/ablation_both.json` | +Both synergistic (paper comparison) |
+| `results/ablation_both.json` | +Both combined (paper comparison) |
 | `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - pending |
 | `results/eval_synergy_small.json` | Synergy-small for HF upload - pending |
 | `results/eval_synergy_medium.json` | Synergy-medium for HF upload - pending |
