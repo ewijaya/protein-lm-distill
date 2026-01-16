@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 16, 2026
+**Updated**: January 17, 2026
 
 ---
 
@@ -164,24 +164,37 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ## Phase 3: Comprehensive Evaluation (IN PROGRESS ⏳)
 
-### 3.1 HuggingFace Baseline Comparison
+### 3.1 HuggingFace Baseline Comparison (COMPLETE ✅)
 
-**Status**: Running
+**Completed**: January 16, 2026
 
 | Model | Architecture | Output | Status |
 |-------|--------------|--------|--------|
-| `littleworth/protgpt2-distilled-tiny` | 4L/4H/512E | `results/eval_hf_tiny_old.json` | ⏳ Running |
-| `littleworth/protgpt2-distilled-small` | 6L/8H/768E | — | ⏸️ Not needed (different arch) |
-| `littleworth/protgpt2-distilled-medium` | 12L/16H/1024E | — | ⏸️ Not needed (different arch) |
+| `littleworth/protgpt2-distilled-tiny` | 4L/4H/512E | `results/eval_hf_tiny_old.json` | ✅ Complete |
 
-### 3.2 Final Comparison Table (To Be Generated)
+### 3.2 Ablation vs HF-tiny Comparison
 
-Will compare:
-- Baseline (T=2.0, α=0.5, no enhancements)
-- +Both (T=2.0, α=0.5, uncertainty + calibration)
-- HF-tiny (T=10, α=0.1, old training)
+**Key Finding**: +Both (256E) outperforms HF-tiny (512E) on calibration despite smaller size.
 
-### 3.3 Size-Dependent Thresholds
+| Metric | +Both (4L/4H/256E) | HF-tiny (4L/4H/512E) | Winner |
+|--------|-------------------|----------------------|--------|
+| PPL Ratio | 8.93 | 5.35 | HF-tiny (larger model) |
+| KL Divergence | **1.62** | 2.92 | **+Both (44% better)** |
+| Student ECE | **0.216** | 0.398 | **+Both (46% better)** |
+| KL from Natural | **0.024** | 0.042 | **+Both (43% better)** |
+| Compression | 47.5x | 19.9x | +Both (2.4x smaller) |
+
+**Interpretation**: HF-tiny's lower PPL ratio is due to 2x larger embedding (512 vs 256). On calibration and distributional fidelity, +Both is substantially better. To make a fair comparison, we need to train +Both on HF-matching architectures.
+
+### 3.3 HF-Matching Architecture Training (IN PROGRESS ⏳)
+
+**Objective**: Train +Both on same architectures as published HF models for direct comparison.
+
+| Size | Architecture | Output Dir | Status |
+|------|--------------|------------|--------|
+| Tiny | 4L/4H/512E | `./models/synergy-tiny` | ⏳ Pending |
+| Small | 6L/8H/768E | `./models/synergy-small` | ⏳ Pending |
+| Medium | 12L/16H/1024E | `./models/synergy-medium` | ⏳ Pending |
 
 ### 3.4 Size-Dependent Thresholds
 
@@ -191,14 +204,15 @@ Will compare:
 | Small | ~82M | 11% | < 2.5 |
 | Medium | ~200M | 27% | < 2.0 |
 
-**Note**: Current +Both achieves PPL ratio 8.93 on tiny architecture (4L/4H/256E). This is above threshold but represents 53% improvement over baseline. The comparison with HF-tiny (4L/4H/512E, T=10) will contextualize this result.
-
 ### 3.5 Checklist
 
 - [x] Ablation variants evaluated (4/4 complete)
-- [ ] HF-tiny baseline evaluated (running)
-- [ ] Comparison table generated
-- [ ] Publication viability assessed
+- [x] HF-tiny baseline evaluated
+- [x] Comparison table generated (ablation vs HF-tiny)
+- [x] Publication viability assessed: **Strong** (synergistic effect is novel)
+- [ ] +Both trained on HF-matching architectures (Tiny/Small/Medium)
+- [ ] +Both HF-matching models evaluated
+- [ ] Final comparison table (new +Both vs old HF models)
 
 ---
 
@@ -264,62 +278,115 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 
 ## Immediate Next Actions
 
-### Phase 3: HuggingFace Model Comparison (IN PROGRESS ⏳)
+### Train +Both on HF-Matching Architectures (NEXT ⏳)
 
-**Objective**: Compare +Both results against existing published HF models to validate improvement.
+**Objective**: Enable direct comparison with published HF models by training +Both at same sizes.
 
-**Currently running**:
+**Pastable command** (sequential, with auto-shutdown):
+
 ```bash
+nohup bash -c '
+cd /home/ubuntu/storage1/protein-lm-distill && \
+echo "=== Starting Synergy Training Pipeline ===" && \
+echo "Start time: $(date)" && \
+\
+echo "=== [1/6] Training Tiny (4L/4H/512E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --learning_rate 1e-3 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-tiny && \
+\
+echo "=== [2/6] Evaluating Tiny ===" && \
 python scripts/evaluate.py \
-    --student_model littleworth/protgpt2-distilled-tiny \
+    --student_model ./models/synergy-tiny \
     --num_samples 100 --compute_ece \
-    --output results/eval_hf_tiny_old.json
+    --output results/eval_synergy_tiny.json && \
+\
+echo "=== [3/6] Training Small (6L/8H/768E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 6 --n_head 8 --n_embd 768 \
+    --train_size_prop 0.1 --learning_rate 5e-4 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-small && \
+\
+echo "=== [4/6] Evaluating Small ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-small \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_small.json && \
+\
+echo "=== [5/6] Training Medium (12L/16H/1024E) ===" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 12 --n_head 16 --n_embd 1024 \
+    --train_size_prop 0.1 --learning_rate 1e-4 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-medium && \
+\
+echo "=== [6/6] Evaluating Medium ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-medium \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_medium.json && \
+\
+echo "=== Pipeline Complete ===" && \
+echo "End time: $(date)" && \
+/home/ubuntu/bin/stopinstance
+' > nohup_synergy_training.out 2>&1 &
 ```
 
-**Why HF-tiny only**: Ablation models are 4L/4H/256E, closest to HF-tiny (4L/4H/512E). Small/medium have different architectures.
+**Monitor progress**:
+```bash
+tail -f nohup_synergy_training.out
+```
 
-### After HF Comparison Completes
+### After Training Completes
 
-1. **Compare results**:
-   ```bash
-   python -c "
-   import json
-   models = {
-       '+Both (new)': 'results/ablation_both.json',
-       'HF-tiny (old)': 'results/eval_hf_tiny_old.json'
-   }
-   print('Model                  PPL Ratio    KL Div       ECE')
-   print('-' * 60)
-   for name, path in models.items():
-       try:
-           d = json.load(open(path))
-           ppl = d.get('perplexity_ratio', 'N/A')
-           kl = d.get('kl_divergence', 'N/A')
-           ece = d.get('student_ece', {}).get('ece', 'N/A') if 'student_ece' in d else 'N/A'
-           print(f'{name:<22} {ppl:>10.4f} {kl:>10.4f} {ece:>10.4f}')
-       except: pass
-   "
-   ```
-
-2. **Decision point**:
-   - If +Both < HF-tiny → Strong paper story (new method beats published model)
-   - If +Both > HF-tiny → Need to investigate (architecture difference: 256E vs 512E)
+**Compare all results**:
+```bash
+python -c "
+import json
+models = {
+    'Ablation +Both (256E)': 'results/ablation_both.json',
+    'HF-tiny old (512E)': 'results/eval_hf_tiny_old.json',
+    'Synergy-tiny (512E)': 'results/eval_synergy_tiny.json',
+    'Synergy-small (768E)': 'results/eval_synergy_small.json',
+    'Synergy-medium (1024E)': 'results/eval_synergy_medium.json',
+}
+print(f'{\"Model\":<26} {\"PPL Ratio\":>10} {\"KL Div\":>10} {\"ECE\":>10}')
+print('-' * 60)
+for name, path in models.items():
+    try:
+        d = json.load(open(path))
+        ppl = d.get('perplexity_ratio', float('nan'))
+        kl = d.get('kl_divergence', float('nan'))
+        ece = d.get('student_ece', {}).get('ece', float('nan'))
+        print(f'{name:<26} {ppl:>10.2f} {kl:>10.4f} {ece:>10.4f}')
+    except FileNotFoundError:
+        print(f'{name:<26} {\"---\":>10} {\"---\":>10} {\"---\":>10}')
+"
+```
 
 ### Publication Readiness Checklist
 
 - [x] Ablation study complete with synergistic effect finding
-- [ ] HF model comparison complete
+- [x] HF-tiny comparison complete (shows +Both wins on calibration/KL)
+- [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
+- [ ] +Both trained on HF-matching architectures
+- [ ] Final comparison showing +Both beats HF models at same size
 - [ ] Mechanistic explanation drafted
-- [ ] Consider: Replicate ablation on larger architectures (optional for stronger paper)
 
 ---
 
 ## Quick Reference
 
-### Monitoring Current Evaluation
+### Monitoring Current Training
 
 ```bash
-tail -f nohup_eval.out
+tail -f nohup_synergy_training.out
 ```
 
 ### Model Naming Convention
@@ -328,6 +395,19 @@ tail -f nohup_eval.out
 protgpt2-distilled-t{temp}-a{alpha}-l{layers}-h{heads}-e{embed}-p{prop}-lr{lr}.uniprot
 ```
 
+New synergy models use simplified names: `synergy-tiny`, `synergy-small`, `synergy-medium`
+
 ### W&B Dashboard
 
 https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
+
+### Key Results Files
+
+| File | Description |
+|------|-------------|
+| `results/ablation_baseline.json` | Baseline (no enhancements) |
+| `results/ablation_both.json` | +Both (synergistic, 256E) |
+| `results/eval_hf_tiny_old.json` | Published HF-tiny (512E) |
+| `results/eval_synergy_tiny.json` | New +Both (512E) - pending |
+| `results/eval_synergy_small.json` | New +Both (768E) - pending |
+| `results/eval_synergy_medium.json` | New +Both (1024E) - pending |
