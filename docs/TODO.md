@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 7, 2026
+**Updated**: January 16, 2026
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| **Phase 0** | ⏳ Ablation Running | Methodological enhancements + ablation study |
+| **Phase 0** | ⏳ Evaluation Running | Methodological enhancements + ablation study |
 | **Phase 1** | ✅ Complete | Baseline training (4 model sizes) |
 | **Phase 2** | ⏸️ Pending | Hyperparameter sweeps |
 | **Phase 3** | ⏸️ Pending | Comprehensive evaluation |
@@ -27,58 +27,48 @@
 - [x] Ablation notebook (`notebooks/phase_0_ablation.ipynb`)
 - [x] Documentation (`docs/METHODS.md`)
 
-### 0.2 Ablation Training (IN PROGRESS ⏳)
+### 0.2 Ablation Training (COMPLETE ✅)
 
-**Started**: January 7, 2026
-
-**Running command**:
-```bash
-nohup bash -c '...' > phase0_ablation.log 2>&1 &
-```
-
-**Monitor**:
-```bash
-tail -f phase0_ablation.log
-```
+**Completed**: January 16, 2026
 
 **Training variants**:
 | Variant | Config | Output Dir | Status |
 |---------|--------|------------|--------|
-| +Uncertainty | `--use_uncertainty_weighting` | `./models/ablation-uncertainty` | ⏳ Running |
-| +Calibration | `--use_calibration_smoothing` | `./models/ablation-calibration` | ⏸️ Queued |
-| +Both | Both flags | `./models/ablation-both` | ⏸️ Queued |
+| +Uncertainty | `--use_uncertainty_weighting` | `./models/ablation-uncertainty` | ✅ Complete |
+| +Calibration | `--use_calibration_smoothing` | `./models/ablation-calibration` | ✅ Complete |
+| +Both | Both flags | `./models/ablation-both` | ✅ Complete |
+
+### 0.3 Ablation Evaluation (IN PROGRESS ⏳)
+
+**Started**: January 16, 2026
+
+**Running command**:
+```bash
+nohup bash -c 'mkdir -p results && \
+python scripts/evaluate.py --student_model ./models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot --num_samples 100 --compute_ece --output results/ablation_baseline.json && \
+python scripts/evaluate.py --student_model ./models/ablation-uncertainty --num_samples 100 --compute_ece --output results/ablation_uncertainty.json && \
+python scripts/evaluate.py --student_model ./models/ablation-calibration --num_samples 100 --compute_ece --output results/ablation_calibration.json && \
+python scripts/evaluate.py --student_model ./models/ablation-both --num_samples 100 --compute_ece --output results/ablation_both.json && \
+/home/ubuntu/bin/stopinstance' > nohup_eval.out 2>&1 &
+```
+
+**Monitor**:
+```bash
+tail -f nohup_eval.out
+```
+
+**Evaluation variants**:
+| Variant | Model | Output | Status |
+|---------|-------|--------|--------|
+| Baseline | `protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot` | `results/ablation_baseline.json` | ⏳ Running |
+| +Uncertainty | `ablation-uncertainty` | `results/ablation_uncertainty.json` | ⏸️ Queued |
+| +Calibration | `ablation-calibration` | `results/ablation_calibration.json` | ⏸️ Queued |
+| +Both | `ablation-both` | `results/ablation_both.json` | ⏸️ Queued |
 
 **Instance auto-stops after completion.**
 
-### 0.3 After Ablation Training Completes
-
-Run evaluation:
-```bash
-mkdir -p results
-
-# Baseline (from Phase 1)
-python scripts/evaluate.py \
-    --student_model ./models/protgpt2-distilled-t2.0-a0.5-l4-h4-e256-p0.1-lr1e-03.uniprot \
-    --num_samples 100 --compute_ece --output results/ablation_baseline.json
-
-# +Uncertainty
-python scripts/evaluate.py \
-    --student_model ./models/ablation-uncertainty \
-    --num_samples 100 --compute_ece --output results/ablation_uncertainty.json
-
-# +Calibration
-python scripts/evaluate.py \
-    --student_model ./models/ablation-calibration \
-    --num_samples 100 --compute_ece --output results/ablation_calibration.json
-
-# +Both
-python scripts/evaluate.py \
-    --student_model ./models/ablation-both \
-    --num_samples 100 --compute_ece --output results/ablation_both.json
-```
-
 **Checklist**:
-- [ ] Ablation training complete
+- [x] Ablation training complete
 - [ ] All 4 variants evaluated
 - [ ] Ablation results table generated
 - [ ] Best enhancement configuration identified
@@ -251,17 +241,15 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 
 ## Immediate Next Actions
 
-### When Instance Restarts (After Ablation Completes)
+### When Instance Restarts (After Evaluation Completes)
 
-1. **Check ablation training completed**:
+1. **Check evaluation completed**:
    ```bash
-   ls -la models/ablation-*
-   tail phase0_ablation.log
+   ls -la results/ablation_*.json
+   tail nohup_eval.out
    ```
 
-2. **Run ablation evaluation** (see Phase 0.3 above)
-
-3. **Generate ablation results table**:
+2. **Generate ablation results table**:
    ```bash
    python -c "
    import json
@@ -281,16 +269,16 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
    "
    ```
 
-4. **Decide on enhancements** based on results, then proceed to Phase 2
+3. **Decide on enhancements** based on results, then proceed to Phase 2
 
 ---
 
 ## Quick Reference
 
-### Monitoring Current Training
+### Monitoring Current Evaluation
 
 ```bash
-tail -f phase0_ablation.log
+tail -f nohup_eval.out
 ```
 
 ### Model Naming Convention
