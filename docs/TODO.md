@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 17, 2026
+**Updated**: January 17, 2026 (training running)
 
 ---
 
@@ -186,15 +186,17 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 **Interpretation**: HF-tiny's lower PPL ratio is due to 2x larger embedding (512 vs 256). On calibration and distributional fidelity, +Both is substantially better. To make a fair comparison, we need to train +Both on HF-matching architectures.
 
-### 3.3 HF-Matching Architecture Training (IN PROGRESS ⏳)
+### 3.3 HF-Matching Architecture Training (RUNNING ⏳)
+
+**Status**: Training pipeline launched January 16, 2026.
 
 **Objective**: Train +Both on same architectures as published HF models for direct comparison.
 
 | Size | Architecture | Output Dir | Status |
 |------|--------------|------------|--------|
-| Tiny | 4L/4H/512E | `./models/synergy-tiny` | ⏳ Pending |
-| Small | 6L/8H/768E | `./models/synergy-small` | ⏳ Pending |
-| Medium | 12L/16H/1024E | `./models/synergy-medium` | ⏳ Pending |
+| Tiny | 4L/4H/512E | `./models/synergy-tiny` | ⏳ Running |
+| Small | 6L/8H/768E | `./models/synergy-small` | ⏳ Queued |
+| Medium | 12L/16H/1024E | `./models/synergy-medium` | ⏳ Queued |
 
 ### 3.4 Size-Dependent Thresholds
 
@@ -278,7 +280,9 @@ python tools/upload_to_hf.py --model_dir ./models/BEST_MEDIUM --repo_id littlewo
 
 ## Immediate Next Actions
 
-### Train +Both on HF-Matching Architectures (NEXT ⏳)
+### Train +Both on HF-Matching Architectures (RUNNING ⏳)
+
+**Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
 
 **Objective**: Enable direct comparison with published HF models by training +Both at same sizes.
 
@@ -343,9 +347,26 @@ echo "End time: $(date)" && \
 tail -f nohup_synergy_training.out
 ```
 
-### After Training Completes
+### After Training Completes (WHEN NOHUP FINISHES)
 
-**Compare all results**:
+#### Step 1: Verify Training Success
+
+```bash
+# Check all models exist
+ls -la models/synergy-tiny models/synergy-small models/synergy-medium
+
+# Check all evaluation results exist
+ls -la results/eval_synergy_*.json
+
+# Check training log for errors
+grep -i "error\|exception\|failed" nohup_synergy_training.out || echo "No errors found"
+
+# View training completion time
+tail -20 nohup_synergy_training.out
+```
+
+#### Step 2: Compare All Results
+
 ```bash
 python -c "
 import json
@@ -368,6 +389,54 @@ for name, path in models.items():
     except FileNotFoundError:
         print(f'{name:<26} {\"---\":>10} {\"---\":>10} {\"---\":>10}')
 "
+```
+
+#### Step 3: Evaluate Results and Decide Next Steps
+
+**Expected outcomes** (synergy-tiny vs HF-tiny at same 512E size):
+
+| Scenario | PPL Ratio | KL Div | ECE | Action |
+|----------|-----------|--------|-----|--------|
+| **Best case** | Synergy < HF | Synergy < HF | Synergy < HF | Strong paper: new method beats old at same size |
+| **Good case** | Synergy ≈ HF | Synergy < HF | Synergy < HF | Good paper: comparable PPL but better calibration |
+| **Okay case** | Synergy > HF | Synergy < HF | Synergy < HF | Paper focuses on calibration benefits |
+| **Investigate** | Synergy > HF | Synergy > HF | Synergy > HF | Check training logs, may need hyperparameter tuning |
+
+#### Step 4: Update Documentation
+
+```bash
+# Update TODO.md with results (replace placeholders with actual values)
+# Update Phase 3.3 table with completion status
+# Update checklist items
+```
+
+#### Step 5: Proceed to Next Phase
+
+**If results are good (Scenario 1-3):**
+
+1. **Update TODO.md** - Mark Phase 3 complete
+2. **Create results summary** - Add final comparison table to lesson-learned doc
+3. **Proceed to Phase 4** - Upload to HuggingFace:
+   ```bash
+   python tools/upload_to_hf.py --model_dir ./models/synergy-tiny --repo_id littleworth/protgpt2-distilled-tiny
+   python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
+   python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littleworth/protgpt2-distilled-medium
+   ```
+4. **Proceed to Phase 5** - Start paper draft
+
+**If results need investigation (Scenario 4):**
+
+1. Check W&B dashboard for training curves: https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
+2. Compare loss curves between synergy models and old HF models
+3. Consider re-running with different learning rates or longer training
+
+#### Step 6: Git Commit Results
+
+```bash
+cd /home/ubuntu/storage1/protein-lm-distill
+git add results/eval_synergy_*.json nohup_synergy_training.out
+git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
+git push origin HEAD && git push github HEAD
 ```
 
 ### Publication Readiness Checklist
