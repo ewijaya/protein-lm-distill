@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 17, 2026 (training running)
+**Updated**: January 23, 2026
 
 ---
 
@@ -177,9 +177,9 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 **Key Finding**: Individual enhancements hurt, but together they dramatically improve. This complementary effect is the core novel contribution.
 
-### 3.2 Publication-Quality Model Training (RUNNING ⏳)
+### 3.2 Publication-Quality Model Training (PARTIAL ⏳)
 
-**Status**: Training pipeline launched January 16, 2026. Instance will auto-shutdown on completion.
+**Status**: Tiny and Small complete. Medium failed with OOM - requires reduced batch size.
 
 **Objective**: Train publication-quality models using combined method (+Both) to replace old HuggingFace models.
 
@@ -187,9 +187,11 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 | Size | Architecture | Output Dir | Replaces | Status |
 |------|--------------|------------|----------|--------|
-| Tiny | 4L/4H/512E | `./models/synergy-tiny` | `littleworth/protgpt2-distilled-tiny` | ⏳ Running |
-| Small | 6L/8H/768E | `./models/synergy-small` | `littleworth/protgpt2-distilled-small` | ⏳ Queued |
-| Medium | 12L/16H/1024E | `./models/synergy-medium` | `littleworth/protgpt2-distilled-medium` | ⏳ Queued |
+| Tiny | 4L/4H/512E | `./models/synergy-tiny` | `littleworth/protgpt2-distilled-tiny` | ✅ Complete (Jan 20) |
+| Small | 6L/8H/768E | `./models/synergy-small` | `littleworth/protgpt2-distilled-small` | ✅ Complete (Jan 23) |
+| Medium | 12L/16H/1024E | `./models/synergy-medium` | `littleworth/protgpt2-distilled-medium` | ❌ Failed (OOM) |
+
+**Note on Medium model**: The 12L/16H/1024E architecture with calibration smoothing exceeds 22GB GPU memory with default batch_size=8. Requires `--batch_size 4 --gradient_accumulation 8` to fit in memory.
 
 **Monitor progress**:
 ```bash
@@ -238,6 +240,7 @@ python scripts/train.py \
     --temperature 2.0 --alpha 0.5 \
     --n_layer 12 --n_head 16 --n_embd 1024 \
     --train_size_prop 0.1 --learning_rate 1e-4 \
+    --batch_size 4 --gradient_accumulation 8 \
     --use_uncertainty_weighting --use_calibration_smoothing \
     --output_dir ./models/synergy-medium && \
 \
@@ -365,8 +368,9 @@ nohup bash -c './scripts/batch_baseline.sh && /home/ubuntu/bin/stopinstance' > n
 - [x] Ablation study complete (core paper finding: complementary effect)
 - [x] Publication viability assessed: **Strong** (complementary effect is novel)
 - [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
-- [ ] Synergy models trained (Tiny/Small/Medium) ← **RUNNING**
-- [ ] Synergy models evaluated and meet quality thresholds
+- [x] Synergy-tiny trained and evaluated (Jan 20)
+- [x] Synergy-small trained and evaluated (Jan 23)
+- [ ] Synergy-medium trained and evaluated ← **PENDING** (OOM fix needed)
 - [ ] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [ ] Mechanistic explanation drafted for paper
 
@@ -485,6 +489,6 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/ablation_uncertainty.json` | +Uncertainty only (paper comparison) |
 | `results/ablation_calibration.json` | +Calibration only (paper comparison) |
 | `results/ablation_both.json` | +Both combined = synergy-nano (paper comparison) |
-| `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - pending |
-| `results/eval_synergy_small.json` | Synergy-small for HF upload - pending |
+| `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - complete |
+| `results/eval_synergy_small.json` | Synergy-small for HF upload - complete |
 | `results/eval_synergy_medium.json` | Synergy-medium for HF upload - pending |
