@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 23, 2026
+**Updated**: January 28, 2026
 
 ---
 
@@ -177,9 +177,9 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 **Key Finding**: Individual enhancements hurt, but together they dramatically improve. This complementary effect is the core novel contribution.
 
-### 3.2 Publication-Quality Model Training (PARTIAL ⏳)
+### 3.2 Publication-Quality Model Training (COMPLETE ✅)
 
-**Status**: Tiny and Small complete. Medium failed with OOM - requires reduced batch size.
+**Status**: All three models trained and evaluated.
 
 **Objective**: Train publication-quality models using combined method (+Both) to replace old HuggingFace models.
 
@@ -189,9 +189,17 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 |------|--------------|------------|----------|--------|
 | Tiny | 4L/4H/512E | `./models/synergy-tiny` | `littleworth/protgpt2-distilled-tiny` | ✅ Complete (Jan 20) |
 | Small | 6L/8H/768E | `./models/synergy-small` | `littleworth/protgpt2-distilled-small` | ✅ Complete (Jan 23) |
-| Medium | 12L/16H/1024E | `./models/synergy-medium` | `littleworth/protgpt2-distilled-medium` | ❌ Failed (OOM) |
+| Medium | 12L/16H/1024E | `./models/synergy-medium` | `littleworth/protgpt2-distilled-medium` | ✅ Complete (Jan 28) |
 
-**Note on Medium model**: The 12L/16H/1024E architecture with calibration smoothing exceeds 22GB GPU memory with default batch_size=8. Requires `--batch_size 4 --gradient_accumulation 8` to fit in memory.
+**Results Summary**:
+
+| Model | PPL Ratio | KL Div | ECE | Notes |
+|-------|-----------|--------|-----|-------|
+| Synergy-tiny | 129.78 | 4.17 | 0.349 | Poor results - potential training issue |
+| Synergy-small | 7.05 | 1.69 | 0.259 | Good improvement over baseline |
+| Synergy-medium | 5.16 | 1.34 | 0.189 | Best results - clear scaling benefit |
+
+**Note on Medium model**: Required `--batch_size 4 --gradient_accumulation 8` to fit in 22GB GPU memory.
 
 **Monitor progress**:
 ```bash
@@ -370,7 +378,7 @@ nohup bash -c './scripts/batch_baseline.sh && /home/ubuntu/bin/stopinstance' > n
 - [x] Lesson-learned document created (`docs/Lesson-Learned-Phase0-Ablation-Synergy-2026-01-16-2337.md`)
 - [x] Synergy-tiny trained and evaluated (Jan 20)
 - [x] Synergy-small trained and evaluated (Jan 23)
-- [ ] Synergy-medium trained and evaluated ← **PENDING** (OOM fix needed)
+- [x] Synergy-medium trained and evaluated (Jan 28)
 - [ ] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [ ] Mechanistic explanation drafted for paper
 
@@ -491,4 +499,4 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/ablation_both.json` | +Both combined = synergy-nano (paper comparison) |
 | `results/eval_synergy_tiny.json` | Synergy-tiny for HF upload - complete |
 | `results/eval_synergy_small.json` | Synergy-small for HF upload - complete |
-| `results/eval_synergy_medium.json` | Synergy-medium for HF upload - pending |
+| `results/eval_synergy_medium.json` | Synergy-medium for HF upload - complete |
