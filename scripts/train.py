@@ -149,6 +149,18 @@ def main():
         default=0.1,
         help="Base smoothing factor for calibration (default: 0.1)",
     )
+    parser.add_argument(
+        "--resume_from_checkpoint",
+        action="store_true",
+        default=False,
+        help="Resume training from latest checkpoint in output_dir",
+    )
+    parser.add_argument(
+        "--save_steps",
+        type=int,
+        default=5000,
+        help="Save checkpoint every N steps (default: 5000)",
+    )
     args = parser.parse_args()
 
     # Set device
@@ -204,7 +216,7 @@ def main():
         output_dir = Path(args.output_dir)
     else:
         output_dir = config.MODELS_DIR / model_name
-    if output_dir.exists():
+    if output_dir.exists() and not args.resume_from_checkpoint:
         print(f"Output directory {output_dir} exists. Deleting...")
         shutil.rmtree(output_dir)
 
@@ -219,8 +231,9 @@ def main():
         adam_epsilon=1e-8,
         logging_strategy="steps",
         logging_steps=10,
-        save_strategy="no",
-        save_total_limit=1,
+        save_strategy="steps",
+        save_steps=args.save_steps,
+        save_total_limit=2,
         fp16=True,
     )
 
@@ -247,8 +260,17 @@ def main():
     )
 
     # Train
+    resume_checkpoint = None
+    if args.resume_from_checkpoint:
+        # Find latest checkpoint in output_dir
+        checkpoints = sorted(glob.glob(str(output_dir / "checkpoint-*")))
+        if checkpoints:
+            resume_checkpoint = checkpoints[-1]
+            print(f"Resuming from checkpoint: {resume_checkpoint}")
+        else:
+            print("No checkpoint found, starting from scratch.")
     print("Starting training...")
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_checkpoint)
 
     # Save model and logs
     print(f"Saving model to {output_dir}")
