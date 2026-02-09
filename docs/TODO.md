@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: January 28, 2026
+**Updated**: February 9, 2026
 
 ---
 
@@ -338,30 +338,27 @@ git commit -m "feat: add synergy model evaluation results (tiny/small/medium)"
 git push origin HEAD && git push github HEAD
 ```
 
-### 3.3 Matching Baseline Training (PENDING)
+### 3.3 Matching Baseline Training (COMPLETE ✅)
+
+**Completed**: February 9, 2026
 
 **Objective**: Train baselines with matching architectures (no enhancements) for fair comparison against synergy models.
 
-| Size | Architecture | Synergy Model | Baseline Model |
-|------|--------------|---------------|----------------|
-| Tiny | 4L/4H/512E | `synergy-tiny` | `baseline-tiny` |
-| Small | 6L/8H/768E | `synergy-small` | `baseline-small` |
-| Medium | 12L/16H/1024E | `synergy-medium` | `baseline-medium` |
+| Size | Architecture | Synergy Model | Baseline Model | Status |
+|------|--------------|---------------|----------------|--------|
+| Tiny | 4L/4H/512E | `synergy-tiny` | `baseline-tiny` | ✅ Complete (Jan 31) |
+| Small | 6L/8H/768E | `synergy-small` | `baseline-small` | ✅ Complete (Feb 3) |
+| Medium | 12L/16H/1024E | `synergy-medium` | `baseline-medium` | ✅ Complete (Feb 7) |
 
-**Run with**:
-```bash
-nohup ./scripts/batch_baseline.sh > nohup_baseline_training.out 2>&1 &
-```
+**Results (Baseline vs Synergy)**:
 
-**Or with auto-shutdown**:
-```bash
-nohup bash -c './scripts/batch_baseline.sh && /home/ubuntu/bin/stopinstance' > nohup_baseline_training.out 2>&1 &
-```
+| Size | Baseline PPL Ratio | Synergy PPL Ratio | Baseline KL | Synergy KL | Baseline ECE | Synergy ECE |
+|------|-------------------|-------------------|-------------|------------|--------------|-------------|
+| Tiny | 39.91 | 129.78 | 3.16 | 4.17 | 0.345 | 0.349 |
+| Small | 15.19 | 7.05 | 2.03 | 1.69 | 0.235 | 0.259 |
+| Medium | 3.72 | 5.16 | 1.34 | 1.34 | 0.169 | 0.189 |
 
-**Results will be saved to**:
-- `results/eval_baseline_tiny.json`
-- `results/eval_baseline_small.json`
-- `results/eval_baseline_medium.json`
+**Key Finding**: Synergy enhancements improve small-scale models (Small: 53% PPL improvement) but not at all scales. At medium scale, baseline outperforms synergy on PPL ratio (3.72 vs 5.16). This scale-dependent effect warrants investigation for the paper.
 
 ### 3.4 Size-Dependent Thresholds
 
@@ -379,7 +376,7 @@ nohup bash -c './scripts/batch_baseline.sh && /home/ubuntu/bin/stopinstance' > n
 - [x] Synergy-tiny trained and evaluated (Jan 20)
 - [x] Synergy-small trained and evaluated (Jan 23)
 - [x] Synergy-medium trained and evaluated (Jan 28)
-- [ ] Matching baselines trained (`scripts/batch_baseline.sh`)
+- [x] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [ ] Mechanistic explanation drafted for paper
 
 ---
