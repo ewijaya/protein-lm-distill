@@ -395,6 +395,8 @@ echo "End time: $(date)" && \
 
 **Monitor**: `tail -f nohup_synergy_tiny_v2.out`
 
+**Note**: Requires g5.xlarge (A10G, 24GB). OOMs on g4dn.xlarge (T4, 16GB) at batch_size=8 due to calibration smoothing intermediate tensors. Use `--batch_size 4 --gradient_accumulation 8` if running on T4 (much slower).
+
 **Success criteria**: PPL ratio should improve from 129.78 toward baseline-tiny level (39.91) or better. Target: < 20.
 
 - [ ] synergy-tiny-v2 trained (LR=5e-4, warmup=500)
