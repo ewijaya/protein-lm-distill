@@ -360,7 +360,48 @@ git push origin HEAD && git push github HEAD
 
 **Key Finding**: Synergy enhancements improve small-scale models (Small: 53% PPL improvement) but not at all scales. At medium scale, baseline outperforms synergy on PPL ratio (3.72 vs 5.16). This scale-dependent effect warrants investigation for the paper.
 
-### 3.4 Size-Dependent Thresholds
+### 3.4 Synergy-Tiny Fix: LR + Warmup Re-run (PENDING)
+
+**Objective**: Re-run synergy-tiny with lower LR (5e-4, matching successful small-scale regime) and warmup steps to prevent overfitting to the modified objective.
+
+**Rationale** (from `docs/investigation-summary.md`):
+- Synergy-tiny (LR=1e-3, no warmup) overfits to the easier modified objective — achieves lower training loss but 3.25x worse eval PPL than baseline
+- Synergy-small (LR=5e-4) is the only scale where enhancements help (+54% PPL improvement)
+- Adding warmup slows early convergence where the degenerate solution is likely selected
+
+**Command**:
+```bash
+nohup bash -c '
+cd /home/ubuntu/storage1/protein-lm-distill && \
+echo "=== Synergy-Tiny v2: LR=5e-4 + warmup=500 ===" && \
+echo "Start time: $(date)" && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 4 --n_head 4 --n_embd 512 \
+    --train_size_prop 0.1 --learning_rate 5e-4 \
+    --warmup_steps 500 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-tiny-v2 && \
+echo "=== Evaluating ===" && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-tiny-v2 \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_tiny_v2.json && \
+echo "=== Complete ===" && \
+echo "End time: $(date)" && \
+/home/ubuntu/bin/stopinstance
+' > nohup_synergy_tiny_v2.out 2>&1 &
+```
+
+**Monitor**: `tail -f nohup_synergy_tiny_v2.out`
+
+**Success criteria**: PPL ratio should improve from 129.78 toward baseline-tiny level (39.91) or better. Target: < 20.
+
+- [ ] synergy-tiny-v2 trained (LR=5e-4, warmup=500)
+- [ ] synergy-tiny-v2 evaluated
+- [ ] Results compared to synergy-tiny v1 and baseline-tiny
+
+### 3.5 Size-Dependent Thresholds
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
@@ -368,7 +409,7 @@ git push origin HEAD && git push github HEAD
 | Small | ~82M | 11% | < 4.0 |
 | Medium | ~200M | 27% | < 3.0 |
 
-### 3.5 Checklist
+### 3.6 Checklist
 
 - [x] Ablation study complete (core paper finding: complementary effect)
 - [x] Publication viability assessed: **Strong** (complementary effect is novel)
@@ -377,6 +418,8 @@ git push origin HEAD && git push github HEAD
 - [x] Synergy-small trained and evaluated (Jan 23)
 - [x] Synergy-medium trained and evaluated (Jan 28)
 - [x] Matching baselines trained (`scripts/batch_baseline.sh`)
+- [x] Scaling regression investigation (`docs/investigation-summary.md`)
+- [ ] Synergy-tiny v2 re-run (LR=5e-4, warmup=500)
 - [ ] Mechanistic explanation drafted for paper
 
 ---

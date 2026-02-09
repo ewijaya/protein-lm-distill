@@ -161,6 +161,12 @@ def main():
         default=5000,
         help="Save checkpoint every N steps (default: 5000)",
     )
+    parser.add_argument(
+        "--warmup_steps",
+        type=int,
+        default=0,
+        help="Number of warmup steps for LR scheduler (default: 0)",
+    )
     args = parser.parse_args()
 
     # Set device
@@ -227,6 +233,7 @@ def main():
         per_device_train_batch_size=args.batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
+        warmup_steps=args.warmup_steps,
         weight_decay=0.01,
         adam_epsilon=1e-8,
         logging_strategy="steps",
