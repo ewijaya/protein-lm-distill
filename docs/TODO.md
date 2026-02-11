@@ -392,7 +392,48 @@ git push origin HEAD && git push github HEAD
 - [x] synergy-tiny-v2 evaluated
 - [x] Results compared to synergy-tiny v1 and baseline-tiny
 
-### 3.5 Size-Dependent Thresholds
+### 3.5 Synergy-Medium Fix: LR + Warmup Re-run (IN PROGRESS ⏳)
+
+**Started**: February 11, 2026
+
+**Objective**: Re-run synergy-medium with lower LR (5e-5) and warmup steps, applying the same fix pattern that resolved synergy-tiny (v1 → v2).
+
+**Rationale**:
+- Synergy-medium (LR=1e-4, no warmup) underperforms baseline on PPL ratio (5.16 vs 3.72)
+- The synergy-tiny fix (halve LR + add warmup) improved PPL ratio from 129.78 → 5.06
+- Applying the same pattern: LR halved (1e-4 → 5e-5), warmup=500
+
+**Command**:
+```bash
+nohup bash -c '
+cd /home/ubuntu/storage1/protein-lm-distill && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 12 --n_head 16 --n_embd 1024 \
+    --train_size_prop 0.1 --learning_rate 5e-5 \
+    --warmup_steps 500 \
+    --batch_size 16 --gradient_accumulation 2 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-medium-v2 && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-medium-v2 \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_medium_v2.json && \
+/home/ubuntu/bin/stopinstance
+' > nohup_synergy_medium_v2.out 2>&1 &
+```
+
+**Monitor**: `tail -f nohup_synergy_medium_v2.out`
+
+**Note**: Running on g6e.xlarge (L40S, 48GB). Batch size increased from 4→16 (vs v1 on g5.xlarge) for faster throughput; same effective batch of 32.
+
+**Success criteria**: PPL ratio should improve from 5.16 toward baseline-medium level (3.72) or better. Target: < 3.0.
+
+- [ ] synergy-medium-v2 trained (LR=5e-5, warmup=500)
+- [ ] synergy-medium-v2 evaluated
+- [ ] Results compared to synergy-medium v1 and baseline-medium
+
+### 3.6 Size-Dependent Thresholds (reference)
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
@@ -400,7 +441,7 @@ git push origin HEAD && git push github HEAD
 | Small | ~82M | 11% | < 4.0 |
 | Medium | ~200M | 27% | < 3.0 |
 
-### 3.6 Checklist
+### 3.7 Checklist
 
 - [x] Ablation study complete (core paper finding: complementary effect)
 - [x] Publication viability assessed: **Strong** (complementary effect is novel)
@@ -411,6 +452,7 @@ git push origin HEAD && git push github HEAD
 - [x] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [x] Scaling regression investigation (`docs/investigation-summary.md`)
 - [x] Synergy-tiny v2 re-run (LR=5e-4, warmup=500) — PPL ratio 129.78 → 5.06
+- [ ] Synergy-medium v2 re-run (LR=5e-5, warmup=500) — in progress
 - [ ] Mechanistic explanation drafted for paper
 
 ---
@@ -425,7 +467,7 @@ git push origin HEAD && git push github HEAD
 # Upload new models to replace old HF models
 python tools/upload_to_hf.py --model_dir ./models/synergy-tiny-v2 --repo_id littleworth/protgpt2-distilled-tiny
 python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
-python tools/upload_to_hf.py --model_dir ./models/synergy-medium --repo_id littleworth/protgpt2-distilled-medium
+python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id littleworth/protgpt2-distilled-medium  # pending v2 results
 ```
 
 ### Checklist
