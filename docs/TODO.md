@@ -424,7 +424,47 @@ git push origin HEAD && git push github HEAD
 - [x] synergy-medium-v2 evaluated
 - [x] Results compared to synergy-medium v1 and baseline-medium
 
-### 3.6 Size-Dependent Thresholds (reference)
+### 3.6 Synergy-Small Fix: Add Warmup (IN PROGRESS ⏳)
+
+**Started**: February 14, 2026
+
+**Objective**: Re-run synergy-small with warmup=500 for consistency across all scales. Synergy-small already uses the correct LR (5e-4) but was trained without warmup. Adding warmup may fix the ECE regression (0.259 vs baseline 0.235).
+
+**Rationale**:
+- Synergy-tiny v2 (LR=5e-4, warmup=500) → PPL ratio 129.78 → 5.06
+- Synergy-medium v2 (LR=5e-5, warmup=500) → PPL ratio 5.16 → 2.58
+- Synergy-small (LR=5e-4, **no warmup**) is the only scale without warmup
+- ECE is worse than baseline (0.259 vs 0.235) — warmup may fix this
+
+**Command**:
+```bash
+nohup bash -c '
+cd /home/ubuntu/storage1/protein-lm-distill && \
+python scripts/train.py \
+    --temperature 2.0 --alpha 0.5 \
+    --n_layer 6 --n_head 8 --n_embd 768 \
+    --train_size_prop 0.1 --learning_rate 5e-4 \
+    --warmup_steps 500 \
+    --batch_size 16 --gradient_accumulation 2 \
+    --use_uncertainty_weighting --use_calibration_smoothing \
+    --output_dir ./models/synergy-small-v2 && \
+python scripts/evaluate.py \
+    --student_model ./models/synergy-small-v2 \
+    --num_samples 100 --compute_ece \
+    --output results/eval_synergy_small_v2.json && \
+/home/ubuntu/bin/stopinstance
+' > nohup_synergy_small_v2.out 2>&1 &
+```
+
+**Monitor**: `tail -f nohup_synergy_small_v2.out`
+
+**Success criteria**: ECE should improve from 0.259 toward baseline level (0.235) or better. PPL ratio should remain ≤ 7.05 (current v1).
+
+- [ ] synergy-small-v2 trained (LR=5e-4, warmup=500)
+- [ ] synergy-small-v2 evaluated
+- [ ] Results compared to synergy-small v1 and baseline-small
+
+### 3.7 Size-Dependent Thresholds (reference)
 
 | Model | Params | % of Teacher | PPL Ratio Threshold |
 |-------|--------|--------------|---------------------|
@@ -432,7 +472,7 @@ git push origin HEAD && git push github HEAD
 | Small | ~82M | 11% | < 4.0 |
 | Medium | ~200M | 27% | < 3.0 |
 
-### 3.7 Checklist
+### 3.8 Checklist
 
 - [x] Ablation study complete (core paper finding: complementary effect)
 - [x] Publication viability assessed: **Strong** (complementary effect is novel)
@@ -444,7 +484,8 @@ git push origin HEAD && git push github HEAD
 - [x] Scaling regression investigation (`docs/investigation-summary.md`)
 - [x] Synergy-tiny v2 re-run (LR=5e-4, warmup=500) — PPL ratio 129.78 → 5.06
 - [x] Synergy-medium v2 re-run (LR=5e-5, warmup=500) — PPL ratio 5.16 → 2.58
-- [ ] Mechanistic explanation drafted for paper
+- [x] Mechanistic explanation drafted (`docs/mechanistic-explanation.md`)
+- [ ] Synergy-small v2 re-run (LR=5e-4, warmup=500) — in progress
 
 ---
 
@@ -457,8 +498,8 @@ git push origin HEAD && git push github HEAD
 ```bash
 # Upload new models to replace old HF models
 python tools/upload_to_hf.py --model_dir ./models/synergy-tiny-v2 --repo_id littleworth/protgpt2-distilled-tiny
-python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small
-python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id littleworth/protgpt2-distilled-medium  # pending v2 results
+python tools/upload_to_hf.py --model_dir ./models/synergy-small-v2 --repo_id littleworth/protgpt2-distilled-small  # pending v2 results
+python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id littleworth/protgpt2-distilled-medium
 ```
 
 ### Checklist
@@ -563,6 +604,7 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/ablation_both.json` | +Both combined = synergy-nano (paper comparison) |
 | `results/eval_synergy_tiny.json` | Synergy-tiny v1 (superseded by v2) |
 | `results/eval_synergy_tiny_v2.json` | Synergy-tiny v2 (LR fix) - current best |
-| `results/eval_synergy_small.json` | Synergy-small for HF upload - complete |
+| `results/eval_synergy_small.json` | Synergy-small v1 (superseded by v2) |
+| `results/eval_synergy_small_v2.json` | Synergy-small v2 (warmup fix) - pending |
 | `results/eval_synergy_medium.json` | Synergy-medium v1 (superseded by v2) |
 | `results/eval_synergy_medium_v2.json` | Synergy-medium v2 (LR fix) - current best |
