@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: February 11, 2026
+**Updated**: February 14, 2026
 
 ---
 
@@ -198,7 +198,8 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 | ~~Synergy-tiny (v1)~~ | ~~129.78~~ | ~~4.17~~ | ~~0.349~~ | ~~Superseded — LR overfitting issue~~ |
 | **Synergy-tiny (v2)** | **5.06** | **1.34** | **0.183** | **Fixed with LR=5e-4 + warmup=500** |
 | Synergy-small | 7.05 | 1.69 | 0.259 | Good improvement over baseline |
-| Synergy-medium | 5.16 | 1.34 | 0.189 | Best results - clear scaling benefit |
+| ~~Synergy-medium (v1)~~ | ~~5.16~~ | ~~1.34~~ | ~~0.189~~ | ~~Superseded — LR fix needed~~ |
+| **Synergy-medium (v2)** | **2.58** | **1.47** | **0.135** | **Fixed with LR=5e-5 + warmup=500** |
 
 **Note on Medium model**: Required `--batch_size 4 --gradient_accumulation 8` to fit in 22GB GPU memory.
 
@@ -358,9 +359,10 @@ git push origin HEAD && git push github HEAD
 | Tiny (v1) | 39.91 | 129.78 | 3.16 | 4.17 | 0.345 | 0.349 |
 | **Tiny (v2)** | **39.91** | **5.06** | **3.16** | **1.34** | **0.345** | **0.183** |
 | Small | 15.19 | 7.05 | 2.03 | 1.69 | 0.235 | 0.259 |
-| Medium | 3.72 | 5.16 | 1.34 | 1.34 | 0.169 | 0.189 |
+| Medium (v1) | 3.72 | 5.16 | 1.34 | 1.34 | 0.169 | 0.189 |
+| **Medium (v2)** | **3.72** | **2.58** | **1.34** | **1.47** | **0.169** | **0.135** |
 
-**Key Finding (updated)**: After fixing synergy-tiny with lower LR + warmup (v2), synergy enhancements now improve at tiny and small scales (Tiny: 87% PPL improvement, Small: 53% PPL improvement). The original tiny regression was due to LR-induced overfitting, not a fundamental scale limitation. At medium scale, baseline still outperforms synergy on PPL ratio (3.72 vs 5.16).
+**Key Finding (updated)**: After applying the LR + warmup fix pattern to both tiny and medium scales, synergy enhancements now outperform baseline at **all three scales**: Tiny (87% PPL improvement), Small (53% PPL improvement), Medium (31% PPL improvement). The regressions at tiny and medium scales were both due to LR-induced overfitting, not fundamental limitations of the synergy method.
 
 ### 3.4 Synergy-Tiny Fix: LR + Warmup Re-run (COMPLETE ✅)
 
@@ -392,9 +394,9 @@ git push origin HEAD && git push github HEAD
 - [x] synergy-tiny-v2 evaluated
 - [x] Results compared to synergy-tiny v1 and baseline-tiny
 
-### 3.5 Synergy-Medium Fix: LR + Warmup Re-run (IN PROGRESS ⏳)
+### 3.5 Synergy-Medium Fix: LR + Warmup Re-run (COMPLETE ✅)
 
-**Started**: February 11, 2026
+**Completed**: February 14, 2026
 
 **Objective**: Re-run synergy-medium with lower LR (5e-5) and warmup steps, applying the same fix pattern that resolved synergy-tiny (v1 → v2).
 
@@ -403,35 +405,24 @@ git push origin HEAD && git push github HEAD
 - The synergy-tiny fix (halve LR + add warmup) improved PPL ratio from 129.78 → 5.06
 - Applying the same pattern: LR halved (1e-4 → 5e-5), warmup=500
 
-**Command**:
-```bash
-nohup bash -c '
-cd /home/ubuntu/storage1/protein-lm-distill && \
-python scripts/train.py \
-    --temperature 2.0 --alpha 0.5 \
-    --n_layer 12 --n_head 16 --n_embd 1024 \
-    --train_size_prop 0.1 --learning_rate 5e-5 \
-    --warmup_steps 500 \
-    --batch_size 16 --gradient_accumulation 2 \
-    --use_uncertainty_weighting --use_calibration_smoothing \
-    --output_dir ./models/synergy-medium-v2 && \
-python scripts/evaluate.py \
-    --student_model ./models/synergy-medium-v2 \
-    --num_samples 100 --compute_ece \
-    --output results/eval_synergy_medium_v2.json && \
-/home/ubuntu/bin/stopinstance
-' > nohup_synergy_medium_v2.out 2>&1 &
-```
+**Training config**: `--temperature 2.0 --alpha 0.5 --n_layer 12 --n_head 16 --n_embd 1024 --train_size_prop 0.1 --learning_rate 5e-5 --warmup_steps 500 --batch_size 16 --gradient_accumulation 2 --use_uncertainty_weighting --use_calibration_smoothing --output_dir ./models/synergy-medium-v2`
 
-**Monitor**: `tail -f nohup_synergy_medium_v2.out`
+**Training stats**: 3 epochs, ~85K steps. Ran on g6e.xlarge (L40S, 48GB). W&B run: `jjzt3r4m`.
 
-**Note**: Running on g6e.xlarge (L40S, 48GB). Batch size increased from 4→16 (vs v1 on g5.xlarge) for faster throughput; same effective batch of 32.
+**Results (v1 vs v2 vs baseline)**:
 
-**Success criteria**: PPL ratio should improve from 5.16 toward baseline-medium level (3.72) or better. Target: < 3.0.
+| Metric | synergy-medium v1 | **synergy-medium v2** | baseline-medium | Target |
+|--------|-------------------|-----------------------|-----------------|--------|
+| PPL Ratio | 5.16 | **2.58** | 3.72 | < 3.0 |
+| KL Divergence | 1.34 | **1.47** | 1.34 | — |
+| Student ECE | 0.189 | **0.135** | 0.169 | < 0.20 |
+| Compression | 3.8x | 3.8x | 3.8x | — |
 
-- [ ] synergy-medium-v2 trained (LR=5e-5, warmup=500)
-- [ ] synergy-medium-v2 evaluated
-- [ ] Results compared to synergy-medium v1 and baseline-medium
+**Key Finding**: LR fix (1e-4 → 5e-5) plus warmup solved the medium-scale regression. PPL ratio improved 50% (5.16 → 2.58), now 31% better than baseline (3.72). Exceeds the <3.0 target. ECE also improved 29% (0.189 → 0.135). This confirms the synergy method outperforms baseline at all scales when LR is appropriate.
+
+- [x] synergy-medium-v2 trained (LR=5e-5, warmup=500)
+- [x] synergy-medium-v2 evaluated
+- [x] Results compared to synergy-medium v1 and baseline-medium
 
 ### 3.6 Size-Dependent Thresholds (reference)
 
@@ -452,7 +443,7 @@ python scripts/evaluate.py \
 - [x] Matching baselines trained (`scripts/batch_baseline.sh`)
 - [x] Scaling regression investigation (`docs/investigation-summary.md`)
 - [x] Synergy-tiny v2 re-run (LR=5e-4, warmup=500) — PPL ratio 129.78 → 5.06
-- [ ] Synergy-medium v2 re-run (LR=5e-5, warmup=500) — in progress
+- [x] Synergy-medium v2 re-run (LR=5e-5, warmup=500) — PPL ratio 5.16 → 2.58
 - [ ] Mechanistic explanation drafted for paper
 
 ---
@@ -573,4 +564,5 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/eval_synergy_tiny.json` | Synergy-tiny v1 (superseded by v2) |
 | `results/eval_synergy_tiny_v2.json` | Synergy-tiny v2 (LR fix) - current best |
 | `results/eval_synergy_small.json` | Synergy-small for HF upload - complete |
-| `results/eval_synergy_medium.json` | Synergy-medium for HF upload - complete |
+| `results/eval_synergy_medium.json` | Synergy-medium v1 (superseded by v2) |
+| `results/eval_synergy_medium_v2.json` | Synergy-medium v2 (LR fix) - current best |
