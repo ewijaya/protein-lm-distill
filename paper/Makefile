@@ -3,6 +3,7 @@ BIBTEX = bibtex
 PYTHON = python
 
 MAIN = main
+SECTIONS = $(wildcard sections/*.tex)
 FIGSCRIPTS = $(wildcard figures/scripts/fig*.py)
 
 .PHONY: all clean figures paper
@@ -18,7 +19,7 @@ figures:
 
 paper: $(MAIN).pdf
 
-$(MAIN).pdf: $(MAIN).tex references.bib
+$(MAIN).pdf: $(MAIN).tex $(SECTIONS) references.bib
 	$(LATEX) -interaction=nonstopmode $(MAIN) || true
 	$(BIBTEX) $(MAIN) || true
 	$(LATEX) -interaction=nonstopmode $(MAIN) || true
