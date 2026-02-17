@@ -12,7 +12,7 @@
 | **Phase 1** | ✅ Complete | Baseline training (4 model sizes) |
 | **Phase 2** | ⏭️ Skip | Hyperparameter sweeps (ablation validates method) |
 | **Phase 3** | ✅ Complete | Comprehensive evaluation |
-| **Phase 4** | ⏸️ Pending | HuggingFace update |
+| **Phase 4** | ✅ Complete | HuggingFace update |
 | **Phase 5** | ⏳ In Progress | Publication |
 
 ---
@@ -472,7 +472,9 @@ git push origin HEAD && git push github HEAD
 
 ---
 
-## Phase 4: HuggingFace Update (PENDING)
+## Phase 4: HuggingFace Update (COMPLETE ✅)
+
+**Completed**: February 17, 2026
 
 **Objective**: Replace old suboptimal models with new models trained using the combined uncertainty + calibration method from the paper.
 
@@ -487,12 +489,12 @@ python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id li
 
 ### Checklist
 
-- [ ] Synergy-tiny uploaded (replaces old tiny)
-- [ ] Synergy-small uploaded (replaces old small)
-- [ ] Synergy-medium uploaded (replaces old medium)
-- [ ] Model cards updated with paper citation and training details
-- [ ] Add note: "Trained with uncertainty-aware calibration-conscious distillation"
-- [ ] Post-upload verification
+- [x] Synergy-tiny uploaded (replaces old tiny)
+- [x] Synergy-small uploaded (replaces old small)
+- [x] Synergy-medium uploaded (replaces old medium)
+- [x] Model cards updated with paper citation and training details
+- [x] Add note: "Trained with uncertainty-aware calibration-conscious distillation"
+- [x] Post-upload verification
 
 ---
 

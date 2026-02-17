@@ -38,12 +38,16 @@ def upload_model(model_dir: str, repo_id: str, private: bool = False):
     print(f"Creating/updating repository: {repo_id}")
     api.create_repo(repo_id, repo_type="model", private=private, exist_ok=True)
 
+    ignore_patterns = ["checkpoint-*", "runs/**", "runs/"]
+
     print(f"Uploading model from: {model_dir}")
+    print(f"Ignoring patterns: {ignore_patterns}")
     api.upload_folder(
         repo_id=repo_id,
         repo_type="model",
         folder_path=str(model_path),
         revision="main",
+        ignore_patterns=ignore_patterns,
     )
 
     print(f"Upload complete! Model available at: https://huggingface.co/{repo_id}")
