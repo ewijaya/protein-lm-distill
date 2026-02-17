@@ -40,7 +40,7 @@ modes.
 
 \paragraph{Training dynamics and the role of warmup.}
 Analysis of training logs reveals that the first $\sim$500 steps constitute a critical
-window for synergy training (Fig.~7). Without warmup, the modified objective---which
+window for synergy training (Fig.~\ref{fig:training_dynamics}). Without warmup, the modified objective---which
 is inherently easier to minimize from random initialization due to smoothed targets---allows
 the student to rapidly converge toward a degenerate minimum that achieves low training
 loss but poor generalization. This is evidenced by anomalously low initial loss values
@@ -53,6 +53,16 @@ encountering the full modified objective. By the time the learning rate reaches 
 target value, the student has already formed preliminary representations that constrain
 it to a generalizable region of the loss landscape. The enhanced objective then
 \textit{refines} this foundation rather than corrupting it.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/pdf/fig7_training_dynamics.pdf}
+\caption{Training loss dynamics during the first 500 steps. Without warmup, the
+synergy objective allows rapid convergence to a degenerate minimum. Linear warmup
+over 500 steps constrains early optimization, enabling the student to reach a
+generalizable region of the loss landscape.}
+\label{fig:training_dynamics}
+\end{figure}
 
 \paragraph{Scale-dependent effects.}
 The synergy improvement decreases with model scale (87\% $\to$ 54\% $\to$ 31\%), which

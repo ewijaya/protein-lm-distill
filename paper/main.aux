@@ -31,68 +31,81 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2}Results}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Ablation reveals complementary effect}{2}{subsection.2.1}\protected@file@percent }
 \citation{guo2017calibration,naeini2015ece}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Ablation study showing the complementary effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline.}}{3}{figure.1}\protected@file@percent }
+\newlabel{fig:ablation}{{1}{3}{Ablation study showing the complementary effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline}{figure.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error.}}{3}{table.1}\protected@file@percent }
 \newlabel{tab:ablation}{{1}{3}{Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error}{table.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines.}}{3}{table.2}\protected@file@percent }
-\newlabel{tab:scaling}{{2}{3}{Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines}{table.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Scaling across model sizes}{3}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{3}{subsection.2.3}\protected@file@percent }
 \citation{uniprot2023}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines.}}{4}{table.2}\protected@file@percent }
+\newlabel{tab:scaling}{{2}{4}{Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{4}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Biological validity}{4}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Compression--quality tradeoff}{4}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{4}{subsection.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{4}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of the complementary effect.}{4}{section*.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Training dynamics and the role of warmup.}{5}{section*.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{5}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{5}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{5}{section*.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $).}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:scaling}{{2}{5}{Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{5}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{5}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of the complementary effect.}{5}{section*.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Calibration diagrams comparing baseline and synergy models at each scale. Diagonal indicates perfect calibration. Synergy models improve calibration at Tiny and Medium scales.}}{6}{figure.3}\protected@file@percent }
+\newlabel{fig:calibration}{{3}{6}{Calibration diagrams comparing baseline and synergy models at each scale. Diagonal indicates perfect calibration. Synergy models improve calibration at Tiny and Medium scales}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Amino acid frequency deviation from the natural UniProt distribution. All student models maintain KL divergence below 0.015, confirming that distillation preserves biologically realistic amino acid usage.}}{6}{figure.4}\protected@file@percent }
+\newlabel{fig:aa_dist}{{4}{6}{Amino acid frequency deviation from the natural UniProt distribution. All student models maintain KL divergence below 0.015, confirming that distillation preserves biologically realistic amino acid usage}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Compression--quality Pareto frontier. Synergy models (filled) dominate baseline models (open) at every compression ratio, achieving strictly better perplexity at the same model size.}}{7}{figure.5}\protected@file@percent }
+\newlabel{fig:pareto}{{5}{7}{Compression--quality Pareto frontier. Synergy models (filled) dominate baseline models (open) at every compression ratio, achieving strictly better perplexity at the same model size}{figure.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Training dynamics and the role of warmup.}{7}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{7}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{7}{section*.4}\protected@file@percent }
 \citation{madani2023progen}
 \citation{lin2023esmfold}
 \citation{hinton2015distilling}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.6--6.1$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware.}}{8}{figure.6}\protected@file@percent }
+\newlabel{fig:speed}{{6}{8}{Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.6--6.1$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware}{figure.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{8}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{8}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Future directions.}{8}{section*.7}\protected@file@percent }
 \citation{hinton2015distilling}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape.}}{9}{figure.7}\protected@file@percent }
+\newlabel{fig:training_dynamics}{{7}{9}{Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{9}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Standard distillation framework}{9}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Temperature-scaled softmax.}{9}{section*.8}\protected@file@percent }
+\newlabel{eq:temp_softmax}{{1}{9}{Temperature-scaled softmax}{equation.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Soft loss.}{9}{section*.9}\protected@file@percent }
+\newlabel{eq:soft_loss}{{2}{9}{Soft loss}{equation.4.2}{}}
 \citation{hinton2015distilling}
-\@writefile{toc}{\contentsline {paragraph}{Limitations.}{6}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Future directions.}{6}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{6}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Standard distillation framework}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Temperature-scaled softmax.}{6}{section*.8}\protected@file@percent }
-\newlabel{eq:temp_softmax}{{1}{6}{Temperature-scaled softmax}{equation.4.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{Soft loss.}{6}{section*.9}\protected@file@percent }
-\newlabel{eq:soft_loss}{{2}{6}{Soft loss}{equation.4.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Hard loss.}{6}{section*.10}\protected@file@percent }
-\newlabel{eq:hard_loss}{{3}{6}{Hard loss}{equation.4.3}{}}
 \citation{guo2017calibration}
 \citation{muller2019label}
-\@writefile{toc}{\contentsline {paragraph}{Combined loss.}{7}{section*.11}\protected@file@percent }
-\newlabel{eq:combined_loss}{{4}{7}{Combined loss}{equation.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Uncertainty-aware position weighting}{7}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Shannon entropy.}{7}{section*.12}\protected@file@percent }
-\newlabel{eq:entropy}{{5}{7}{Shannon entropy}{equation.4.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Position weights.}{7}{section*.13}\protected@file@percent }
-\newlabel{eq:weights}{{6}{7}{Position weights}{equation.4.6}{}}
-\@writefile{toc}{\contentsline {paragraph}{Weighted soft loss.}{7}{section*.14}\protected@file@percent }
-\newlabel{eq:weighted_soft}{{7}{7}{Weighted soft loss}{equation.4.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Calibration-aware distillation}{7}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Dynamic smoothing.}{7}{section*.15}\protected@file@percent }
-\newlabel{eq:smoothing}{{8}{7}{Dynamic smoothing}{equation.4.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hard loss.}{10}{section*.10}\protected@file@percent }
+\newlabel{eq:hard_loss}{{3}{10}{Hard loss}{equation.4.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Combined loss.}{10}{section*.11}\protected@file@percent }
+\newlabel{eq:combined_loss}{{4}{10}{Combined loss}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Uncertainty-aware position weighting}{10}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Shannon entropy.}{10}{section*.12}\protected@file@percent }
+\newlabel{eq:entropy}{{5}{10}{Shannon entropy}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Position weights.}{10}{section*.13}\protected@file@percent }
+\newlabel{eq:weights}{{6}{10}{Position weights}{equation.4.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Weighted soft loss.}{10}{section*.14}\protected@file@percent }
+\newlabel{eq:weighted_soft}{{7}{10}{Weighted soft loss}{equation.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Calibration-aware distillation}{10}{subsection.4.3}\protected@file@percent }
 \citation{naeini2015ece}
 \citation{radford2019language,vaswani2017attention}
 \citation{ferruz2022protgpt2}
 \citation{uniprot2023}
 \citation{hinton2015distilling}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$).}}{11}{table.3}\protected@file@percent }
+\newlabel{tab:architectures}{{3}{11}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$)}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Dynamic smoothing.}{11}{section*.15}\protected@file@percent }
+\newlabel{eq:smoothing}{{8}{11}{Dynamic smoothing}{equation.4.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Smoothed targets.}{11}{section*.16}\protected@file@percent }
+\newlabel{eq:smoothed_targets}{{9}{11}{Smoothed targets}{equation.4.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{11}{section*.17}\protected@file@percent }
+\newlabel{eq:ece}{{10}{11}{Expected calibration error}{equation.4.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{11}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training details}{11}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Data.}{11}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Optimization.}{11}{section*.19}\protected@file@percent }
 \citation{uniprot2023}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$).}}{8}{table.3}\protected@file@percent }
-\newlabel{tab:architectures}{{3}{8}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$)}{table.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Smoothed targets.}{8}{section*.16}\protected@file@percent }
-\newlabel{eq:smoothed_targets}{{9}{8}{Smoothed targets}{equation.4.9}{}}
-\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{8}{section*.17}\protected@file@percent }
-\newlabel{eq:ece}{{10}{8}{Expected calibration error}{equation.4.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{8}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training details}{8}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Data.}{8}{section*.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Optimization.}{8}{section*.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Hardware.}{8}{section*.20}\protected@file@percent }
 \bibstyle{unsrtnat}
 \bibdata{references}
 \bibcite{ferruz2022protgpt2}{{1}{2022}{{Ferruz et~al.}}{{Ferruz, Schmidt, and H{\"o}cker}}}
@@ -107,6 +120,7 @@
 \bibcite{guo2017calibration}{{10}{2017}{{Guo et~al.}}{{Guo, Pleiss, Sun, and Weinberger}}}
 \bibcite{muller2019label}{{11}{2019}{{M{\"u}ller et~al.}}{{M{\"u}ller, Kornblith, and Hinton}}}
 \bibcite{naeini2015ece}{{12}{2015}{{Naeini et~al.}}{{Naeini, Cooper, and Hauskrecht}}}
+\@writefile{toc}{\contentsline {paragraph}{Hardware.}{12}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Data and code availability}{12}{subsection.4.6}\protected@file@percent }
 \bibcite{lin2023esmfold}{{13}{2023}{{Lin et~al.}}{{Lin, Akin, Rao, Hie, Zhu, Lu, Smeber, Verkuil, Kabeli, Shmueli, dos Santos~Costa, Fazel-Zarandi, Sercu, Candber, and Rives}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Data and code availability}{9}{subsection.4.6}\protected@file@percent }
 \bibcite{vaswani2017attention}{{14}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}

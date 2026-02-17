@@ -19,7 +19,16 @@ However, when both enhancements are applied simultaneously, perplexity drops to 
 53\% improvement over baseline and a 75--77\% improvement over either individual
 enhancement. KL divergence decreases from 2.23 to 1.62, and ECE improves from 0.274 to
 0.216. This complementary effect, where two individually harmful modifications combine
-to produce substantial improvement, is the central finding of this work (Fig.~1).
+to produce substantial improvement, is the central finding of this work (Fig.~\ref{fig:ablation}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/pdf/fig1_ablation.pdf}
+\caption{Ablation study showing the complementary effect. Each enhancement individually
+degrades distillation quality (higher perplexity, higher KL divergence, higher ECE),
+but their combination yields a 53\% perplexity improvement over baseline.}
+\label{fig:ablation}
+\end{figure}
 
 \begin{table}[t]
 \centering
@@ -49,7 +58,7 @@ finding that synergy training requires careful learning rate selection, we adopt
 protocol using approximately half the baseline learning rate with 500 steps of linear
 warmup (see Methods for details).
 
-Table~\ref{tab:scaling} and Fig.~2 show that synergy models outperform baselines at all
+Table~\ref{tab:scaling} and Fig.~\ref{fig:scaling} show that synergy models outperform baselines at all
 three scales. The improvement is largest at the highest compression ratio (87\% at
 20$\times$ compression for Tiny) and decreases with scale (54\% for Small, 31\% for
 Medium). This trend is expected: as student capacity approaches teacher capacity, the
@@ -81,12 +90,21 @@ Scale & Method & Compression & PPL & KL Div & ECE & Improvement \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/pdf/fig2_scaling.pdf}
+\caption{Perplexity ratio (student/teacher) across model scales. Synergy models
+outperform baselines at all three compression ratios, with the largest improvement
+at the highest compression (20$\times$).}
+\label{fig:scaling}
+\end{figure}
+
 \subsection{Calibration analysis}
 
 Expected calibration error (ECE) measures the alignment between predicted confidence and
 empirical accuracy across binned probability intervals~\cite{guo2017calibration,
 naeini2015ece}. We computed ECE with 10-bin quantization on held-out protein sequences
-(Fig.~3).
+(Fig.~\ref{fig:calibration}).
 
 Synergy models improve calibration at the Tiny scale (ECE 0.183 vs.\ 0.345, a 47\%
 reduction) and at the Medium scale (ECE 0.135 vs.\ 0.169, a 20\% reduction). At the
@@ -98,12 +116,21 @@ at this scale. Despite this, the overall trend supports the conclusion that the
 complementary distillation framework improves student calibration, particularly at
 higher compression ratios where miscalibration risk is greatest.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/pdf/fig3_calibration.pdf}
+\caption{Calibration diagrams comparing baseline and synergy models at each scale.
+Diagonal indicates perfect calibration. Synergy models improve calibration at Tiny
+and Medium scales.}
+\label{fig:calibration}
+\end{figure}
+
 \subsection{Biological validity}
 
 For protein language models intended for \textit{de novo} sequence design, preserving
 biologically realistic amino acid usage is essential. We evaluated the amino acid
 frequency distributions of generated sequences against the natural distribution observed
-in UniProt~\cite{uniprot2023} (Fig.~4).
+in UniProt~\cite{uniprot2023} (Fig.~\ref{fig:aa_dist}).
 
 All student models---both baseline and synergy---produce amino acid distributions
 closely matching the natural UniProt distribution, with KL divergence below 0.015 in
@@ -111,23 +138,46 @@ all cases. This indicates that the distillation process, regardless of configura
 preserves the fundamental statistical properties of natural protein sequences. The
 synergy enhancements do not introduce distributional artifacts.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/pdf/fig4_aa_distribution.pdf}
+\caption{Amino acid frequency deviation from the natural UniProt distribution. All
+student models maintain KL divergence below 0.015, confirming that distillation
+preserves biologically realistic amino acid usage.}
+\label{fig:aa_dist}
+\end{figure}
+
 \subsection{Compression--quality tradeoff}
 
 Plotting perplexity against compression ratio for all models reveals a Pareto frontier
-(Fig.~5). Synergy models dominate baseline models at every compression level tested,
+(Fig.~\ref{fig:pareto}). Synergy models dominate baseline models at every compression level tested,
 offering strictly better perplexity at the same model size. The improvement is most
 pronounced at high compression ratios, suggesting that the complementary distillation
 framework is especially valuable when aggressive compression is required.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/pdf/fig5_pareto.pdf}
+\caption{Compression--quality Pareto frontier. Synergy models (filled) dominate
+baseline models (open) at every compression ratio, achieving strictly better
+perplexity at the same model size.}
+\label{fig:pareto}
+\end{figure}
+
 \subsection{Practical deployment}
 
 Inference benchmarks on an NVIDIA L40S GPU show that student models achieve substantial
-speedups over the teacher (Fig.~6): 6.1$\times$ for Tiny, 4.5$\times$ for Small, and
+speedups over the teacher (Fig.~\ref{fig:speed}): 6.1$\times$ for Tiny, 4.5$\times$ for Small, and
 2.6$\times$ for Medium models. These speedups, combined with reduced memory requirements,
 enable protein sequence generation on consumer-grade GPUs. The Tiny model, at 37M
 parameters, can be deployed on GPUs with as little as 2\,GB of memory while maintaining
 perplexity within $2.0\times$ of the synergy-optimized baseline.
 
-% Placeholder for additional deployment figures
-% pLDDT structural plausibility evaluation and throughput benchmarks are
-% in preparation (Figs.~8--9).
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/pdf/fig6_speed.pdf}
+\caption{Inference speedup on an NVIDIA L40S GPU. Student models achieve
+2.6--6.1$\times$ speedup over the ProtGPT2 teacher, enabling deployment on
+consumer-grade hardware.}
+\label{fig:speed}
+\end{figure}
