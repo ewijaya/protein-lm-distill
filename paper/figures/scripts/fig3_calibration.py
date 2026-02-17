@@ -1,76 +1,105 @@
 #!/usr/bin/env python3
-"""Figure 3: Reliability diagrams for Teacher, Baseline-medium, Synergy-medium.
+"""Figure 3: Calibration comparison (ECE) across model scales.
 
-1x3 panel of calibration plots with ECE values and perfect-calibration diagonal.
+Two-panel figure:
+  (a) Horizontal bar chart of ECE values for Teacher, Synergy, Baseline
+      at all three scales (medium, small, tiny).
+  (b) Confidence distribution histograms for medium-scale models showing
+      how each model distributes its prediction confidence.
 """
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-from common import COLORS, DOUBLE_COL, load_result, np, plt, savefig
+import matplotlib.gridspec as gridspec
 
-# Load data
+sys.path.insert(0, str(Path(__file__).parent))
+from common import COLORS, DOUBLE_COL, SINGLE_COL, load_result, load_scaling_results, np, plt, savefig
+
+# Load scaling results for ECE across all scales
+scaling = load_scaling_results()
+scales = ["medium", "small", "tiny"]
+scale_labels = ["Medium", "Small", "Tiny"]
+
+# Extract ECE values
+teacher_eces = []
+synergy_eces = []
+baseline_eces = []
+
+for s in scales:
+    # Teacher ECE comes from synergy eval files (same teacher)
+    teacher_eces.append(scaling[s]["synergy"]["teacher_ece"]["ece"])
+    synergy_eces.append(scaling[s]["synergy"]["student_ece"]["ece"])
+    baseline_eces.append(scaling[s]["baseline"]["student_ece"]["ece"])
+
+# Load medium-scale confidence distributions for panel (b)
 teacher_data = load_result("eval_synergy_medium_v2.json")["teacher_ece"]
 baseline_data = load_result("eval_baseline_medium.json")["student_ece"]
 synergy_data = load_result("eval_synergy_medium_v2.json")["student_ece"]
 
-panels = [
-    ("(a) Teacher", teacher_data, COLORS["teacher"]),
-    ("(b) Baseline-medium", baseline_data, COLORS["baseline"]),
-    ("(c) Synergy-medium", synergy_data, COLORS["synergy"]),
-]
+fig = plt.figure(figsize=(DOUBLE_COL, SINGLE_COL * 0.7))
+gs = gridspec.GridSpec(1, 2, width_ratios=[1.2, 1], wspace=0.35)
 
-fig, axes = plt.subplots(1, 3, figsize=(DOUBLE_COL, DOUBLE_COL * 0.3))
+ax_ece = fig.add_subplot(gs[0])
+ax_conf = fig.add_subplot(gs[1])
 
-for ax, (title, data, color) in zip(axes, panels):
-    bin_stats = data["bin_stats"]
-    ece = data["ece"]
-    total_count = sum(b["count"] for b in bin_stats)
+# --- Panel (a): ECE bar chart ---
+y = np.arange(len(scales))
+bar_h = 0.22
 
-    # Perfect calibration diagonal
-    ax.plot([0, 1], [0, 1], "k--", linewidth=0.8, alpha=0.5, label="Perfect")
+bars_t = ax_ece.barh(y + bar_h, teacher_eces, height=bar_h,
+                      color=COLORS["teacher"], label="Teacher", edgecolor="white", linewidth=0.5)
+bars_s = ax_ece.barh(y, synergy_eces, height=bar_h,
+                      color=COLORS["synergy"], label="Synergy (Ours)", edgecolor="white", linewidth=0.5)
+bars_b = ax_ece.barh(y - bar_h, baseline_eces, height=bar_h,
+                      color=COLORS["baseline"], label="Baseline", edgecolor="white", linewidth=0.5)
 
-    # Plot bars for each bin
-    for b in bin_stats:
-        if b["count"] == 0 or b["avg_confidence"] is None:
-            continue
-        bin_center = (b["bin_lower"] + b["bin_upper"]) / 2
-        bin_width = b["bin_upper"] - b["bin_lower"]
-        # Width proportional to bin count
-        scaled_width = bin_width * (b["count"] / total_count) * len(bin_stats)
-        scaled_width = min(scaled_width, bin_width)  # cap at full bin width
+# Value labels
+for bars in [bars_t, bars_s, bars_b]:
+    for bar in bars:
+        width = bar.get_width()
+        ax_ece.text(width + 0.003, bar.get_y() + bar.get_height() / 2,
+                    f"{width:.3f}", va="center", fontsize=6.5)
 
-        ax.bar(bin_center, b["avg_accuracy"], width=scaled_width,
-               color=color, alpha=0.7, edgecolor="white", linewidth=0.5)
+ax_ece.set_yticks(y)
+ax_ece.set_yticklabels(scale_labels, fontsize=8)
+ax_ece.set_xlabel("ECE (lower is better)")
+ax_ece.set_xlim(0, max(max(teacher_eces), max(synergy_eces), max(baseline_eces)) * 1.25)
+ax_ece.legend(fontsize=6.5, loc="upper right", frameon=False)
+ax_ece.spines["top"].set_visible(False)
+ax_ece.spines["right"].set_visible(False)
+ax_ece.invert_yaxis()
+ax_ece.set_title("(a) Expected Calibration Error", fontsize=9)
 
-    # Plot accuracy line
+# --- Panel (b): Confidence distribution for medium ---
+def get_conf_histogram(data):
+    """Extract confidence values weighted by bin counts."""
     confs = []
-    accs = []
-    for b in bin_stats:
+    counts = []
+    for b in data["bin_stats"]:
         if b["count"] > 0 and b["avg_confidence"] is not None:
             confs.append(b["avg_confidence"])
-            accs.append(b["avg_accuracy"])
-    if confs:
-        ax.plot(confs, accs, "o-", color=color, markersize=3, linewidth=1,
-                label="Model")
+            counts.append(b["count"])
+    return confs, counts
 
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_aspect("equal")
-    ax.set_xlabel("Confidence")
-    if ax == axes[0]:
-        ax.set_ylabel("Accuracy")
-    ax.set_title(title, fontsize=9)
+for label, data, color in [
+    ("Teacher", teacher_data, COLORS["teacher"]),
+    ("Synergy", synergy_data, COLORS["synergy"]),
+    ("Baseline", baseline_data, COLORS["baseline"]),
+]:
+    confs, counts = get_conf_histogram(data)
+    total = sum(counts)
+    fracs = [c / total for c in counts]
+    ax_conf.scatter(confs, fracs, color=color, s=20, zorder=5, edgecolors="white", linewidth=0.3)
+    ax_conf.plot(confs, fracs, color=color, linewidth=1, alpha=0.7, label=label)
 
-    # ECE annotation
-    ax.text(0.05, 0.92, f"ECE = {ece:.3f}", transform=ax.transAxes,
-            fontsize=7, verticalalignment="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                      edgecolor="gray", alpha=0.8))
+ax_conf.set_xlabel("Confidence")
+ax_conf.set_ylabel("Fraction of predictions")
+ax_conf.set_xlim(0, 1.05)
+ax_conf.legend(fontsize=6.5, frameon=False)
+ax_conf.spines["top"].set_visible(False)
+ax_conf.spines["right"].set_visible(False)
+ax_conf.set_title("(b) Confidence distribution (Medium)", fontsize=9)
 
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-fig.tight_layout()
+fig.subplots_adjust(left=0.08, right=0.97, bottom=0.18, top=0.88, wspace=0.35)
 savefig(fig, "fig3_calibration")
