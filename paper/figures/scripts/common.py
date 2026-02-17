@@ -27,7 +27,7 @@ plt.rcParams.update({
     "figure.dpi": 300,
     "savefig.dpi": 300,
     "savefig.bbox": "tight",
-    "savefig.pad_inches": 0.05,
+    "savefig.pad_inches": 0.1,
     "pdf.fonttype": 42,  # TrueType fonts in PDF
     "ps.fonttype": 42,
 })

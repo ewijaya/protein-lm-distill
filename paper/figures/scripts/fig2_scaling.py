@@ -50,12 +50,12 @@ ax.set_xticklabels(
     fontsize=7,
 )
 
-ax.set_ylabel("Perplexity Ratio (student / teacher)")
+ax.set_ylabel("Perplexity Ratio (student / teacher)", fontsize=8)
 ax.set_xlabel("Model Scale (compression ratio)")
 ax.legend(fontsize=7, frameon=False)
 
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-fig.tight_layout()
+fig.tight_layout(pad=1.2)
 savefig(fig, "fig2_scaling")

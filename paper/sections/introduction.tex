@@ -32,7 +32,7 @@ models~\cite{rives2021biological} using response-based distillation, and
 MTDP~\cite{wang2024mtdp} introduced multi-teacher distillation for protein
 representations. For causal protein LMs, SpiderGPT~\cite{spidergpt2025} applied
 distillation to a domain-specific model trained on 592 spider silk sequences. However,
-\textbf{no systematic study has addressed distillation for general-purpose autoregressive
+\emph{no systematic study has addressed distillation for general-purpose autoregressive
 protein language models}---despite these being the models required for open-ended
 \textit{de novo} sequence design.
 
@@ -42,7 +42,7 @@ position weighting}, which uses teacher entropy to emphasize biologically variab
 regions during distillation, and (2) \textit{calibration-aware label smoothing}, which
 applies confidence-dependent smoothing to teacher distributions to improve student
 calibration~\cite{guo2017calibration, muller2019label}. Our central finding is a
-\textbf{complementary effect}: uncertainty weighting alone increases perplexity by 95\%
+\emph{complementary effect}: uncertainty weighting alone increases perplexity by 95\%
 and calibration smoothing alone increases it by 109\%, yet their combination improves
 perplexity by 53\% over baseline distillation. We provide a mechanistic explanation
 grounded in information theory: smoothing acts as a noise filter on teacher distributions,

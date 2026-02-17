@@ -70,21 +70,21 @@ transfers knowledge effectively.
 uncertainty weighting and calibration smoothing with adjusted learning rates and warmup.
 All synergy models outperform their respective baselines.}
 \label{tab:scaling}
-\begin{tabular}{llccccc}
+\begin{tabular}{llcccc}
 \toprule
-Scale & Method & Compression & PPL & KL Div & ECE & Improvement \\
+Scale & Method & Compression & PPL & ECE & Improvement \\
 \midrule
 \multirow{2}{*}{Tiny (512E)}
-  & Baseline & 20$\times$ & 39.91 & --- & 0.345 & --- \\
-  & Synergy  & 20$\times$ & \textbf{5.06} & --- & \textbf{0.183} & 87\% \\
+  & Baseline & 20$\times$ & 39.91 & 0.345 & --- \\
+  & Synergy  & 20$\times$ & \textbf{5.06} & \textbf{0.183} & 87\% \\
 \midrule
 \multirow{2}{*}{Small (768E)}
-  & Baseline & 9.4$\times$ & 15.19 & --- & 0.235 & --- \\
-  & Synergy  & 9.4$\times$ & \textbf{7.05} & --- & 0.259 & 54\% \\
+  & Baseline & 9.4$\times$ & 15.19 & 0.235 & --- \\
+  & Synergy  & 9.4$\times$ & \textbf{7.05} & 0.259 & 54\% \\
 \midrule
 \multirow{2}{*}{Medium (1024E)}
-  & Baseline & 3.8$\times$ & 3.72 & --- & 0.169 & --- \\
-  & Synergy  & 3.8$\times$ & \textbf{2.58} & --- & \textbf{0.135} & 31\% \\
+  & Baseline & 3.8$\times$ & 3.72 & 0.169 & --- \\
+  & Synergy  & 3.8$\times$ & \textbf{2.58} & \textbf{0.135} & 31\% \\
 \bottomrule
 \end{tabular}
 \end{table}
