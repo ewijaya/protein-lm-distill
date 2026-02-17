@@ -3,7 +3,9 @@
 \subsection{Standard distillation framework}
 
 We adopt the response-based knowledge distillation framework of Hinton et
-al.~\cite{hinton2015distilling}, adapted for autoregressive protein language modeling.
+al.~\cite{hinton2015distilling}---as opposed to feature-based~\cite{romero2015fitnets}
+or relational~\cite{park2019relational} approaches---adapted for autoregressive protein
+language modeling.
 Given a protein sequence $x = (x_1, \ldots, x_n)$ over vocabulary $\mathcal{V}$, the
 teacher and student models produce logit vectors $z_t^T, z_t^S \in
 \mathbb{R}^{|\mathcal{V}|}$ at each position $t$.
@@ -155,9 +157,9 @@ format. Sequences are tokenized using the ProtGPT2 tokenizer with a maximum leng
 1024 tokens.
 
 \paragraph{Optimization.}
-All models are trained with the AdamW optimizer for 3 epochs. We use Hinton et al.'s
-recommended defaults~\cite{hinton2015distilling}: temperature $\tau = 2.0$ and balancing
-coefficient $\alpha = 0.5$. For calibration smoothing, the base smoothing factor is
+All models are trained with the AdamW optimizer for 3 epochs. Following common practice
+in knowledge distillation, we set temperature $\tau = 2.0$ and balancing coefficient
+$\alpha = 0.5$. For calibration smoothing, the base smoothing factor is
 $\lambda = 0.1$.
 
 Baseline models use learning rates of $10^{-3}$ (Tiny and Small) and $10^{-4}$ (Medium)

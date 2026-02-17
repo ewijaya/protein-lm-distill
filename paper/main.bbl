@@ -1,4 +1,4 @@
-\begin{thebibliography}{15}
+\begin{thebibliography}{19}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -23,8 +23,8 @@ Alexander Rives, Joshua Meier, Tom Sercu, Siddharth Goyal, Zeming Lin, Jason
 \bibitem[Madani et~al.(2023)Madani, Krause, Greene, Subramanian, Mohr, Holton,
   Olmos, Xiong, Sun, Socher, Fraser, and Naik]{madani2023progen}
 Ali Madani, Ben Krause, Eric~R Greene, Subu Subramanian, Benjamin~P Mohr,
-  James~M Holton, Jose~Luis Olmos, Caiming Xiong, Zhz~Z Sun, Richard Socher,
-  James~S Fraser, and Nikhil Naik.
+  James~M Holton, Jose~Luis Olmos, Caiming Xiong, Zachary~Z Sun, Richard
+  Socher, James~S Fraser, and Nikhil Naik.
 \newblock Large language models generate functional protein sequences across
   diverse families.
 \newblock \emph{Nature Biotechnology}, 41:\penalty0 1099--1106, 2023.
@@ -39,7 +39,7 @@ Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya
 \bibitem[{The UniProt Consortium}(2023)]{uniprot2023}
 {The UniProt Consortium}.
 \newblock {UniProt}: the universal protein knowledgebase in 2023.
-\newblock \emph{Nucleic Acids Research}, 51\penalty0 (D1):\penalty0 D483--D489,
+\newblock \emph{Nucleic Acids Research}, 51\penalty0 (D1):\penalty0 D523--D531,
   2023.
 
 \bibitem[Hie et~al.(2024)Hie, Shanker, Xu, Bruun, Weidenbacher, Tang, Wu, Pak,
@@ -56,24 +56,43 @@ Geoffrey Hinton, Oriol Vinyals, and Jeff Dean.
 \newblock Distilling the knowledge in a neural network.
 \newblock \emph{arXiv preprint arXiv:1503.02531}, 2015.
 
-\bibitem[Brandes et~al.(2022)Brandes, Ofer, Peleg, Rappoport, and
-  Linial]{brandes2022proteinbert}
-Nadav Brandes, Dan Ofer, Yam Peleg, Nadav Rappoport, and Michal Linial.
-\newblock {ProteinBERT}: a universal deep-learning model of protein sequence
-  and function.
-\newblock \emph{Bioinformatics}, 38\penalty0 (8):\penalty0 2102--2110, 2022.
+\bibitem[Sanh et~al.(2019)Sanh, Debut, Chaumond, and Wolf]{sanh2019distilbert}
+Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf.
+\newblock {DistilBERT}, a distilled version of {BERT}: smaller, faster, cheaper
+  and lighter.
+\newblock \emph{arXiv preprint arXiv:1910.01108}, 2019.
 
-\bibitem[Wang et~al.(2024)]{wang2024mtdp}
-Yijia Wang et~al.
-\newblock {MTDP}: Multi-teacher knowledge distillation for protein
-  representations.
-\newblock \emph{Bioinformatics}, 2024.
+\bibitem[Jiao et~al.(2020)Jiao, Yin, Shang, Jiang, Chen, Li, Wang, and
+  Liu]{jiao2020tinybert}
+Xiaoqi Jiao, Yichun Yin, Lifeng Shang, Xin Jiang, Xiao Chen, Linlin Li, Fang
+  Wang, and Qun Liu.
+\newblock {TinyBERT}: Distilling {BERT} for natural language understanding.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  EMNLP 2020}, pages 4163--4174, 2020.
 
-\bibitem[{SpiderGPT Consortium}(2025)]{spidergpt2025}
-{SpiderGPT Consortium}.
-\newblock {SpiderGPT}: Knowledge distillation of a spider silk protein language
-  model.
-\newblock \emph{bioRxiv}, 2025.
+\bibitem[Geffen et~al.(2022)Geffen, Ofran, and Unger]{geffen2022distilprotbert}
+Yaniv Geffen, Yanay Ofran, and Ron Unger.
+\newblock {DistilProtBert}: a distilled protein language model used to
+  distinguish between real proteins and randomly generated amino acid
+  sequences.
+\newblock \emph{Bioinformatics}, 38\penalty0 (Supplement\_2):\penalty0
+  ii64--ii68, 2022.
+
+\bibitem[Shang et~al.(2024)Shang, Peng, Ji, Guan, Cai, Tang, and
+  Sun]{wang2024mtdp}
+Jiayu Shang, Cheng Peng, Yongxin Ji, Jiaojiao Guan, Dehan Cai, Xubo Tang, and
+  Yanni Sun.
+\newblock Accurate and efficient protein embedding using multi-teacher
+  distillation learning.
+\newblock \emph{Bioinformatics}, 40\penalty0 (9):\penalty0 btae567, 2024.
+
+\bibitem[Dubey et~al.(2025)Dubey, Karlsson, Redondo, Reimegard, Rising, and
+  Kjellstr{\"o}m]{dubey2025spidersilk}
+Neeru Dubey, Elin Karlsson, Miguel~Angel Redondo, Johan Reimegard, Anna Rising,
+  and Hedvig Kjellstr{\"o}m.
+\newblock Customizing spider silk: Generative models with mechanical property
+  conditioning for protein engineering.
+\newblock \emph{arXiv preprint arXiv:2504.08437}, 2025.
 
 \bibitem[Guo et~al.(2017)Guo, Pleiss, Sun, and Weinberger]{guo2017calibration}
 Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q Weinberger.
@@ -90,20 +109,34 @@ Rafael M{\"u}ller, Simon Kornblith, and Geoffrey Hinton.
 
 \bibitem[Naeini et~al.(2015)Naeini, Cooper, and Hauskrecht]{naeini2015ece}
 Mahdi~Pakdaman Naeini, Gregory~F Cooper, and Milos Hauskrecht.
-\newblock Obtaining well calibrated predictions using {Bayesian} binning into
+\newblock Obtaining well calibrated probabilities using {Bayesian} binning into
   quantiles.
 \newblock In \emph{Proceedings of the 29th AAAI Conference on Artificial
   Intelligence}, pages 2901--2907, 2015.
 
-\bibitem[Lin et~al.(2023)Lin, Akin, Rao, Hie, Zhu, Lu, Smeber, Verkuil, Kabeli,
-  Shmueli, dos Santos~Costa, Fazel-Zarandi, Sercu, Candber, and
+\bibitem[Lin et~al.(2023)Lin, Akin, Rao, Hie, Zhu, Lu, Smetanin, Verkuil,
+  Kabeli, Shmueli, dos Santos~Costa, Fazel-Zarandi, Sercu, Candido, and
   Rives]{lin2023esmfold}
 Zeming Lin, Halil Akin, Roshan Rao, Brian Hie, Zhongkai Zhu, Wenting Lu, Nikita
-  Smeber, Robert Verkuil, Ori Kabeli, Yaniv Shmueli, Allan dos Santos~Costa,
-  Maryam Fazel-Zarandi, Tom Sercu, Sal Candber, and Alexander Rives.
+  Smetanin, Robert Verkuil, Ori Kabeli, Yaniv Shmueli, Allan dos Santos~Costa,
+  Maryam Fazel-Zarandi, Tom Sercu, Salvatore Candido, and Alexander Rives.
 \newblock Evolutionary-scale prediction of atomic-level protein structure with
   a language model.
 \newblock \emph{Science}, 379\penalty0 (6637):\penalty0 1123--1130, 2023.
+
+\bibitem[Romero et~al.(2015)Romero, Ballas, Kahou, Chassang, Gatta, and
+  Bengio]{romero2015fitnets}
+Adriana Romero, Nicolas Ballas, Samira~Ebrahimi Kahou, Antoine Chassang, Carlo
+  Gatta, and Yoshua Bengio.
+\newblock {FitNets}: Hints for thin deep nets.
+\newblock In \emph{Proceedings of the 3rd International Conference on Learning
+  Representations (ICLR)}, 2015.
+
+\bibitem[Park et~al.(2019)Park, Kim, Lu, and Cho]{park2019relational}
+Wonpyo Park, Dongju Kim, Yan Lu, and Minsu Cho.
+\newblock Relational knowledge distillation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, pages 3967--3976, 2019.
 
 \bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
   Kaiser, and Polosukhin]{vaswani2017attention}

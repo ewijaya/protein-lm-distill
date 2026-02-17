@@ -15,7 +15,7 @@ deployment. ProtGPT2 requires high-end GPUs for inference, generates sequences a
 limited throughput ($\sim$3 seconds per sequence), and cannot be deployed on edge devices
 or in resource-constrained laboratory settings. These constraints are particularly
 acute in biopharma applications such as ML-guided antibody affinity
-maturation~\cite{hie2024antibodies} and enzyme engineering
+maturation~\cite{hie2024antibodies} and protein engineering
 campaigns~\cite{madani2023progen}, where evaluating thousands to millions of
 candidate sequences demands both high throughput and cost-effective deployment.
 
@@ -28,15 +28,16 @@ amino acid substitution patterns: the teacher's prediction that position $t$ sho
 leucine, with isoleucine and valine as secondary preferences, conveys evolutionary
 constraints that a hard label alone cannot express.
 
-Distillation has been successfully applied to masked protein language models.
-DistilProtBERT~\cite{brandes2022proteinbert} compressed ESM-style
-models~\cite{rives2021biological} using response-based distillation, and
-MTDP~\cite{wang2024mtdp} introduced multi-teacher distillation for protein
-representations. For causal protein LMs, SpiderGPT~\cite{spidergpt2025} applied
-distillation to a domain-specific model trained on 592 spider silk sequences. However,
-\emph{no systematic study has addressed distillation for general-purpose autoregressive
-protein language models}---despite these being the models required for open-ended
-\textit{de novo} sequence design.
+In natural language processing, distillation has produced compact yet performant models
+such as DistilBERT~\cite{sanh2019distilbert} and TinyBERT~\cite{jiao2020tinybert},
+motivating similar approaches for protein language models.
+DistilProtBert~\cite{geffen2022distilprotbert} compressed ProtBert using response-based
+distillation, and MTDP~\cite{wang2024mtdp} introduced multi-teacher distillation for
+protein representations. For causal protein LMs, Dubey et
+al.~\cite{dubey2025spidersilk} applied distillation to a domain-specific model trained
+on 572 spider silk sequences. However, \emph{no systematic study has addressed
+distillation for general-purpose autoregressive protein language models}---despite these
+being the models required for open-ended \textit{de novo} sequence design.
 
 We address this gap with a distillation framework that combines standard Hinton-style
 knowledge distillation with two protein-specific enhancements: (1) \textit{uncertainty-aware
