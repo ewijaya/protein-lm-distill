@@ -11,10 +11,14 @@ Usage:
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 
-from scripts.generate import generate_sequences
+_project_root = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(0, _project_root)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from generate import generate_sequences
 
 
 def run_plddt_benchmark(models, num_sequences=50, max_length=200, output_path=None):
