@@ -2,7 +2,8 @@
 Large autoregressive protein language models (700M+ parameters) can generate
 novel protein sequences \textit{de novo}, yet their computational demands preclude
 deployment on commodity hardware and limit
-throughput in high-throughput screening workflows. While knowledge distillation has been
+throughput in biopharma workflows such as antibody affinity maturation and enzyme
+engineering, where millions of candidate sequences must be evaluated. While knowledge distillation has been
 applied to masked protein language models and domain-specific causal models, no
 systematic study has addressed general-purpose autoregressive protein language models.
 We present a distillation framework combining standard temperature-scaled knowledge
@@ -17,5 +18,6 @@ three compressed student models at 3.8--20$\times$ compression ratios, all of wh
 outperform their respective baselines (31--87\% perplexity improvement). The resulting
 models achieve 2.4--5.3$\times$ inference speedup while preserving amino acid
 distributions consistent with natural proteins (KL divergence $< 0.015$), enabling
-practical protein design on consumer-grade GPUs.
+on-premise deployment for proprietary sequence screening without cloud API
+dependencies---a key requirement in pharmaceutical settings.
 \end{abstract}
