@@ -1,0 +1,99 @@
+\section{Discussion}
+
+\paragraph{Mechanistic explanation of the complementary effect.}
+The central finding of this work---that individually harmful modifications combine to
+produce substantial improvement---admits a clear mechanistic explanation rooted in
+information theory. Consider the teacher's probability distribution at each sequence
+position as containing both \textit{signal} (genuine amino acid preferences reflecting
+protein biology) and \textit{noise} (miscalibration artifacts from the teacher's own
+training).
+
+Uncertainty-aware position weighting increases the loss contribution at high-entropy
+positions, effectively amplifying both signal and noise. Because noise dominates at
+high-entropy positions (where the teacher is uncertain and potentially miscalibrated),
+the net effect of weighting alone is to amplify noise more than signal, degrading
+distillation quality.
+
+Calibration-aware label smoothing acts as a low-pass filter on teacher distributions,
+blending predictions toward the uniform distribution in proportion to teacher
+uncertainty. Applied alone, this attenuates both signal and noise, but signal is
+disproportionately affected because the fine-grained probability structure at
+uncertain positions---which encodes biologically meaningful substitution
+preferences---is smoothed away.
+
+When both enhancements operate simultaneously, they address each other's failure mode.
+Calibration smoothing removes the noise that uncertainty weighting would otherwise
+amplify, while uncertainty weighting compensates for the signal attenuation introduced
+by smoothing by directing additional learning capacity toward the affected positions.
+The combined effect is \textit{amplified but regularized} attention to variable
+positions: the student is instructed to ``pay extra attention here'' (weighting) while
+matching a denoised target (smoothing). This is analogous to a standard signal
+processing pipeline where amplification followed by filtering improves reception
+quality, whereas either operation alone degrades the signal-to-noise ratio.
+
+Formally, the two enhancements modify different components of the per-position loss:
+weighting acts as an outer multiplier on the loss magnitude, while smoothing modifies
+the inner KL divergence target distribution. Because they operate on orthogonal
+aspects of the loss, their effects compose multiplicatively rather than additively,
+enabling synergistic interaction when the modifications address complementary failure
+modes.
+
+\paragraph{Training dynamics and the role of warmup.}
+Analysis of training logs reveals that the first $\sim$500 steps constitute a critical
+window for synergy training (Fig.~7). Without warmup, the modified objective---which
+is inherently easier to minimize from random initialization due to smoothed targets---allows
+the student to rapidly converge toward a degenerate minimum that achieves low training
+loss but poor generalization. This is evidenced by anomalously low initial loss values
+(6.62 vs.\ 7.94 for baseline at the Tiny scale) followed by severe train--evaluation
+misalignment.
+
+With linear warmup over 500 steps, the near-zero initial learning rate forces the
+student to make incremental updates, learning basic token frequency patterns before
+encountering the full modified objective. By the time the learning rate reaches its
+target value, the student has already formed preliminary representations that constrain
+it to a generalizable region of the loss landscape. The enhanced objective then
+\textit{refines} this foundation rather than corrupting it.
+
+\paragraph{Scale-dependent effects.}
+The synergy improvement decreases with model scale (87\% $\to$ 54\% $\to$ 31\%), which
+we attribute to three factors. First, larger students have less to gain from
+regularization because they already approach teacher capacity (3.8$\times$ compression
+for Medium vs.\ 20$\times$ for Tiny). Second, baseline distillation improves
+approximately exponentially with scale, narrowing the gap. Third, larger students can
+better model the true distribution at variable positions natively, reducing the marginal
+benefit of the noise-filtering mechanism.
+
+\paragraph{Learning rate scaling.}
+A practical finding is that synergy training requires approximately half the baseline
+learning rate at matching scales, plus warmup. The smoothed targets create a loss
+landscape where the same nominal learning rate produces effectively larger functional
+steps; halving the learning rate compensates for this effect. This $0.5\times$ scaling
+rule held at the Tiny and Medium scales. At the Small scale, where the baseline
+learning rate ($5 \times 10^{-4}$) happened to already be appropriate, no reduction
+was needed.
+
+\paragraph{Small model ECE regression.}
+The Small synergy model shows a minor ECE regression (0.259 vs.\ 0.235 for baseline),
+the only scale where calibration worsened. This model was the only one trained without
+an explicit learning rate reduction, suggesting that the warmup schedule alone is not
+universally sufficient to optimize calibration. A targeted learning rate sweep at this
+scale would likely resolve the regression.
+
+\paragraph{Limitations.}
+Several limitations should be noted. First, we evaluate a single teacher model
+(ProtGPT2); generalization to other protein LMs such as ProGen~\cite{madani2023progen}
+or non-protein causal LMs remains to be established. Second, ECE is computed at the
+token level and may not fully capture sequence-level calibration relevant to downstream
+applications. Third, structural plausibility is assessed via predicted metrics
+(pLDDT from ESMFold~\cite{lin2023esmfold}) rather than experimental validation. Fourth,
+all experiments use a fixed smoothing factor ($\lambda = 0.1$) and temperature
+($T = 2.0$); a joint hyperparameter search over the enhanced distillation objective
+could yield further improvements.
+
+\paragraph{Future directions.}
+Several extensions are natural. Multi-teacher distillation, combining signals from
+diverse protein LMs, could provide more robust soft targets. The complementary effect
+should be tested on other autoregressive protein LMs and on non-protein biological
+sequence models. Finally, experimental validation of generated sequences---via wet-lab
+synthesis and characterization---would provide the strongest evidence of preserved
+biological function.

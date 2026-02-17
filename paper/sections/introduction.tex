@@ -1,0 +1,64 @@
+\section{Introduction}
+
+Protein language models (pLMs) trained on evolutionary sequence data have emerged as
+powerful tools for computational protein design~\cite{ferruz2022protgpt2,
+rives2021biological, madani2023progen}. By learning the statistical patterns of natural
+protein sequences, autoregressive pLMs can generate novel sequences \textit{de novo}
+with properties resembling those found in nature~\cite{ferruz2022protgpt2}. Among these,
+ProtGPT2---a GPT-2 architecture model~\cite{radford2019language} with 738 million
+parameters trained on UniRef50~\cite{uniprot2023}---has demonstrated the ability to
+produce sequences with natural amino acid distributions, plausible secondary structure
+content, and globular characteristics.
+
+However, the computational cost of large pLMs creates a significant barrier to practical
+deployment. ProtGPT2 requires high-end GPUs for inference, generates sequences at
+limited throughput ($\sim$3 seconds per sequence), and cannot be deployed on edge devices
+or in resource-constrained laboratory settings. These limitations are particularly
+acute in protein engineering workflows that require evaluating thousands to millions of
+candidate sequences during directed evolution or combinatorial library
+design~\cite{madani2023progen}.
+
+Knowledge distillation~\cite{hinton2015distilling} offers a principled approach to model
+compression by training a smaller student model to mimic the probability distributions
+of a larger teacher model. The key insight of Hinton et al.\ is that temperature-softened
+output distributions encode rich inter-class relationships---``dark knowledge''---that
+one-hot labels cannot convey. For protein sequences, these soft distributions capture
+amino acid substitution patterns: the teacher's prediction that position $t$ should be
+leucine, with isoleucine and valine as secondary preferences, conveys evolutionary
+constraints that a hard label alone cannot express.
+
+Distillation has been successfully applied to masked protein language models.
+DistilProtBERT~\cite{brandes2022proteinbert} compressed ESM-style
+models~\cite{rives2021biological} using response-based distillation, and
+MTDP~\cite{wang2024mtdp} introduced multi-teacher distillation for protein
+representations. For causal protein LMs, SpiderGPT~\cite{spidergpt2025} applied
+distillation to a domain-specific model trained on 592 spider silk sequences. However,
+\textbf{no systematic study has addressed distillation for general-purpose autoregressive
+protein language models}---despite these being the models required for open-ended
+\textit{de novo} sequence design.
+
+We address this gap with a distillation framework that combines standard Hinton-style
+knowledge distillation with two protein-specific enhancements: (1) \textit{uncertainty-aware
+position weighting}, which uses teacher entropy to emphasize biologically variable
+regions during distillation, and (2) \textit{calibration-aware label smoothing}, which
+applies confidence-dependent smoothing to teacher distributions to improve student
+calibration~\cite{guo2017calibration, muller2019label}. Our central finding is a
+\textbf{complementary effect}: uncertainty weighting alone increases perplexity by 95\%
+and calibration smoothing alone increases it by 109\%, yet their combination improves
+perplexity by 53\% over baseline distillation. We provide a mechanistic explanation
+grounded in information theory: smoothing acts as a noise filter on teacher distributions,
+while weighting amplifies the cleaned signal at biologically important positions.
+
+Our contributions are as follows:
+\begin{enumerate}
+  \item The first systematic study of knowledge distillation for general-purpose
+    autoregressive protein language models.
+  \item Two protein-specific distillation enhancements: uncertainty-aware position
+    weighting and calibration-aware label smoothing.
+  \item Discovery and mechanistic explanation of the complementary effect, where
+    individually harmful modifications combine for substantial improvement.
+  \item A comprehensive evaluation framework spanning perplexity, calibration (ECE),
+    amino acid distributional fidelity, and inference benchmarks.
+  \item Open-source compressed models at three scales (37M, 78M, 194M parameters)
+    available on HuggingFace.
+\end{enumerate}

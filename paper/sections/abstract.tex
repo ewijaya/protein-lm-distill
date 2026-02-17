@@ -1,0 +1,21 @@
+\begin{abstract}
+Large autoregressive protein language models such as ProtGPT2 (738M parameters) have
+demonstrated remarkable capabilities for \textit{de novo} protein sequence design, yet
+their computational demands preclude deployment on commodity hardware and limit
+throughput in high-throughput screening workflows. While knowledge distillation has been
+applied to masked protein language models and domain-specific causal models, no
+systematic study has addressed general-purpose autoregressive protein language models.
+We present a distillation framework combining standard temperature-scaled knowledge
+distillation with two protein-specific enhancements: uncertainty-aware position
+weighting, which emphasizes biologically variable regions via teacher entropy, and
+calibration-aware label smoothing, which regularizes teacher distributions to improve
+student calibration. A central finding is the \textbf{complementary effect}: each
+enhancement individually degrades distillation quality, yet their combination yields a
+53\% perplexity improvement over baseline distillation---a result we explain through an
+information-theoretic analysis of noise amplification and signal filtering. We train
+three compressed student models at 3.8--20$\times$ compression ratios, all of which
+outperform their respective baselines (31--87\% perplexity improvement). The resulting
+models achieve 2.6--6.1$\times$ inference speedup while preserving amino acid
+distributions consistent with natural proteins (KL divergence $< 0.015$), enabling
+practical protein design on consumer-grade GPUs.
+\end{abstract}

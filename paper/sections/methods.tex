@@ -1,0 +1,181 @@
+\section{Methods}
+
+\subsection{Standard distillation framework}
+
+We adopt the response-based knowledge distillation framework of Hinton et
+al.~\cite{hinton2015distilling}, adapted for autoregressive protein language modeling.
+Given a protein sequence $x = (x_1, \ldots, x_n)$ over vocabulary $\mathcal{V}$, the
+teacher and student models produce logit vectors $z_t^T, z_t^S \in
+\mathbb{R}^{|\mathcal{V}|}$ at each position $t$.
+
+\paragraph{Temperature-scaled softmax.}
+To reveal inter-class relationships in the teacher's predictions, logits are softened
+with temperature $\tau > 1$:
+\begin{equation}
+p_i^{(\tau)} = \frac{\exp(z_i / \tau)}{\sum_{j} \exp(z_j / \tau)}
+\label{eq:temp_softmax}
+\end{equation}
+Higher temperatures produce smoother distributions that expose the relative preferences
+among amino acids~\cite{hinton2015distilling}.
+
+\paragraph{Soft loss.}
+The soft loss measures the Kullback--Leibler divergence between temperature-scaled
+teacher and student distributions, averaged over sequence positions:
+\begin{equation}
+\mathcal{L}_{\text{soft}} = \frac{1}{n-1} \sum_{t=1}^{n-1} D_{\text{KL}}\!\left(
+  p_T^{(\tau)}(\cdot | x_{\leq t}) \;\|\; p_S^{(\tau)}(\cdot | x_{\leq t})
+\right)
+\label{eq:soft_loss}
+\end{equation}
+
+\paragraph{Hard loss.}
+The hard loss is the standard cross-entropy on ground-truth next-token labels:
+\begin{equation}
+\mathcal{L}_{\text{hard}} = -\sum_{t=1}^{n-1} \log p_S(x_{t+1} | x_{\leq t})
+\label{eq:hard_loss}
+\end{equation}
+
+\paragraph{Combined loss.}
+The total distillation loss balances hard and soft objectives with coefficient
+$\alpha \in [0,1]$, applying a $\tau^2$ correction to maintain gradient magnitude
+under temperature scaling:
+\begin{equation}
+\mathcal{L} = \alpha \cdot \mathcal{L}_{\text{hard}}
+  + (1 - \alpha) \cdot \tau^2 \cdot \mathcal{L}_{\text{soft}}
+\label{eq:combined_loss}
+\end{equation}
+The $\tau^2$ factor compensates for the $1/\tau^2$ gradient attenuation introduced by
+temperature scaling in the softmax~\cite{hinton2015distilling}.
+
+\subsection{Uncertainty-aware position weighting}
+
+Protein sequences exhibit heterogeneous predictability: conserved structural positions
+(e.g., hydrophobic core residues) are highly predictable, while variable positions
+(loops, linkers, surface residues) admit multiple plausible amino acids. We exploit this
+structure by weighting each position's contribution to the soft loss in proportion to
+the teacher's prediction entropy.
+
+\paragraph{Shannon entropy.}
+At each position $t$, the teacher's uncertainty is quantified as:
+\begin{equation}
+u_t = H(p_T(\cdot | x_{<t})) = -\sum_{v \in \mathcal{V}} p_T(v) \log p_T(v)
+\label{eq:entropy}
+\end{equation}
+where $p_T$ uses temperature $\tau = 1$ (unscaled) to reflect the teacher's true
+predictive uncertainty.
+
+\paragraph{Position weights.}
+Entropies are min-max normalized per sequence and mapped to the range $[0.5, 1.0]$:
+\begin{equation}
+w_t = 0.5 + 0.5 \cdot \frac{u_t - \min(\mathbf{u})}{\max(\mathbf{u}) - \min(\mathbf{u})}
+\label{eq:weights}
+\end{equation}
+The floor of 0.5 ensures that even highly predictable positions contribute to the
+distillation loss, preventing the student from ignoring conserved regions entirely.
+
+\paragraph{Weighted soft loss.}
+The uncertainty-weighted soft loss replaces the uniform average in
+Eq.~\ref{eq:soft_loss}:
+\begin{equation}
+\mathcal{L}_{\text{soft}}^{\text{weighted}} = \frac{1}{|\mathcal{T}|}
+  \sum_{t \in \mathcal{T}} w_t \cdot D_{\text{KL}}\!\left(
+    p_T^{(\tau)}(\cdot | x_{\leq t}) \;\|\; p_S^{(\tau)}(\cdot | x_{\leq t})
+  \right)
+\label{eq:weighted_soft}
+\end{equation}
+where $\mathcal{T}$ denotes the set of non-padded positions.
+
+\subsection{Calibration-aware distillation}
+
+Well-calibrated confidence estimates are critical for protein engineering applications
+where model predictions guide experimental prioritization~\cite{guo2017calibration}.
+Neural networks, including large language models, tend to be poorly calibrated, and
+this miscalibration can be transferred during distillation. We introduce dynamic label
+smoothing~\cite{muller2019label} applied to teacher distributions, with smoothing
+intensity inversely proportional to teacher confidence.
+
+\paragraph{Dynamic smoothing.}
+At each position $t$, the smoothing intensity is:
+\begin{equation}
+\epsilon_t = \lambda \cdot \left(1 - \max_{v \in \mathcal{V}}
+  p_T(v | x_{<t})\right)
+\label{eq:smoothing}
+\end{equation}
+where $\lambda$ is a base smoothing factor. When the teacher is confident
+($\max_v p_T(v) \approx 1$), smoothing is minimal ($\epsilon_t \approx 0$). When the
+teacher is uncertain, smoothing increases, regularizing the distribution.
+
+\paragraph{Smoothed targets.}
+The smoothed teacher distribution blends the original prediction with a uniform
+distribution:
+\begin{equation}
+\bar{p}_T(v) = (1 - \epsilon_t) \cdot p_T(v) + \frac{\epsilon_t}{|\mathcal{V}|}
+\label{eq:smoothed_targets}
+\end{equation}
+
+\paragraph{Expected calibration error.}
+We evaluate calibration using ECE with $B = 10$ equal-width bins~\cite{naeini2015ece}:
+\begin{equation}
+\text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{N}
+  \left| \text{acc}(B_b) - \text{conf}(B_b) \right|
+\label{eq:ece}
+\end{equation}
+where $B_b$ is the set of predictions falling in bin $b$, and $\text{acc}(B_b)$ and
+$\text{conf}(B_b)$ are the average accuracy and confidence within the bin, respectively.
+
+\subsection{Model architectures}
+
+All models use the GPT-2 architecture~\cite{radford2019language,
+vaswani2017attention} with varying depth and width. The teacher is ProtGPT2 (738M
+parameters)~\cite{ferruz2022protgpt2}. Student architectures span a 20$\times$
+compression range (Table~\ref{tab:architectures}).
+
+\begin{table}[t]
+\centering
+\caption{Model architectures and compression ratios. All models use the GPT-2
+architecture with the ProtGPT2 tokenizer ($|\mathcal{V}| = 50,257$).}
+\label{tab:architectures}
+\begin{tabular}{lccccc}
+\toprule
+Model & Layers & Heads & Embedding dim & Parameters & Compression \\
+\midrule
+Teacher (ProtGPT2) & 36 & 20 & 1280 & 738M & 1$\times$ \\
+Medium & 12 & 16 & 1024 & $\sim$194M & 3.8$\times$ \\
+Small  &  6 &  8 &  768 &  $\sim$78M & 9.4$\times$ \\
+Tiny   &  4 &  4 &  512 &  $\sim$37M &  20$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training details}
+
+\paragraph{Data.}
+We use a 10\% subset of UniProt~\cite{uniprot2023} protein sequences stored in Parquet
+format. Sequences are tokenized using the ProtGPT2 tokenizer with a maximum length of
+1024 tokens.
+
+\paragraph{Optimization.}
+All models are trained with the AdamW optimizer for 3 epochs. We use Hinton et al.'s
+recommended defaults~\cite{hinton2015distilling}: temperature $\tau = 2.0$ and balancing
+coefficient $\alpha = 0.5$. For calibration smoothing, the base smoothing factor is
+$\lambda = 0.1$.
+
+Baseline models use learning rates of $10^{-3}$ (Tiny and Small) and $10^{-4}$ (Medium)
+without warmup. Synergy models use approximately half the baseline learning rate with
+500 steps of linear warmup: $5 \times 10^{-4}$ (Tiny and Small) and $5 \times 10^{-5}$
+(Medium). This learning rate reduction compensates for the smoother loss landscape
+created by label smoothing, which causes the same nominal learning rate to produce
+effectively larger optimization steps.
+
+\paragraph{Hardware.}
+The Medium model was trained on an NVIDIA L40S GPU (48\,GB). Smaller models were trained
+on various NVIDIA GPUs with at least 24\,GB of memory. Gradient accumulation (4 steps)
+was used to achieve an effective batch size of 32.
+
+\subsection{Data and code availability}
+
+Training code, evaluation scripts, and trained model weights are available at
+\url{https://github.com/ewijaya/protein-lm-distill}. Compressed models are hosted on
+HuggingFace at \texttt{littleworth/protgpt2-distilled-\{tiny,small,medium\}}. Training
+data were derived from UniProt~\cite{uniprot2023}, which is freely available at
+\url{https://www.uniprot.org}.

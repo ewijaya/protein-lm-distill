@@ -1,0 +1,133 @@
+\section{Results}
+
+\subsection{Ablation reveals complementary effect}
+
+To assess the contribution of each enhancement, we conducted a $2 \times 2$ ablation
+study using the Tiny architecture (4 layers, 4 heads, 256 embedding dimensions),
+toggling uncertainty-aware position weighting and calibration-aware label smoothing
+independently (Table~\ref{tab:ablation}). All four configurations used identical training
+hyperparameters ($T = 2.0$, $\alpha = 0.5$, learning rate $= 10^{-3}$, 3 epochs).
+
+The baseline (standard Hinton-style distillation) achieved a perplexity of 18.95.
+Applying uncertainty weighting alone degraded perplexity to 36.89 (+95\%), while
+calibration smoothing alone degraded it further to 39.64 (+109\%). Both individual
+enhancements also increased KL divergence from the teacher and worsened expected
+calibration error (ECE). These results initially suggest that neither enhancement is
+beneficial.
+
+However, when both enhancements are applied simultaneously, perplexity drops to 8.93---a
+53\% improvement over baseline and a 75--77\% improvement over either individual
+enhancement. KL divergence decreases from 2.23 to 1.62, and ECE improves from 0.274 to
+0.216. This complementary effect, where two individually harmful modifications combine
+to produce substantial improvement, is the central finding of this work (Fig.~1).
+
+\begin{table}[t]
+\centering
+\caption{Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement
+individually degrades distillation quality, but their combination yields a 53\%
+improvement over baseline. PPL: perplexity; KL: KL divergence from teacher;
+ECE: expected calibration error.}
+\label{tab:ablation}
+\begin{tabular}{lcccccc}
+\toprule
+Configuration & Uncertainty & Calibration & PPL & KL Div & ECE & vs.\ Baseline \\
+\midrule
+Baseline (standard KD) & \texttimes & \texttimes & 18.95 & 2.23 & 0.274 & --- \\
++Uncertainty only       & \checkmark & \texttimes & 36.89 & 2.87 & 0.325 & +95\% \\
++Calibration only       & \texttimes & \checkmark & 39.64 & 3.00 & 0.319 & +109\% \\
++Both (synergy)         & \checkmark & \checkmark & \textbf{8.93} & \textbf{1.62} & \textbf{0.216} & \textbf{$-$53\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scaling across model sizes}
+
+To test whether the complementary effect generalizes beyond the ablation architecture,
+we trained paired baseline and synergy models at three scales: Tiny (20$\times$
+compression), Small (9.4$\times$), and Medium (3.8$\times$). Based on the ablation
+finding that synergy training requires careful learning rate selection, we adopted a
+protocol using approximately half the baseline learning rate with 500 steps of linear
+warmup (see Methods for details).
+
+Table~\ref{tab:scaling} and Fig.~2 show that synergy models outperform baselines at all
+three scales. The improvement is largest at the highest compression ratio (87\% at
+20$\times$ compression for Tiny) and decreases with scale (54\% for Small, 31\% for
+Medium). This trend is expected: as student capacity approaches teacher capacity, the
+marginal benefit of enhanced distillation diminishes because standard KD already
+transfers knowledge effectively.
+
+\begin{table}[t]
+\centering
+\caption{Scaling results across three model sizes. Synergy models use both
+uncertainty weighting and calibration smoothing with adjusted learning rates and warmup.
+All synergy models outperform their respective baselines.}
+\label{tab:scaling}
+\begin{tabular}{llccccc}
+\toprule
+Scale & Method & Compression & PPL & KL Div & ECE & Improvement \\
+\midrule
+\multirow{2}{*}{Tiny (512E)}
+  & Baseline & 20$\times$ & 39.91 & --- & 0.345 & --- \\
+  & Synergy  & 20$\times$ & \textbf{5.06} & --- & \textbf{0.183} & 87\% \\
+\midrule
+\multirow{2}{*}{Small (768E)}
+  & Baseline & 9.4$\times$ & 15.19 & --- & 0.235 & --- \\
+  & Synergy  & 9.4$\times$ & \textbf{7.05} & --- & 0.259 & 54\% \\
+\midrule
+\multirow{2}{*}{Medium (1024E)}
+  & Baseline & 3.8$\times$ & 3.72 & --- & 0.169 & --- \\
+  & Synergy  & 3.8$\times$ & \textbf{2.58} & --- & \textbf{0.135} & 31\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Calibration analysis}
+
+Expected calibration error (ECE) measures the alignment between predicted confidence and
+empirical accuracy across binned probability intervals~\cite{guo2017calibration,
+naeini2015ece}. We computed ECE with 10-bin quantization on held-out protein sequences
+(Fig.~3).
+
+Synergy models improve calibration at the Tiny scale (ECE 0.183 vs.\ 0.345, a 47\%
+reduction) and at the Medium scale (ECE 0.135 vs.\ 0.169, a 20\% reduction). At the
+Small scale, however, the synergy model shows a minor ECE regression (0.259 vs.\ 0.235).
+This anomaly may reflect the fact that the Small model was the only scale where the
+baseline learning rate happened to be appropriate for synergy training, so no learning
+rate reduction was applied; the warmup schedule alone may not fully optimize calibration
+at this scale. Despite this, the overall trend supports the conclusion that the
+complementary distillation framework improves student calibration, particularly at
+higher compression ratios where miscalibration risk is greatest.
+
+\subsection{Biological validity}
+
+For protein language models intended for \textit{de novo} sequence design, preserving
+biologically realistic amino acid usage is essential. We evaluated the amino acid
+frequency distributions of generated sequences against the natural distribution observed
+in UniProt~\cite{uniprot2023} (Fig.~4).
+
+All student models---both baseline and synergy---produce amino acid distributions
+closely matching the natural UniProt distribution, with KL divergence below 0.015 in
+all cases. This indicates that the distillation process, regardless of configuration,
+preserves the fundamental statistical properties of natural protein sequences. The
+synergy enhancements do not introduce distributional artifacts.
+
+\subsection{Compression--quality tradeoff}
+
+Plotting perplexity against compression ratio for all models reveals a Pareto frontier
+(Fig.~5). Synergy models dominate baseline models at every compression level tested,
+offering strictly better perplexity at the same model size. The improvement is most
+pronounced at high compression ratios, suggesting that the complementary distillation
+framework is especially valuable when aggressive compression is required.
+
+\subsection{Practical deployment}
+
+Inference benchmarks on an NVIDIA L40S GPU show that student models achieve substantial
+speedups over the teacher (Fig.~6): 6.1$\times$ for Tiny, 4.5$\times$ for Small, and
+2.6$\times$ for Medium models. These speedups, combined with reduced memory requirements,
+enable protein sequence generation on consumer-grade GPUs. The Tiny model, at 37M
+parameters, can be deployed on GPUs with as little as 2\,GB of memory while maintaining
+perplexity within $2.0\times$ of the synergy-optimized baseline.
+
+% Placeholder for additional deployment figures
+% pLDDT structural plausibility evaluation and throughput benchmarks are
+% in preparation (Figs.~8--9).
