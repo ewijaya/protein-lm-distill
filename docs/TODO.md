@@ -1,6 +1,6 @@
 # Project TODO List
 
-**Updated**: February 14, 2026
+**Updated**: February 17, 2026
 
 ---
 
@@ -11,7 +11,7 @@
 | **Phase 0** | ✅ Complete | Methodological enhancements + ablation study |
 | **Phase 1** | ✅ Complete | Baseline training (4 model sizes) |
 | **Phase 2** | ⏭️ Skip | Hyperparameter sweeps (ablation validates method) |
-| **Phase 3** | ⏳ In Progress | Comprehensive evaluation |
+| **Phase 3** | ✅ Complete | Comprehensive evaluation |
 | **Phase 4** | ⏸️ Pending | HuggingFace update |
 | **Phase 5** | ⏸️ Pending | Publication |
 
@@ -162,7 +162,7 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 
 ---
 
-## Phase 3: Comprehensive Evaluation (IN PROGRESS ⏳)
+## Phase 3: Comprehensive Evaluation (COMPLETE ✅)
 
 ### 3.1 Ablation Study Results (COMPLETE ✅) - Core Paper Finding
 
@@ -197,7 +197,7 @@ python scripts/train.py --temperature $BEST_T --alpha $BEST_A --n_layer 12 --n_h
 |-------|-----------|--------|-----|-------|
 | ~~Synergy-tiny (v1)~~ | ~~129.78~~ | ~~4.17~~ | ~~0.349~~ | ~~Superseded — LR overfitting issue~~ |
 | **Synergy-tiny (v2)** | **5.06** | **1.34** | **0.183** | **Fixed with LR=5e-4 + warmup=500** |
-| Synergy-small | 7.05 | 1.69 | 0.259 | Good improvement over baseline |
+| **Synergy-small (v1)** | **7.05** | **1.69** | **0.259** | **Kept v1 — warmup v2 regressed** |
 | ~~Synergy-medium (v1)~~ | ~~5.16~~ | ~~1.34~~ | ~~0.189~~ | ~~Superseded — LR fix needed~~ |
 | **Synergy-medium (v2)** | **2.58** | **1.47** | **0.135** | **Fixed with LR=5e-5 + warmup=500** |
 
@@ -362,7 +362,7 @@ git push origin HEAD && git push github HEAD
 | Medium (v1) | 3.72 | 5.16 | 1.34 | 1.34 | 0.169 | 0.189 |
 | **Medium (v2)** | **3.72** | **2.58** | **1.34** | **1.47** | **0.169** | **0.135** |
 
-**Key Finding (updated)**: After applying the LR + warmup fix pattern to both tiny and medium scales, synergy enhancements now outperform baseline at **all three scales**: Tiny (87% PPL improvement), Small (53% PPL improvement), Medium (31% PPL improvement). The regressions at tiny and medium scales were both due to LR-induced overfitting, not fundamental limitations of the synergy method.
+**Key Finding (updated)**: Synergy enhancements outperform baseline at **all three scales**: Tiny v2 (87% PPL improvement), Small v1 (54% PPL improvement), Medium v2 (31% PPL improvement). Tiny and medium required LR + warmup fixes; small worked best without warmup (warmup v2 regressed). Minor ECE regression at small scale (0.259 vs 0.235) to be discussed in paper.
 
 ### 3.4 Synergy-Tiny Fix: LR + Warmup Re-run (COMPLETE ✅)
 
@@ -424,45 +424,28 @@ git push origin HEAD && git push github HEAD
 - [x] synergy-medium-v2 evaluated
 - [x] Results compared to synergy-medium v1 and baseline-medium
 
-### 3.6 Synergy-Small Fix: Add Warmup (IN PROGRESS ⏳)
+### 3.6 Synergy-Small Fix: Add Warmup (COMPLETE ✅ — v1 kept)
 
-**Started**: February 14, 2026
+**Completed**: February 17, 2026
 
-**Objective**: Re-run synergy-small with warmup=500 for consistency across all scales. Synergy-small already uses the correct LR (5e-4) but was trained without warmup. Adding warmup may fix the ECE regression (0.259 vs baseline 0.235).
+**Objective**: Re-run synergy-small with warmup=500 for consistency across all scales.
 
-**Rationale**:
-- Synergy-tiny v2 (LR=5e-4, warmup=500) → PPL ratio 129.78 → 5.06
-- Synergy-medium v2 (LR=5e-5, warmup=500) → PPL ratio 5.16 → 2.58
-- Synergy-small (LR=5e-4, **no warmup**) is the only scale without warmup
-- ECE is worse than baseline (0.259 vs 0.235) — warmup may fix this
+**Result**: Warmup **hurt** at this scale. v2 regressed on all metrics — keeping v1.
 
-**Command**:
-```bash
-nohup bash -c '
-cd /home/ubuntu/storage1/protein-lm-distill && \
-python scripts/train.py \
-    --temperature 2.0 --alpha 0.5 \
-    --n_layer 6 --n_head 8 --n_embd 768 \
-    --train_size_prop 0.1 --learning_rate 5e-4 \
-    --warmup_steps 500 \
-    --batch_size 16 --gradient_accumulation 2 \
-    --use_uncertainty_weighting --use_calibration_smoothing \
-    --output_dir ./models/synergy-small-v2 && \
-python scripts/evaluate.py \
-    --student_model ./models/synergy-small-v2 \
-    --num_samples 100 --compute_ece \
-    --output results/eval_synergy_small_v2.json && \
-/home/ubuntu/bin/stopinstance
-' > nohup_synergy_small_v2.out 2>&1 &
-```
+| Metric | synergy-small v1 | synergy-small v2 | baseline-small |
+|--------|-----------------|------------------|----------------|
+| PPL Ratio | **7.05** | 13.86 | 15.19 |
+| KL Divergence | **1.69** | 2.04 | 2.03 |
+| Student ECE | **0.259** | 0.319 | 0.235 |
 
-**Monitor**: `tail -f nohup_synergy_small_v2.out`
+**Decision**: Keep synergy-small v1 (no warmup). PPL ratio 7.05 is 54% better than baseline (15.19). The minor ECE regression (0.259 vs baseline 0.235) will be discussed in the paper — warmup is not universally beneficial and the small scale already had appropriate LR without it.
 
-**Success criteria**: ECE should improve from 0.259 toward baseline level (0.235) or better. PPL ratio should remain ≤ 7.05 (current v1).
+**W&B run**: `pw7xnnnw`
 
-- [ ] synergy-small-v2 trained (LR=5e-4, warmup=500)
-- [ ] synergy-small-v2 evaluated
-- [ ] Results compared to synergy-small v1 and baseline-small
+- [x] synergy-small-v2 trained (LR=5e-4, warmup=500)
+- [x] synergy-small-v2 evaluated
+- [x] Results compared to synergy-small v1 and baseline-small
+- [x] Decision: keep v1, discuss ECE in paper
 
 ### 3.7 Size-Dependent Thresholds (reference)
 
@@ -485,7 +468,7 @@ python scripts/evaluate.py \
 - [x] Synergy-tiny v2 re-run (LR=5e-4, warmup=500) — PPL ratio 129.78 → 5.06
 - [x] Synergy-medium v2 re-run (LR=5e-5, warmup=500) — PPL ratio 5.16 → 2.58
 - [x] Mechanistic explanation drafted (`docs/mechanistic-explanation.md`)
-- [ ] Synergy-small v2 re-run (LR=5e-4, warmup=500) — in progress
+- [x] Synergy-small v2 re-run (LR=5e-4, warmup=500) — regressed; keeping v1
 
 ---
 
@@ -498,7 +481,7 @@ python scripts/evaluate.py \
 ```bash
 # Upload new models to replace old HF models
 python tools/upload_to_hf.py --model_dir ./models/synergy-tiny-v2 --repo_id littleworth/protgpt2-distilled-tiny
-python tools/upload_to_hf.py --model_dir ./models/synergy-small-v2 --repo_id littleworth/protgpt2-distilled-small  # pending v2 results
+python tools/upload_to_hf.py --model_dir ./models/synergy-small --repo_id littleworth/protgpt2-distilled-small  # using v1 (warmup v2 regressed)
 python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id littleworth/protgpt2-distilled-medium
 ```
 
@@ -605,6 +588,6 @@ https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION
 | `results/eval_synergy_tiny.json` | Synergy-tiny v1 (superseded by v2) |
 | `results/eval_synergy_tiny_v2.json` | Synergy-tiny v2 (LR fix) - current best |
 | `results/eval_synergy_small.json` | Synergy-small v1 (superseded by v2) |
-| `results/eval_synergy_small_v2.json` | Synergy-small v2 (warmup fix) - pending |
+| `results/eval_synergy_small_v2.json` | Synergy-small v2 (warmup) - regressed, v1 kept |
 | `results/eval_synergy_medium.json` | Synergy-medium v1 (superseded by v2) |
 | `results/eval_synergy_medium_v2.json` | Synergy-medium v2 (LR fix) - current best |
