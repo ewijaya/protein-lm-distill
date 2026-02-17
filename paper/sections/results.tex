@@ -120,11 +120,12 @@ higher compression ratios where miscalibration risk is greatest.
 \centering
 \includegraphics[width=\textwidth]{figures/pdf/fig3_calibration.pdf}
 \caption{(a) Expected calibration error across model scales. Synergy (red)
-achieves lower ECE than Baseline (blue) at all three scales, with the largest
-improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). The teacher ECE
+achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the
+largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small
+scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE
 (0.148) is shown for reference. (b)~Confidence distribution for medium-scale
 models: Synergy concentrates more predictions in low-confidence bins,
-indicating more conservative and better-calibrated uncertainty estimates.}
+indicating more conservative uncertainty estimates.}
 \label{fig:calibration}
 \end{figure}
 
