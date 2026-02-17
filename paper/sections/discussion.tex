@@ -2,7 +2,7 @@
 
 \paragraph{Mechanistic explanation of the complementary effect.}
 The central finding of this work---that individually harmful modifications combine to
-produce substantial improvement---admits a clear mechanistic explanation rooted in
+produce substantial improvement---has a mechanistic explanation grounded in
 information theory. Consider the teacher's probability distribution at each sequence
 position as containing both \textit{signal} (genuine amino acid preferences reflecting
 protein biology) and \textit{noise} (miscalibration artifacts from the teacher's own
@@ -90,7 +90,7 @@ universally sufficient to optimize calibration. A targeted learning rate sweep a
 scale would likely resolve the regression.
 
 \paragraph{Limitations.}
-Several limitations should be noted. First, we evaluate a single teacher model
+This work has several limitations. First, we evaluate a single teacher model
 (ProtGPT2); generalization to other protein LMs such as ProGen~\cite{madani2023progen}
 or non-protein causal LMs remains to be established. Second, ECE is computed at the
 token level and may not fully capture sequence-level calibration relevant to downstream
@@ -101,7 +101,7 @@ all experiments use a fixed smoothing factor ($\lambda = 0.1$) and temperature
 could yield further improvements.
 
 \paragraph{Future directions.}
-Several extensions are natural. Multi-teacher distillation, combining signals from
+We identify three extensions. Multi-teacher distillation, combining signals from
 diverse protein LMs, could provide more robust soft targets. The complementary effect
 should be tested on other autoregressive protein LMs and on non-protein biological
 sequence models. Finally, experimental validation of generated sequences---via wet-lab

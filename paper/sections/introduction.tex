@@ -1,7 +1,7 @@
 \section{Introduction}
 
-Protein language models (pLMs) trained on evolutionary sequence data have emerged as
-powerful tools for computational protein design~\cite{ferruz2022protgpt2,
+Protein language models (pLMs) trained on evolutionary sequence data now enable
+computational protein design~\cite{ferruz2022protgpt2,
 rives2021biological, madani2023progen}. By learning the statistical patterns of natural
 protein sequences, autoregressive pLMs can generate novel sequences \textit{de novo}
 with properties resembling those found in nature~\cite{ferruz2022protgpt2}. Among these,
@@ -13,8 +13,7 @@ content, and globular characteristics.
 However, the computational cost of large pLMs creates a significant barrier to practical
 deployment. ProtGPT2 requires high-end GPUs for inference, generates sequences at
 limited throughput ($\sim$3 seconds per sequence), and cannot be deployed on edge devices
-or in resource-constrained laboratory settings. These limitations are particularly
-acute in protein engineering workflows that require evaluating thousands to millions of
+or in resource-constrained laboratory settings. These constraints are most severe in protein engineering workflows that require evaluating thousands to millions of
 candidate sequences during directed evolution or combinatorial library
 design~\cite{madani2023progen}.
 

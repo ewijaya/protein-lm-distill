@@ -12,8 +12,7 @@ The baseline (standard Hinton-style distillation) achieved a perplexity of 18.95
 Applying uncertainty weighting alone degraded perplexity to 36.89 (+95\%), while
 calibration smoothing alone degraded it further to 39.64 (+109\%). Both individual
 enhancements also increased KL divergence from the teacher and worsened expected
-calibration error (ECE). These results initially suggest that neither enhancement is
-beneficial.
+calibration error (ECE). Taken individually, neither enhancement appears beneficial.
 
 However, when both enhancements are applied simultaneously, perplexity drops to 8.93---a
 53\% improvement over baseline and a 75--77\% improvement over either individual
@@ -109,12 +108,11 @@ naeini2015ece}. We computed ECE with 10-bin quantization on held-out protein seq
 Synergy models improve calibration at the Tiny scale (ECE 0.183 vs.\ 0.345, a 47\%
 reduction) and at the Medium scale (ECE 0.135 vs.\ 0.169, a 20\% reduction). At the
 Small scale, however, the synergy model shows a minor ECE regression (0.259 vs.\ 0.235).
-This anomaly may reflect the fact that the Small model was the only scale where the
-baseline learning rate happened to be appropriate for synergy training, so no learning
-rate reduction was applied; the warmup schedule alone may not fully optimize calibration
-at this scale. Despite this, the overall trend supports the conclusion that the
-complementary distillation framework improves student calibration, particularly at
-higher compression ratios where miscalibration risk is greatest.
+This anomaly likely reflects the fact that the Small model was the only scale where no
+learning rate reduction was applied; the warmup schedule alone may not fully optimize
+calibration. Overall, synergy distillation improves student calibration at 2 of 3
+scales, with the largest gains at higher compression ratios where miscalibration risk
+is greatest.
 
 \begin{figure}[t]
 \centering
