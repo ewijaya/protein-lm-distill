@@ -13,9 +13,11 @@ content, and globular characteristics.
 However, the computational cost of large pLMs creates a significant barrier to practical
 deployment. ProtGPT2 requires high-end GPUs for inference, generates sequences at
 limited throughput ($\sim$3 seconds per sequence), and cannot be deployed on edge devices
-or in resource-constrained laboratory settings. These constraints are most severe in protein engineering workflows that require evaluating thousands to millions of
-candidate sequences during directed evolution or combinatorial library
-design~\cite{madani2023progen}.
+or in resource-constrained laboratory settings. These constraints are particularly
+acute in biopharma applications such as ML-guided antibody affinity
+maturation~\cite{hie2024antibodies} and enzyme engineering
+campaigns~\cite{madani2023progen}, where evaluating thousands to millions of
+candidate sequences demands both high throughput and cost-effective deployment.
 
 Knowledge distillation~\cite{hinton2015distilling} offers a principled approach to model
 compression by training a smaller student model to mimic the probability distributions
