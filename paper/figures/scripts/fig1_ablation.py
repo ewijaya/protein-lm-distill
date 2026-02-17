@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from common import (
     COLORS,
+    DOUBLE_COL,
     MODEL_NAMES,
     SINGLE_COL,
     load_ablation_results,
@@ -32,8 +33,11 @@ eces = [results[m]["student_ece"]["ece"] for m in methods]
 # Colors for each method
 bar_colors = [COLORS[m] for m in methods]
 
-# Create figure
-fig, axes = plt.subplots(1, 3, figsize=(SINGLE_COL * 1.8, SINGLE_COL * 0.7))
+# Short x-axis labels (full names go in caption)
+short_labels = ["Baseline", "+Uncert.", "+Calib.", "+Both"]
+
+# Create figure — double-column width for 3 panels
+fig, axes = plt.subplots(1, 3, figsize=(DOUBLE_COL, SINGLE_COL * 0.65))
 
 metrics = [
     ("Perplexity Ratio", ppl_ratios, "(a)"),
@@ -43,7 +47,7 @@ metrics = [
 
 for ax, (title, values, panel) in zip(axes, metrics):
     x = np.arange(len(methods))
-    bars = ax.bar(x, values, width=0.6, color=bar_colors, edgecolor="white",
+    bars = ax.bar(x, values, width=0.55, color=bar_colors, edgecolor="white",
                   linewidth=0.5)
 
     # Baseline reference line
@@ -52,7 +56,7 @@ for ax, (title, values, panel) in zip(axes, metrics):
 
     ax.set_ylabel(title)
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontsize=6)
+    ax.set_xticklabels(short_labels, fontsize=7, rotation=30, ha="right")
     ax.set_xlim(-0.5, len(methods) - 0.5)
 
     # Panel label
@@ -62,7 +66,7 @@ for ax, (title, values, panel) in zip(axes, metrics):
     # Add value labels on bars
     for bar, val in zip(bars, values):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
-                f"{val:.2f}", ha="center", va="bottom", fontsize=6)
+                f"{val:.2f}", ha="center", va="bottom", fontsize=7)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)

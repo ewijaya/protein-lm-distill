@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Figure 4: Amino acid distribution heatmap.
+"""Figure 4: Amino acid distribution deviation from natural.
 
-Rows: Natural, Teacher, Synergy-medium, Baseline-medium.
-Columns: amino acids in AA_ORDER.
-Diverging colormap centered on natural distribution.
+Heatmap showing deviation of generated AA frequencies from UniProt natural
+distribution. Rows: Teacher, Synergy-medium, Baseline-medium.
 """
 
 import sys
@@ -14,6 +13,7 @@ import matplotlib.colors as mcolors
 sys.path.insert(0, str(Path(__file__).parent))
 from common import (
     AA_ORDER,
+    DOUBLE_COL,
     NATURAL_AA_DIST,
     SINGLE_COL,
     load_result,
@@ -30,48 +30,45 @@ teacher_aa = synergy_med["teacher_generation"]["aa_distribution"]
 synergy_aa = synergy_med["student_generation"]["aa_distribution"]
 baseline_aa = baseline_med["student_generation"]["aa_distribution"]
 
-# Build matrix: rows are distributions, columns are amino acids
-row_labels = ["Natural", "Teacher", "Synergy-medium", "Baseline-medium"]
-distributions = [NATURAL_AA_DIST, teacher_aa, synergy_aa, baseline_aa]
+# Build matrix (exclude Natural row — it's all zeros by definition)
+row_labels = ["Teacher", "Synergy-Medium", "Baseline-Medium"]
+distributions = [teacher_aa, synergy_aa, baseline_aa]
+natural_freqs = np.array([NATURAL_AA_DIST.get(aa, 0.0) for aa in AA_ORDER])
 
 matrix = np.zeros((len(distributions), len(AA_ORDER)))
 for i, dist in enumerate(distributions):
     for j, aa in enumerate(AA_ORDER):
         matrix[i, j] = dist.get(aa, 0.0)
 
-# Compute divergence from natural
-natural_row = matrix[0]
-divergence = matrix - natural_row[np.newaxis, :]
+# Divergence from natural
+divergence = matrix - natural_freqs[np.newaxis, :]
 
-# Symmetric limits for diverging colormap
+# Symmetric colormap limits
 vmax = np.max(np.abs(divergence))
 
-fig, ax = plt.subplots(figsize=(SINGLE_COL, SINGLE_COL * 0.5))
+fig, ax = plt.subplots(figsize=(DOUBLE_COL, SINGLE_COL * 0.55))
 
 cmap = plt.cm.RdBu_r
 norm = mcolors.TwoSlopeNorm(vmin=-vmax, vcenter=0, vmax=vmax)
 
 im = ax.imshow(divergence, cmap=cmap, norm=norm, aspect="auto")
 
+# X-axis: amino acids
 ax.set_xticks(np.arange(len(AA_ORDER)))
-ax.set_xticklabels(AA_ORDER, fontsize=6)
-ax.set_yticks(np.arange(len(row_labels)))
-ax.set_yticklabels(row_labels, fontsize=7)
-
-# Add text annotations
-for i in range(divergence.shape[0]):
-    for j in range(divergence.shape[1]):
-        val = divergence[i, j]
-        text_color = "white" if abs(val) > vmax * 0.6 else "black"
-        ax.text(j, i, f"{val:+.3f}", ha="center", va="center",
-                fontsize=4, color=text_color)
-
-cbar = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
-cbar.set_label("Deviation from natural", fontsize=7)
-cbar.ax.tick_params(labelsize=6)
-
+ax.set_xticklabels(AA_ORDER, fontsize=8, fontfamily="monospace")
 ax.set_xlabel("Amino Acid")
-ax.set_title("Amino Acid Distribution Deviation from Natural", fontsize=9)
+
+# Y-axis: model labels
+ax.set_yticks(np.arange(len(row_labels)))
+ax.set_yticklabels(row_labels, fontsize=8)
+
+# Colorbar
+cbar = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.02, aspect=15)
+cbar.set_label("$\\Delta$ freq.", fontsize=8)
+cbar.ax.tick_params(labelsize=7)
+
+# Remove title (caption handles it)
+ax.tick_params(length=2, width=0.5)
 
 fig.tight_layout()
 savefig(fig, "fig4_aa_distribution")
