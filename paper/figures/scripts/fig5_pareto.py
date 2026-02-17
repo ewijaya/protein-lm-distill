@@ -59,13 +59,6 @@ ax.set_xlabel("Compression Ratio")
 ax.set_ylabel("Perplexity Ratio (student / teacher)")
 ax.legend(fontsize=7, frameon=False, loc="upper left")
 
-# Lower PPL ratio = better, annotate
-ax.annotate("Better", xy=(0.95, 0.05), xycoords="axes fraction",
-            fontsize=7, ha="right", va="bottom", style="italic",
-            color="gray")
-ax.annotate("", xy=(0.95, 0.02), xycoords="axes fraction",
-            xytext=(0.75, 0.02), textcoords="axes fraction",
-            arrowprops=dict(arrowstyle="->", color="gray", linewidth=0.8))
 
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
