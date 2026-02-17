@@ -13,7 +13,7 @@
 | **Phase 2** | ⏭️ Skip | Hyperparameter sweeps (ablation validates method) |
 | **Phase 3** | ✅ Complete | Comprehensive evaluation |
 | **Phase 4** | ⏸️ Pending | HuggingFace update |
-| **Phase 5** | ⏸️ Pending | Publication |
+| **Phase 5** | ⏳ In Progress | Publication |
 
 ---
 
@@ -496,43 +496,69 @@ python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id li
 
 ---
 
-## Phase 5: Publication (PENDING)
+## Phase 5: Publication (IN PROGRESS ⏳)
 
-### Core Paper Story: Complementary Distillation
+### Paper Title
 
-**Central Finding**: Uncertainty-aware and calibration-aware distillation exhibit a **complementary effect** — each method individually degrades performance, but their combination yields dramatic improvement.
+**"Complementary Distillation for Protein Language Models"**
 
-**Why This Is Publishable**:
-1. Counter-intuitive finding (individual components hurt, together they help)
-2. Large effect size (53% PPL improvement, 27% KL improvement)
-3. Novel contribution to protein LM compression literature
-4. Mechanistic implications for understanding distillation dynamics
+### 5.1 Paper Draft (COMPLETE ✅)
 
-**Proposed Mechanistic Explanation** (to develop in Discussion):
-- Uncertainty-only: Upweights high-entropy positions but amplifies teacher miscalibration
-- Calibration-only: Smooths overconfident predictions but loses signal in uncertain regions
-- Together: Calibration prevents noise amplification; uncertainty focuses smoothing where needed
+**Completed**: February 17, 2026
 
-### Paper Title Options
+**Location**: `paper/main.tex` → `paper/main.pdf` (10 pages, clean compile)
 
-**Short and punchy (preferred):**
-1. "Uncertainty Meets Calibration: Improved Distillation for Protein Language Models"
-2. "Calibrated Distillation for Protein Language Models"
-3. "When Uncertainty Meets Calibration in Protein LM Distillation"
+**Contents**:
+- Abstract (~200 words)
+- Introduction (~700 words) — gap, contributions, complementary effect
+- Results (~1800 words) — ablation, scaling, calibration, biological validity, deployment
+- Discussion (~900 words) — mechanistic explanation, scale effects, limitations
+- Online Methods — full mathematical framework from `docs/METHODS.md`
+- 3 tables (ablation, scaling, architectures)
+- 18 references (`paper/references.bib`)
 
-**Method-focused:**
-4. "Uncertainty-Aware Calibration-Conscious Distillation for Protein Language Models"
-5. "Improved Protein Language Model Distillation via Joint Uncertainty and Calibration Awareness"
+**Figures generated** (7 of 9):
 
-**Finding-focused:**
-6. "Complementary Effects in Protein LM Distillation: Uncertainty Weighting Meets Calibration Smoothing"
+| Figure | File | Status |
+|--------|------|--------|
+| Fig 1: Ablation study | `paper/figures/pdf/fig1_ablation.pdf` | ✅ |
+| Fig 2: Scaling results | `paper/figures/pdf/fig2_scaling.pdf` | ✅ |
+| Fig 3: Calibration reliability | `paper/figures/pdf/fig3_calibration.pdf` | ✅ |
+| Fig 4: AA distribution | `paper/figures/pdf/fig4_aa_distribution.pdf` | ✅ |
+| Fig 5: Pareto frontier | `paper/figures/pdf/fig5_pareto.pdf` | ✅ |
+| Fig 6: Inference speed | `paper/figures/pdf/fig6_speed.pdf` | ✅ |
+| Fig 7: Training dynamics | `paper/figures/pdf/fig7_training_dynamics.pdf` | ✅ |
+| Fig 8: pLDDT structural quality | — | ⏸️ Needs GPU |
+| Fig 9: Throughput benchmark | — | ⏸️ Needs GPU |
 
-### Key Deliverables
+**Build**: `cd paper && make figures && make`
 
-- [ ] Paper draft complete
-- [ ] Ablation study figure (Fig 1)
-- [ ] Calibration analysis figure (Fig 5)
-- [ ] All tables completed
+### 5.2 Practical Benchmarks (PENDING — needs GPU ⏸️)
+
+Benchmark scripts written, need GPU instance to run:
+
+- `scripts/benchmark_plddt.py` — generate sequences, score with ESMFold pLDDT
+- `scripts/benchmark_throughput.py` — time generation throughput + GPU memory
+
+Results will go to `results/plddt_benchmark.json` and `results/throughput_benchmark.json`.
+
+After running, generate Fig 8 and Fig 9 and add results to paper.
+
+### 5.3 Submission Checklist
+
+- [x] Paper draft complete (main.tex)
+- [x] Ablation study figure (Fig 1)
+- [x] Scaling results figure (Fig 2)
+- [x] Calibration analysis figure (Fig 3)
+- [x] AA distribution figure (Fig 4)
+- [x] Pareto frontier figure (Fig 5)
+- [x] Speed benchmark figure (Fig 6)
+- [x] Training dynamics figure (Fig 7)
+- [x] All tables completed (3 tables)
+- [x] References complete (18 entries)
+- [ ] pLDDT benchmark (Fig 8) — needs GPU
+- [ ] Throughput benchmark (Fig 9) — needs GPU
+- [ ] Final review and polish
 - [ ] bioRxiv submitted
 - [ ] Nature Communications submitted
 
