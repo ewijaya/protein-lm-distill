@@ -1,0 +1,50 @@
+{
+  "teacher": {
+    "model_path": "nferruz/ProtGPT2",
+    "num_params": 774030080,
+    "num_sequences": 100,
+    "total_time_s": 287.18777871131897,
+    "avg_time_per_seq_s": 2.8718777871131898,
+    "std_time_per_seq_s": 1.2704355874386537,
+    "sequences_per_min": 20.892253935468464,
+    "avg_seq_length": 362.43,
+    "peak_gpu_memory_mb": 3210.654296875,
+    "speedup_vs_teacher": 1.0
+  },
+  "synergy-tiny": {
+    "model_path": "./models/synergy-tiny-v2",
+    "num_params": 38866432,
+    "num_sequences": 100,
+    "total_time_s": 54.08824801445007,
+    "avg_time_per_seq_s": 0.5408824801445007,
+    "std_time_per_seq_s": 0.18164551567446563,
+    "sequences_per_min": 110.9298270928845,
+    "avg_seq_length": 423.66,
+    "peak_gpu_memory_mb": 169.8271484375,
+    "speedup_vs_teacher": 5.309615105939366
+  },
+  "synergy-small": {
+    "model_path": "./models/synergy-small",
+    "num_params": 81912576,
+    "num_sequences": 100,
+    "total_time_s": 69.58665537834167,
+    "avg_time_per_seq_s": 0.6958665537834168,
+    "std_time_per_seq_s": 0.2494403701243085,
+    "sequences_per_min": 86.22342843434683,
+    "avg_seq_length": 400.21,
+    "peak_gpu_memory_mb": 343.31396484375,
+    "speedup_vs_teacher": 4.127052480822408
+  },
+  "synergy-medium": {
+    "model_path": "./models/synergy-medium-v2",
+    "num_params": 203668480,
+    "num_sequences": 100,
+    "total_time_s": 118.7931067943573,
+    "avg_time_per_seq_s": 1.187931067943573,
+    "std_time_per_seq_s": 0.469648995641995,
+    "sequences_per_min": 50.50798116078063,
+    "avg_seq_length": 386.26,
+    "peak_gpu_memory_mb": 835.91748046875,
+    "speedup_vs_teacher": 2.4175458194596224
+  }
+}

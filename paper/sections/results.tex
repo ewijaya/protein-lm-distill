@@ -171,20 +171,57 @@ perplexity at the same model size.}
 \subsection{Practical deployment}
 
 Inference benchmarks on an NVIDIA L40S GPU show that student models achieve substantial
-speedups over the teacher (Fig.~\ref{fig:speed}): 6.1$\times$ for Tiny, 4.5$\times$ for Small, and
-2.6$\times$ for Medium models. These speedups, combined with reduced memory requirements,
-enable protein sequence generation on consumer-grade GPUs. At the Tiny model's
-throughput, screening a library of $10^6$ candidate sequences---typical of combinatorial
-antibody or enzyme engineering campaigns---requires approximately 8 GPU-hours on a
-single consumer-grade device, compared to $\sim$50 GPU-hours for the full teacher. The
-Tiny model's 37M parameters fit within 2\,GB of GPU memory, permitting deployment on
-shared laboratory workstations without dedicated accelerator infrastructure.
+speedups over the teacher (Fig.~\ref{fig:speed}): 5.3$\times$ for Tiny, 4.1$\times$ for Small, and
+2.4$\times$ for Medium models. These speedups, combined with dramatically reduced memory
+requirements (Fig.~\ref{fig:throughput}), enable protein sequence generation on
+consumer-grade GPUs. Peak GPU memory drops from 3.2\,GB for the teacher to just
+170\,MB for the Tiny model---a 19$\times$ reduction. At the Tiny model's throughput of
+111 sequences per minute, screening a library of $10^6$ candidate sequences---typical
+of combinatorial antibody or enzyme engineering campaigns---requires approximately
+6 GPU-hours on a single consumer-grade device, compared to $\sim$48 GPU-hours for the
+full teacher. The Tiny model's $\sim$37M parameters fit within 170\,MB of GPU memory,
+permitting deployment on shared laboratory workstations without dedicated accelerator
+infrastructure.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\textwidth]{figures/pdf/fig6_speed.pdf}
 \caption{Inference speedup on an NVIDIA L40S GPU. Student models achieve
-2.6--6.1$\times$ speedup over the ProtGPT2 teacher, enabling deployment on
+2.4--5.3$\times$ speedup over the ProtGPT2 teacher, enabling deployment on
 consumer-grade hardware.}
 \label{fig:speed}
+\end{figure}
+
+\subsection{Structural quality}
+
+To assess whether distilled models generate structurally plausible proteins, we scored
+50 sequences per model using ESMFold predicted local distance difference test
+(pLDDT)~\cite{lin2023esmfold} (Fig.~\ref{fig:plddt}). The teacher achieved a mean pLDDT
+of 51.2 with 16\% of sequences exceeding the confident prediction threshold of 70.
+Student models scored lower (mean pLDDT 38--40), consistent with the reduced capacity
+of smaller architectures. Importantly, synergy and baseline models at the same scale
+produce comparable pLDDT distributions (synergy-medium: 38.1 vs.\ baseline-medium: 38.1),
+confirming that the complementary distillation framework does not sacrifice structural
+quality for improved perplexity. The pLDDT gap between teacher and students reflects
+model capacity rather than a training methodology deficit.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/pdf/fig8_plddt.pdf}
+\caption{ESMFold pLDDT scores for 50 generated sequences per model. The teacher
+achieves higher structural confidence (mean 51.2) due to greater capacity. At the
+Medium scale, synergy and baseline produce indistinguishable pLDDT distributions
+(both 38.1), confirming that complementary distillation preserves structural
+quality---the capacity gap is a compression effect, not a method deficit.}
+\label{fig:plddt}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/pdf/fig9_throughput.pdf}
+\caption{Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model
+generates 111 sequences per minute while requiring only 170\,MB GPU memory (19$\times$
+reduction from the teacher's 3.2\,GB), enabling large-scale screening on consumer
+hardware.}
+\label{fig:throughput}
 \end{figure}

@@ -2,18 +2,22 @@
 """Figure 6: Inference speed comparison.
 
 Horizontal bar chart with inference time and speedup annotations.
+Data from results/throughput_benchmark.json.
 """
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from common import COLORS, SINGLE_COL, np, plt, savefig
+from common import COLORS, SINGLE_COL, np, plt, savefig, load_result
 
-# Hardcoded benchmark data
+# Load actual benchmark data
+data = load_result("throughput_benchmark.json")
+
 models = ["Teacher", "Medium", "Small", "Tiny"]
-times = [2.85, 1.08, 0.64, 0.47]
-speedups = [1.0, 2.6, 4.5, 6.1]
+keys = ["teacher", "synergy-medium", "synergy-small", "synergy-tiny"]
+times = [data[k]["avg_time_per_seq_s"] for k in keys]
+speedups = [data[k]["speedup_vs_teacher"] for k in keys]
 colors = [
     COLORS["teacher"],
     COLORS["synergy"],
@@ -31,7 +35,7 @@ bars = ax.barh(y, times, height=0.55, color=colors, edgecolor="white",
 for i, (bar, spd) in enumerate(zip(bars, speedups)):
     if spd > 1.0:
         ax.text(bar.get_width() + 0.05, bar.get_y() + bar.get_height() / 2,
-                f"{spd}x faster", ha="left", va="center", fontsize=7,
+                f"{spd:.1f}x faster", ha="left", va="center", fontsize=7,
                 fontweight="bold", color=COLORS["synergy"])
     else:
         ax.text(bar.get_width() + 0.05, bar.get_y() + bar.get_height() / 2,
