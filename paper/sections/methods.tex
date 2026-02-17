@@ -97,21 +97,32 @@ smoothing~\cite{muller2019label} applied to teacher distributions, with smoothin
 intensity inversely proportional to teacher confidence.
 
 \paragraph{Dynamic smoothing.}
-At each position $t$, the smoothing intensity is:
+At each position $t$, the smoothing intensity is computed on the temperature-scaled
+teacher distribution---the same distribution used as the KL divergence target:
 \begin{equation}
 \epsilon_t = \lambda \cdot \left(1 - \max_{v \in \mathcal{V}}
-  p_T(v | x_{<t})\right)
+  p_T^{(\tau)}(v | x_{<t})\right)
 \label{eq:smoothing}
 \end{equation}
-where $\lambda$ is a base smoothing factor. When the teacher is confident
-($\max_v p_T(v) \approx 1$), smoothing is minimal ($\epsilon_t \approx 0$). When the
-teacher is uncertain, smoothing increases, regularizing the distribution.
+where $\lambda$ is a base smoothing factor. Because temperature scaling ($\tau > 1$)
+flattens the teacher distribution and reduces peak probabilities, the effective
+smoothing is amplified relative to what unscaled ($\tau = 1$) confidence would
+produce. This is by design: the softened distribution better exposes positions where
+the teacher's distributional uncertainty warrants regularization. When the teacher is
+confident ($\max_v p_T^{(\tau)}(v)$ remains high despite softening), smoothing is
+minimal ($\epsilon_t \approx 0$). When the teacher is uncertain, smoothing increases,
+regularizing the distribution. Note that this differs from the entropy computation in
+uncertainty-aware weighting (Eq.~\ref{eq:entropy}), which uses unscaled ($\tau = 1$)
+probabilities to reflect the teacher's true predictive uncertainty; the smoothing
+intensity instead operates in the temperature-scaled space where the KL target is
+defined, ensuring that the degree of regularization is calibrated to the actual
+target distribution the student must match.
 
 \paragraph{Smoothed targets.}
-The smoothed teacher distribution blends the original prediction with a uniform
-distribution:
+The smoothed teacher distribution blends the temperature-scaled prediction with a
+uniform distribution:
 \begin{equation}
-\bar{p}_T(v) = (1 - \epsilon_t) \cdot p_T(v) + \frac{\epsilon_t}{|\mathcal{V}|}
+\bar{p}_T^{(\tau)}(v) = (1 - \epsilon_t) \cdot p_T^{(\tau)}(v) + \frac{\epsilon_t}{|\mathcal{V}|}
 \label{eq:smoothed_targets}
 \end{equation}
 
@@ -135,7 +146,9 @@ compression range (Table~\ref{tab:architectures}).
 \begin{table}[t]
 \centering
 \caption{Model architectures and compression ratios. All models use the GPT-2
-architecture with the ProtGPT2 tokenizer ($|\mathcal{V}| = 50,257$).}
+architecture with the ProtGPT2 tokenizer ($|\mathcal{V}| = 50,257$).
+$^\dag$Micro is used only for the ablation study; scaling experiments use
+Tiny--Medium.}
 \label{tab:architectures}
 \begin{tabular}{lccccc}
 \toprule
@@ -145,6 +158,7 @@ Teacher (ProtGPT2) & 36 & 20 & 1280 & 738M & 1$\times$ \\
 Medium & 12 & 16 & 1024 & $\sim$194M & 3.8$\times$ \\
 Small  &  6 &  8 &  768 &  $\sim$78M & 9.4$\times$ \\
 Tiny   &  4 &  4 &  512 &  $\sim$37M &  20$\times$ \\
+Micro$^\dag$ &  4 &  4 &  256 &  $\sim$16M &  $\sim$46$\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}

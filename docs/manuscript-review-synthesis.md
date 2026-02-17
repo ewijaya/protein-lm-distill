@@ -32,7 +32,7 @@ No experiment tests **Baseline + halved LR + warmup**. The 87% improvement could
 
 **Fix**: Train baseline models with the same halved LR + warmup schedule. If they match synergy performance, the method contribution vanishes.
 
-### C3. Code-Paper Mismatch — Smoothing on Temperature-Scaled Logits (3/5 reviewers, verified by team lead)
+### ~~C3. Code-Paper Mismatch — Smoothing on Temperature-Scaled Logits (3/5 reviewers, verified by team lead)~~ RESOLVED
 
 **Paper** (Eq. 6): `epsilon_t = lambda * (1 - max_v p_T(v|x_{<t}))` — uses raw (T=1) teacher confidence.
 **Code** (distillation.py:265-269): Smoothing is applied to `F.softmax(logits / T)` — temperature-scaled (T=2.0) probabilities, which artificially deflates `max_prob` and systematically over-smooths at every position.
@@ -44,7 +44,9 @@ This means the "calibration-aware" mechanism as implemented is **not** what the 
 
 **Fix**: Either (a) fix the code to use raw logits for confidence estimation and re-run all experiments, or (b) update the paper equations to match the actual implementation and provide justification.
 
-### C4. Two Different Architectures Both Called "Tiny" (4/5 reviewers)
+> **Resolution (2026-02-17):** Option (b) applied. Updated Eq. 6 and Eq. 7 in `methods.tex` to use `p_T^{(\tau)}` (temperature-scaled distributions), matching the code. Added justification that: (1) temperature scaling amplifies smoothing by design, providing stronger regularization where the teacher is uncertain; (2) smoothing operates in the same T-scaled space as the KL target; (3) explicitly contrasts with entropy computation (Eq. 5) which correctly uses unscaled T=1 probabilities.
+
+### ~~C4. Two Different Architectures Both Called "Tiny" (4/5 reviewers)~~ RESOLVED
 
 - Ablation (Table 1): Tiny = 4L/4H/**256E**, baseline PPL = 18.95
 - Scaling (Table 2): Tiny = 4L/4H/**512E**, baseline PPL = 39.91
@@ -52,6 +54,8 @@ This means the "calibration-aware" mechanism as implemented is **not** what the 
 The "53% improvement" headline comes from the 256E ablation. The "87% improvement" comes from the 512E scaling. These are different models. The paper never explains the discrepancy. The ablation doesn't prove constructive interference for the architecture actually presented as the main contribution.
 
 **Fix**: Use consistent naming. Add 256E to the architectures table. Explain why the ablation used a different architecture than the scaling experiments.
+
+> **Resolution (2026-02-17):** Renamed 256E ablation model to "Micro" throughout `results.tex`. Added Micro row to architectures table in `methods.tex` (~16M params, ~46x compression) with dagger footnote noting ablation-only use. Added explicit disambiguation in the scaling section ("distinct from the 256-dimensional Micro model"). Justified the smaller ablation architecture as reducing computational cost of running all four 2x2 configurations.
 
 ### C5. No Statistical Significance Testing (4/5 reviewers)
 
@@ -132,9 +136,9 @@ The term borrows from wave physics where it has precise mathematical meaning (su
 |----------|-----------|-----------|
 | 1 | Recompute all metrics on proper held-out set (1,000+ UniProt sequences) | C1 |
 | 2 | Train baseline with halved LR + warmup, compare against synergy | C2 |
-| 3 | Fix smoothing to use raw logits for confidence OR update equations, re-run | C3 |
+| ~~3~~ | ~~Fix smoothing to use raw logits for confidence OR update equations, re-run~~ | ~~C3~~ DONE |
 | 4 | Run all configs with 3-5 random seeds, report mean +/- std | C5 |
-| 5 | Run 2x2 ablation at Small and Medium scales | C4, M4 |
+| 5 | Run 2x2 ablation at Small and Medium scales | ~~C4~~ (naming resolved), M4 |
 | 6 | Add per-residue amino acid analysis, diversity metrics, increase pLDDT n | C7 |
 | 7 | Benchmark inference on actual consumer GPU (RTX 3090/4060) | Minor |
 

@@ -3,9 +3,11 @@
 \subsection{Ablation reveals constructive interference}
 
 To assess the contribution of each enhancement, we conducted a $2 \times 2$ ablation
-study using the Tiny architecture (4 layers, 4 heads, 256 embedding dimensions),
-toggling uncertainty-aware position weighting and calibration-aware label smoothing
-independently (Table~\ref{tab:ablation}). All four configurations used identical training
+study using a Micro architecture (4 layers, 4 heads, 256 embedding dimensions;
+$\sim$16M parameters, $\sim$46$\times$ compression), toggling uncertainty-aware position
+weighting and calibration-aware label smoothing independently
+(Table~\ref{tab:ablation}). This smaller architecture was chosen to reduce the
+computational cost of running all four configurations under identical training
 hyperparameters ($T = 2.0$, $\alpha = 0.5$, learning rate $= 10^{-3}$, 3 epochs).
 
 The baseline (standard Hinton-style distillation) achieved a perplexity of 18.95.
@@ -31,10 +33,10 @@ but their combination yields a 53\% perplexity improvement over baseline.}
 
 \begin{table}[t]
 \centering
-\caption{Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement
-individually degrades distillation quality, but their combination yields a 53\%
-improvement over baseline. PPL: perplexity; KL: KL divergence from teacher;
-ECE: expected calibration error.}
+\caption{Ablation study results on Micro architecture (4L/4H/256E, $\sim$16M
+parameters). Each enhancement individually degrades distillation quality, but their
+combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL
+divergence from teacher; ECE: expected calibration error.}
 \label{tab:ablation}
 \begin{tabular}{lcccccc}
 \toprule
@@ -50,12 +52,14 @@ Baseline (standard KD) & \texttimes & \texttimes & 18.95 & 2.23 & 0.274 & --- \\
 
 \subsection{Scaling across model sizes}
 
-To test whether constructive interference generalizes beyond the ablation architecture,
-we trained paired baseline and synergy models at three scales: Tiny (20$\times$
-compression), Small (9.4$\times$), and Medium (3.8$\times$). Based on the ablation
-finding that synergy training requires careful learning rate selection, we adopted a
-protocol using approximately half the baseline learning rate with 500 steps of linear
-warmup (see Methods for details).
+To test whether constructive interference generalizes beyond the Micro ablation
+architecture, we trained paired baseline and synergy models at three larger scales:
+Tiny (4L/4H/512E, 20$\times$ compression), Small (9.4$\times$), and Medium
+(3.8$\times$). Note that the Tiny model here uses a 512-dimensional embedding,
+distinct from the 256-dimensional Micro model used for the ablation. Based on the
+ablation finding that synergy training requires careful learning rate selection, we
+adopted a protocol using approximately half the baseline learning rate with 500 steps
+of linear warmup (see Methods for details).
 
 Table~\ref{tab:scaling} and Fig.~\ref{fig:scaling} show that synergy models outperform baselines at all
 three scales. The improvement is largest at the highest compression ratio (87\% at

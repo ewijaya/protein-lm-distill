@@ -35,19 +35,19 @@
 \citation{guo2017calibration,naeini2015ece}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Ablation study showing constructive interference. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline.}}{3}{figure.1}\protected@file@percent }
 \newlabel{fig:ablation}{{1}{3}{Ablation study showing constructive interference. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline}{figure.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error.}}{3}{table.1}\protected@file@percent }
-\newlabel{tab:ablation}{{1}{3}{Ablation study results on Tiny architecture (4L/4H/256E). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:ablation}{{1}{3}{Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error}{table.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Scaling across model sizes}{3}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{3}{subsection.2.3}\protected@file@percent }
 \citation{uniprot2023}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines.}}{4}{table.2}\protected@file@percent }
 \newlabel{tab:scaling}{{2}{4}{Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{4}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Biological validity}{4}{subsection.2.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Compression--quality tradeoff}{4}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{4}{subsection.2.6}\protected@file@percent }
 \citation{lin2023esmfold}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $).}}{5}{figure.2}\protected@file@percent }
 \newlabel{fig:scaling}{{2}{5}{Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{5}{subsection.2.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Structural quality}{5}{subsection.2.7}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference.}}{6}{figure.3}\protected@file@percent }
 \newlabel{fig:calibration}{{3}{6}{Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference}{figure.3}{}}
@@ -65,16 +65,16 @@
 \@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{8}{section*.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{8}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{8}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Practical implications for biopharma.}{8}{section*.6}\protected@file@percent }
 \citation{madani2023progen}
 \citation{lin2023esmfold}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that constructive-interference distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit.}}{9}{figure.7}\protected@file@percent }
+\newlabel{fig:plddt}{{7}{9}{ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that constructive-interference distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit}{figure.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Practical implications for biopharma.}{9}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{9}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Future directions.}{9}{section*.8}\protected@file@percent }
 \citation{hinton2015distilling}
 \citation{romero2015fitnets}
 \citation{park2019relational}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that constructive-interference distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit.}}{9}{figure.7}\protected@file@percent }
-\newlabel{fig:plddt}{{7}{9}{ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that constructive-interference distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit}{figure.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Limitations.}{9}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Future directions.}{9}{section*.8}\protected@file@percent }
 \citation{hinton2015distilling}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\tmspace  +\thinmuskip {.1667em}MB GPU memory (19$\times $ reduction from the teacher's 3.2\tmspace  +\thinmuskip {.1667em}GB), enabling large-scale screening on consumer hardware.}}{10}{figure.8}\protected@file@percent }
 \newlabel{fig:throughput}{{8}{10}{Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\,MB GPU memory (19$\times $ reduction from the teacher's 3.2\,GB), enabling large-scale screening on consumer hardware}{figure.8}{}}
@@ -97,9 +97,6 @@
 \citation{guo2017calibration}
 \citation{muller2019label}
 \citation{naeini2015ece}
-\citation{radford2019language,vaswani2017attention}
-\citation{ferruz2022protgpt2}
-\citation{uniprot2023}
 \@writefile{toc}{\contentsline {paragraph}{Position weights.}{12}{section*.14}\protected@file@percent }
 \newlabel{eq:weights}{{6}{12}{Position weights}{equation.4.6}{}}
 \@writefile{toc}{\contentsline {paragraph}{Weighted soft loss.}{12}{section*.15}\protected@file@percent }
@@ -109,23 +106,26 @@
 \newlabel{eq:smoothing}{{8}{12}{Dynamic smoothing}{equation.4.8}{}}
 \@writefile{toc}{\contentsline {paragraph}{Smoothed targets.}{12}{section*.17}\protected@file@percent }
 \newlabel{eq:smoothed_targets}{{9}{12}{Smoothed targets}{equation.4.9}{}}
-\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{12}{section*.18}\protected@file@percent }
-\newlabel{eq:ece}{{10}{12}{Expected calibration error}{equation.4.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{12}{subsection.4.4}\protected@file@percent }
+\citation{radford2019language,vaswani2017attention}
+\citation{ferruz2022protgpt2}
+\citation{uniprot2023}
 \citation{uniprot2023}
 \bibstyle{unsrtnat}
 \bibdata{references}
 \bibcite{ferruz2022protgpt2}{{1}{2022}{{Ferruz et~al.}}{{Ferruz, Schmidt, and H{\"o}cker}}}
-\bibcite{rives2021biological}{{2}{2021}{{Rives et~al.}}{{Rives, Meier, Sercu, Goyal, Lin, Liu, Guo, Ott, Zitnick, Ma, and Fergus}}}
-\bibcite{madani2023progen}{{3}{2023}{{Madani et~al.}}{{Madani, Krause, Greene, Subramanian, Mohr, Holton, Olmos, Xiong, Sun, Socher, Fraser, and Naik}}}
-\bibcite{radford2019language}{{4}{2019}{{Radford et~al.}}{{Radford, Wu, Child, Luan, Amodei, and Sutskever}}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$).}}{13}{table.3}\protected@file@percent }
-\newlabel{tab:architectures}{{3}{13}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$)}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$). $^\dag  $Micro is used only for the ablation study; scaling experiments use Tiny--Medium.}}{13}{table.3}\protected@file@percent }
+\newlabel{tab:architectures}{{3}{13}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$). $^\dag $Micro is used only for the ablation study; scaling experiments use Tiny--Medium}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{13}{section*.18}\protected@file@percent }
+\newlabel{eq:ece}{{10}{13}{Expected calibration error}{equation.4.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{13}{subsection.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training details}{13}{subsection.4.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Data.}{13}{section*.19}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Optimization.}{13}{section*.20}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Hardware.}{13}{section*.21}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Data and code availability}{13}{subsection.4.6}\protected@file@percent }
+\bibcite{rives2021biological}{{2}{2021}{{Rives et~al.}}{{Rives, Meier, Sercu, Goyal, Lin, Liu, Guo, Ott, Zitnick, Ma, and Fergus}}}
+\bibcite{madani2023progen}{{3}{2023}{{Madani et~al.}}{{Madani, Krause, Greene, Subramanian, Mohr, Holton, Olmos, Xiong, Sun, Socher, Fraser, and Naik}}}
+\bibcite{radford2019language}{{4}{2019}{{Radford et~al.}}{{Radford, Wu, Child, Luan, Amodei, and Sutskever}}}
 \bibcite{uniprot2023}{{5}{2023}{{The UniProt Consortium}}{{}}}
 \bibcite{hie2024antibodies}{{6}{2024}{{Hie et~al.}}{{Hie, Shanker, Xu, Bruun, Weidenbacher, Tang, Wu, Pak, and Kim}}}
 \bibcite{hinton2015distilling}{{7}{2015}{{Hinton et~al.}}{{Hinton, Vinyals, and Dean}}}
