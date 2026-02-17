@@ -45,12 +45,17 @@ def predict_plddt(sequence: str) -> float:
     Returns:
         The mean pLDDT score across all residues.
     """
-    _, model = _load_model()
+    tokenizer, model = _load_model()
+
+    tokenized = tokenizer([sequence], return_tensors="pt", add_special_tokens=False)
+    if torch.cuda.is_available():
+        tokenized = {k: v.cuda() for k, v in tokenized.items()}
 
     with torch.no_grad():
-        output = model.infer_pdb(sequence)
+        output = model(**tokenized)
 
-    plddt = output["plddt"].mean().item()
+    # output.plddt is shape (batch, num_residues, 1), scaled 0-1
+    plddt = (output.plddt * 100).mean().item()
     return plddt
 
 

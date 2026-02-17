@@ -73,8 +73,11 @@ def run_plddt_benchmark(models, num_sequences=50, max_length=200, output_path=No
             "avg_seq_length": float(np.mean([len(s) for s in sequences])),
         }
 
-        print(f"  Mean pLDDT: {results[name]['mean_plddt']:.1f}")
-        print(f"  % above 70: {results[name]['pct_above_70']*100:.0f}%")
+        if scores:
+            print(f"  Mean pLDDT: {results[name]['mean_plddt']:.1f}")
+            print(f"  % above 70: {results[name]['pct_above_70']*100:.0f}%")
+        else:
+            print(f"  No sequences scored successfully")
 
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
