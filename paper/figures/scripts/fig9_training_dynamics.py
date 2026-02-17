@@ -65,4 +65,4 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 fig.tight_layout()
-savefig(fig, "fig7_training_dynamics")
+savefig(fig, "fig9_training_dynamics")

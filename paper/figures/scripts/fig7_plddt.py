@@ -87,4 +87,4 @@ ax.legend(handles=legend_elements, loc="upper right", fontsize=6,
           framealpha=0.8)
 
 fig.tight_layout()
-savefig(fig, "fig8_plddt")
+savefig(fig, "fig7_plddt")

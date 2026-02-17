@@ -527,9 +527,9 @@ python tools/upload_to_hf.py --model_dir ./models/synergy-medium-v2 --repo_id li
 | Fig 4: AA distribution | `paper/figures/pdf/fig4_aa_distribution.pdf` | ✅ |
 | Fig 5: Pareto frontier | `paper/figures/pdf/fig5_pareto.pdf` | ✅ |
 | Fig 6: Inference speed | `paper/figures/pdf/fig6_speed.pdf` | ✅ |
-| Fig 7: Training dynamics | `paper/figures/pdf/fig7_training_dynamics.pdf` | ✅ |
-| Fig 8: pLDDT structural quality | `paper/figures/pdf/fig8_plddt.pdf` | ✅ |
-| Fig 9: Throughput benchmark | `paper/figures/pdf/fig9_throughput.pdf` | ✅ |
+| Fig 7: pLDDT structural quality | `paper/figures/pdf/fig7_plddt.pdf` | ✅ |
+| Fig 8: Throughput benchmark | `paper/figures/pdf/fig8_throughput.pdf` | ✅ |
+| Fig 9: Training dynamics | `paper/figures/pdf/fig9_training_dynamics.pdf` | ✅ |
 
 **Build**: `cd paper && make figures && make`
 
