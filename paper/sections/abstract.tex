@@ -1,23 +1,19 @@
 \begin{abstract}
-Large autoregressive protein language models (700M+ parameters) can generate
-novel protein sequences \textit{de novo}, yet their computational demands preclude
-deployment on commodity hardware and limit
-throughput in biopharma workflows such as antibody affinity maturation and enzyme
-engineering, where millions of candidate sequences must be evaluated. While knowledge distillation has been
-applied to masked protein language models and domain-specific causal models, no
-systematic study has addressed general-purpose autoregressive protein language models.
-We present a distillation framework combining standard temperature-scaled knowledge
-distillation with two protein-specific enhancements: uncertainty-aware position
-weighting, which emphasizes biologically variable regions via teacher entropy, and
-calibration-aware label smoothing, which regularizes teacher distributions to improve
-student calibration. A central finding is the \emph{complementary effect}: each
-enhancement individually degrades distillation quality, yet their combination yields a
-53\% perplexity improvement over baseline distillation---a result we explain through an
-information-theoretic analysis of noise amplification and signal filtering. We train
-three compressed student models at 3.8--20$\times$ compression ratios, all of which
-outperform their respective baselines (31--87\% perplexity improvement). The resulting
-models achieve 2.4--5.3$\times$ inference speedup while preserving amino acid
-distributions consistent with natural proteins (KL divergence $< 0.015$), enabling
-on-premise deployment for proprietary sequence screening without cloud API
+Large autoregressive protein language models (700M+ parameters) generate novel
+sequences \textit{de novo}, yet their computational demands limit throughput in
+biopharma workflows such as antibody affinity maturation and enzyme engineering,
+where millions of candidates must be evaluated. We present a distillation
+framework combining temperature-scaled knowledge distillation with two
+protein-specific enhancements: uncertainty-aware position weighting, which
+emphasizes biologically variable regions via teacher entropy, and
+calibration-aware label smoothing. A central finding is the \emph{complementary
+effect}: each enhancement individually degrades distillation quality, yet their
+combination yields 53\% perplexity improvement over baseline distillation---a
+result we explain through information-theoretic analysis of noise amplification
+and signal filtering. We train three student models at 3.8--20$\times$
+compression, all outperforming baselines (31--87\% perplexity improvement). The
+resulting models achieve 2.4--5.3$\times$ speedup while preserving amino acid
+distributions consistent with natural proteins (KL divergence $< 0.015$),
+enabling on-premise screening of proprietary sequences without cloud API
 dependencies---a key requirement in pharmaceutical settings.
 \end{abstract}
