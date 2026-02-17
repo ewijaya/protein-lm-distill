@@ -3,7 +3,7 @@
 **Date:** 2026-02-17
 **Verdict:** NOT READY — Major Revisions Required
 
-The panel identified **7 critical issues** (consensus across 3+ reviewers), **10 major issues**, and **~15 minor issues**. Three critical issues are independently fatal for submission. The core finding (constructive interference) is potentially interesting but cannot be trusted in the current form due to confounded experiments, a code-paper mismatch, and an invalid evaluation set.
+The panel identified **7 critical issues** (consensus across 3+ reviewers), **10 major issues**, and **~15 minor issues**. Three critical issues are independently fatal for submission. The core finding (complementary regularization) is potentially interesting but cannot be trusted in the current form due to confounded experiments, a code-paper mismatch, and an invalid evaluation set.
 
 ---
 
@@ -51,7 +51,7 @@ This means the "calibration-aware" mechanism as implemented is **not** what the 
 - Ablation (Table 1): Tiny = 4L/4H/**256E**, baseline PPL = 18.95
 - Scaling (Table 2): Tiny = 4L/4H/**512E**, baseline PPL = 39.91
 
-The "53% improvement" headline comes from the 256E ablation. The "87% improvement" comes from the 512E scaling. These are different models. The paper never explains the discrepancy. The ablation doesn't prove constructive interference for the architecture actually presented as the main contribution.
+The "53% improvement" headline comes from the 256E ablation. The "87% improvement" comes from the 512E scaling. These are different models. The paper never explains the discrepancy. The ablation doesn't prove complementary regularization for the architecture actually presented as the main contribution.
 
 **Fix**: Use consistent naming. Add 256E to the architectures table. Explain why the ablation used a different architecture than the scaling experiments.
 
@@ -63,7 +63,7 @@ Zero confidence intervals, zero standard deviations, zero p-values, zero replica
 
 **Fix**: Run each configuration with 3-5 random seeds. Report mean +/- std for all metrics.
 
-### C6. "Constructive Interference" Terminology Is Scientifically Incorrect (3/5 reviewers)
+### ~~C6. "Constructive Interference" Terminology Is Scientifically Incorrect (3/5 reviewers)~~ RESOLVED
 
 The term borrows from wave physics where it has precise mathematical meaning (superposition with phase alignment). The phenomenon here is a regularization synergy — a hyperparameter interaction effect. The signal processing analogy (amplification + filtering) is formally backwards: the code applies filtering (smoothing) BEFORE amplification (weighting), not after.
 
@@ -71,6 +71,8 @@ The term borrows from wave physics where it has precise mathematical meaning (su
 - **devil-advocate**: "'constructive interference' is a marketing term, not a mechanistic claim"
 
 **Fix**: Rename to "regularization synergy" or "complementary regularization." Remove or explicitly disclaim the signal processing analogies.
+
+> **Resolution (2026-02-17):** Renamed "constructive interference" to "complementary regularization" throughout all paper sections (title, abstract, introduction, results, discussion). Paper title is now "Complementary Regularization in Protein Language Model Distillation." The term accurately describes the mechanism: two regularizers that each compensate the other's failure mode.
 
 ### C7. Biological Validity Claims Rest on Superficial Metrics (3/5 reviewers)
 
