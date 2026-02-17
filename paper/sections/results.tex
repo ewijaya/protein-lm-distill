@@ -1,6 +1,6 @@
 \section{Results}
 
-\subsection{Ablation reveals complementary regularization}
+\subsection{Ablation reveals complementary regularizers}
 
 To assess the contribution of each enhancement, we conducted a $2 \times 2$ ablation
 study using a Micro architecture (4 layers, 4 heads, 256 embedding dimensions;
@@ -19,13 +19,13 @@ calibration error (ECE). Taken individually, neither enhancement appears benefic
 However, when both enhancements are applied simultaneously, perplexity drops to 8.93---a
 53\% improvement over baseline and a 75--77\% improvement over either individual
 enhancement. KL divergence decreases from 2.23 to 1.62, and ECE improves from 0.274 to
-0.216. This complementary regularization effect, where two individually harmful modifications combine
+0.216. This complementary-regularizer effect, where two individually harmful modifications combine
 to produce substantial improvement, is the central finding of this work (Fig.~\ref{fig:ablation}).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/pdf/fig1_ablation.pdf}
-\caption{Ablation study showing complementary regularization. Each enhancement individually
+\caption{Ablation study showing the complementary-regularizer effect. Each enhancement individually
 degrades distillation quality (higher perplexity, higher KL divergence, higher ECE),
 but their combination yields a 53\% perplexity improvement over baseline.}
 \label{fig:ablation}
@@ -52,7 +52,7 @@ Baseline (standard KD) & \texttimes & \texttimes & 18.95 & 2.23 & 0.274 & --- \\
 
 \subsection{Scaling across model sizes}
 
-To test whether complementary regularization generalizes beyond the Micro ablation
+To test whether the complementary-regularizer effect generalizes beyond the Micro ablation
 architecture, we trained paired baseline and synergy models at three larger scales:
 Tiny (4L/4H/512E, 20$\times$ compression), Small (9.4$\times$), and Medium
 (3.8$\times$). Note that the Tiny model here uses a 512-dimensional embedding,
@@ -160,7 +160,7 @@ confirming that the combined enhancements improve distributional fidelity.}
 Plotting perplexity against compression ratio for all models reveals a Pareto frontier
 (Fig.~\ref{fig:pareto}). Synergy models dominate baseline models at every compression level tested,
 offering strictly better perplexity at the same model size. The improvement is most
-pronounced at high compression ratios, suggesting that complementary-regularization
+pronounced at high compression ratios, suggesting that complementary-regularizer
 distillation is especially valuable when aggressive compression is required.
 
 \begin{figure}[t]
@@ -205,7 +205,7 @@ of 51.2 with 16\% of sequences exceeding the confident prediction threshold of 7
 Student models scored lower (mean pLDDT 38--40), consistent with the reduced capacity
 of smaller architectures. Importantly, synergy and baseline models at the same scale
 produce comparable pLDDT distributions (synergy-medium: 38.1 vs.\ baseline-medium: 38.1),
-confirming that complementary-regularization distillation does not sacrifice structural
+confirming that complementary-regularizer distillation does not sacrifice structural
 quality for improved perplexity. The pLDDT gap between teacher and students reflects
 model capacity rather than a training methodology deficit.
 
@@ -215,7 +215,7 @@ model capacity rather than a training methodology deficit.
 \caption{ESMFold pLDDT scores for 50 generated sequences per model. The teacher
 achieves higher structural confidence (mean 51.2) due to greater capacity. At the
 Medium scale, synergy and baseline produce indistinguishable pLDDT distributions
-(both 38.1), confirming that complementary-regularization distillation preserves structural
+(both 38.1), confirming that complementary-regularizer distillation preserves structural
 quality---the capacity gap is a compression effect, not a method deficit.}
 \label{fig:plddt}
 \end{figure}

@@ -45,7 +45,7 @@ position weighting}, which uses teacher entropy to emphasize biologically variab
 regions during distillation, and (2) \textit{calibration-aware label smoothing}, which
 applies confidence-dependent smoothing to teacher distributions to improve student
 calibration~\cite{guo2017calibration, muller2019label}. Our central finding is a
-\emph{complementary regularization}: uncertainty weighting alone increases perplexity by 95\%
+\emph{complementary regularizers}: uncertainty weighting alone increases perplexity by 95\%
 and calibration smoothing alone increases it by 109\%, yet their combination improves
 perplexity by 53\% over baseline distillation. We provide a mechanistic explanation
 grounded in information theory: smoothing acts as a noise filter on teacher distributions,
@@ -57,7 +57,7 @@ Our contributions are as follows:
     autoregressive protein language models.
   \item Two protein-specific distillation enhancements: uncertainty-aware position
     weighting and calibration-aware label smoothing.
-  \item Discovery and mechanistic explanation of complementary regularization, where
+  \item Discovery and mechanistic explanation of complementary regularizers, where
     individually harmful modifications combine for substantial improvement.
   \item A comprehensive evaluation framework spanning perplexity, calibration (ECE),
     amino acid distributional fidelity, and inference benchmarks.
