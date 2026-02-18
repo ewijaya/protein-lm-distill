@@ -10,6 +10,18 @@ The current paper (Phases 0–5) establishes that distilled models are faster, s
 
 ---
 
+## Sub-Phase Checklist
+
+- [ ] **6.0** Dataset acquisition & preparation (AMPs, conotoxins, lysozymes)
+- [ ] **6.1** Fine-tuning infrastructure (`scripts/finetune.py`, `scripts/evaluate_finetune.py`)
+- [ ] **6.2** Few-shot sample efficiency experiment (5 models × 6 sizes × 3 families)
+- [ ] **6.3** Overfitting & catastrophic forgetting analysis
+- [ ] **6.4** Conditional generation quality (HMMER hit rate, novelty, diversity)
+- [ ] **6.5** Fine-tuning cost benchmark (wall-clock, GPU memory)
+- [ ] **6.6** Analysis, figures & paper section
+
+---
+
 ## Motivation
 
 ### Why fine-tuning matters more than generation
