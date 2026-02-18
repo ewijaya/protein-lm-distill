@@ -131,6 +131,8 @@ def main():
     parser.add_argument("--logging_steps", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--fp16", action="store_true", default=None)
+    parser.add_argument("--gradient_checkpointing", action="store_true",
+                        help="Enable gradient checkpointing to reduce VRAM (trades compute for memory)")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None)
     parser.add_argument("--overwrite_output_dir", action="store_true")
     parser.add_argument("--wandb_project", type=str, default="PROTGPT2_FINETUNE")
@@ -181,6 +183,8 @@ def main():
     model = GPT2LMHeadModel.from_pretrained(args.model)
     model.config.pad_token_id = tokenizer.eos_token_id
     model.config.use_cache = False
+    if args.gradient_checkpointing:
+        model.gradient_checkpointing_enable()
 
     train_sequences = read_fasta(train_path)
     val_sequences = read_fasta(val_path)

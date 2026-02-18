@@ -31,8 +31,8 @@ LRS[baseline-tiny]="2e-4"
 
 # Batch sizes (smaller for teacher to fit T4 16GB)
 declare -A BS GA
-BS[teacher]=2;          GA[teacher]=4
-BS[medium]=4;           GA[medium]=2
+BS[teacher]=4;          GA[teacher]=2
+BS[medium]=8;           GA[medium]=1
 BS[small]=8;            GA[small]=1
 BS[tiny]=8;             GA[tiny]=1
 BS[baseline-tiny]=8;    GA[baseline-tiny]=1
