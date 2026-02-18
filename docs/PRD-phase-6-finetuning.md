@@ -12,8 +12,8 @@ The current paper (Phases 0–5) establishes that distilled models are faster, s
 
 ## Sub-Phase Checklist
 
-- [ ] **6.0** Dataset acquisition & preparation (AMPs, conotoxins, lysozymes)
-- [ ] **6.1** Fine-tuning infrastructure (`scripts/finetune.py`, `scripts/evaluate_finetune.py`)
+- [x] **6.0** Dataset acquisition & preparation (AMPs, conotoxins, lysozymes)
+- [x] **6.1** Fine-tuning infrastructure (`scripts/finetune.py`, `scripts/evaluate_finetune.py`)
 - [ ] **6.2** Few-shot sample efficiency experiment (5 models × 6 sizes × 3 families)
 - [ ] **6.3** Overfitting & catastrophic forgetting analysis
 - [ ] **6.4** Conditional generation quality (HMMER hit rate, novelty, diversity)
@@ -289,6 +289,10 @@ After fine-tuning on each family (at N=full), generate 500 sequences per model a
 | **Length distribution** | KL divergence of generated length distribution vs. training set | Custom script |
 | **AA distribution** | KL divergence of AA frequencies vs. training family | Existing `evaluate.py` |
 | **pLDDT** | Mean ESMFold pLDDT of top-50 by hit rate | `src/esmfold.py` |
+
+**Family-specific evaluation note**
+- **AMPs** are a functional class, not a single sequence family. Using a single HMM is biologically inappropriate. For AMPs, skip HMMER hit rate and use **AA composition KL** + **length distribution KL** as the primary family metrics.
+- **Conotoxins** and **lysozymes** are true sequence families; use HMMER hit rate with Pfam profiles **PF02950.hmm** (Conotoxin) and **PF00959.hmm** (Lysozyme).
 
 ### Key figure: Generation Quality Radar Chart
 
