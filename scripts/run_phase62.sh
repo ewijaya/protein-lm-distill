@@ -111,3 +111,6 @@ echo ""
 echo "===== Phase 6.2 complete ====="
 echo "Finished: $DONE runs, skipped: $SKIPPED"
 echo "End time: $(date)"
+
+# Auto-stop instance when done
+/home/ubuntu/bin/stopinstance
