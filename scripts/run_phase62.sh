@@ -19,7 +19,8 @@ fi
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "Logging to: $LOG_FILE"
 
-FAMILIES=(amp conotoxin lysozyme)
+FAMILIES=(amp conotoxin)
+# NOTE: lysozyme skipped for now — teacher OOMs on L4 due to long sequences
 SUBSETS=(50 100 200 500 1000)
 MODELS=(teacher medium small tiny baseline-tiny)
 
