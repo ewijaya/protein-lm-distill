@@ -10,7 +10,7 @@
 
 A distillation framework for [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2) that combines temperature-scaled knowledge distillation with two protein-specific enhancements: **uncertainty-aware position weighting** and **calibration-aware label smoothing**. Student models achieve 2.4-5.3x speedup at 3.8-20x compression while preserving amino acid distributions consistent with natural proteins (KL divergence < 0.015).
 
-> **Paper**: [Distilling Protein Language Models with Complementary Regularizers](https://doi.org/10.64898/2026.02.17.706304) (bioRxiv 2026)
+> **Preprint**: [Distilling Protein Language Models with Complementary Regularizers](https://doi.org/10.64898/2026.02.17.706304) (bioRxiv 2026)
 
 ## Overview
 
