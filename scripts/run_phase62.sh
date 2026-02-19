@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Phase 6.2: Few-shot sample efficiency experiment
-# 5 models × 6 subset sizes × 3 families = 90 fine-tuning + evaluation runs
+# 5 models x 5 subset sizes x 3 families = 75 fine-tuning + evaluation runs
 # Skips runs whose result JSON already exists (safe to restart after interruption)
 set -euo pipefail
 
@@ -9,8 +9,18 @@ conda activate pepmlm
 
 cd /home/ubuntu/storage1/protein-lm-distill
 
+# Log path can be overridden, e.g. PHASE62_LOG=/tmp/phase62.log bash scripts/run_phase62.sh
+LOG_FILE="${PHASE62_LOG:-/home/ubuntu/storage1/protein-lm-distill/phase62.log}"
+if ! touch "$LOG_FILE" 2>/dev/null; then
+    LOG_FILE="/tmp/phase62.log"
+    touch "$LOG_FILE"
+    echo "WARN: Could not write requested log path; falling back to $LOG_FILE"
+fi
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "Logging to: $LOG_FILE"
+
 FAMILIES=(amp conotoxin lysozyme)
-SUBSETS=(50 100 200 500 1000 full)
+SUBSETS=(50 100 200 500 1000)
 MODELS=(teacher medium small tiny baseline-tiny)
 
 # Model paths
@@ -37,7 +47,7 @@ BS[small]=8;            GA[small]=1
 BS[tiny]=8;             GA[tiny]=1
 BS[baseline-tiny]=8;    GA[baseline-tiny]=1
 
-# HMM profiles (AMPs: none — use AA/length KL instead)
+# HMM profiles (AMPs: none - use AA/length KL instead)
 declare -A HMMS
 HMMS[amp]=""
 HMMS[conotoxin]="data/hmm/PF02950.hmm"
@@ -45,7 +55,7 @@ HMMS[lysozyme]="data/hmm/PF00959.hmm"
 
 mkdir -p results/finetune/seqs
 
-TOTAL=90
+TOTAL=$(( ${#FAMILIES[@]} * ${#MODELS[@]} * ${#SUBSETS[@]} ))
 DONE=0
 SKIPPED=0
 

@@ -111,6 +111,33 @@ class LogCollector(TrainerCallback):
             self.logs.append(entry)
 
 
+class EvalLossEarlyStopping(TrainerCallback):
+    """Early-stop on eval loss without requiring checkpoint saves."""
+
+    def __init__(self, patience: int):
+        self.patience = patience
+        self.best_eval_loss = None
+        self.bad_eval_epochs = 0
+
+    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        if not metrics or "eval_loss" not in metrics:
+            return control
+
+        current_eval_loss = metrics["eval_loss"]
+        if self.best_eval_loss is None or current_eval_loss < self.best_eval_loss:
+            self.best_eval_loss = current_eval_loss
+            self.bad_eval_epochs = 0
+        else:
+            self.bad_eval_epochs += 1
+            if self.bad_eval_epochs >= self.patience:
+                print(
+                    f"Early stopping triggered after {self.bad_eval_epochs} non-improving eval epochs "
+                    f"(best eval_loss={self.best_eval_loss:.4f})."
+                )
+                control.should_training_stop = True
+        return control
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fine-tune ProtGPT2 models")
     parser.add_argument("--model", type=str, required=True, help="Model path or HF name")
@@ -127,6 +154,11 @@ def main():
     parser.add_argument("--warmup_steps", type=int, default=100)
     parser.add_argument("--max_length", type=int, default=512)
     parser.add_argument("--early_stopping_patience", type=int, default=3)
+    parser.add_argument(
+        "--save_checkpoints",
+        action="store_true",
+        help="If set, save checkpoint-* directories during training (disabled by default).",
+    )
     parser.add_argument("--save_total_limit", type=int, default=2)
     parser.add_argument("--logging_steps", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
@@ -204,7 +236,7 @@ def main():
     if not args.no_wandb:
         os.environ["WANDB_PROJECT"] = args.wandb_project
 
-    training_args = TrainingArguments(
+    training_kwargs = dict(
         output_dir=str(output_dir),
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
@@ -217,21 +249,35 @@ def main():
         logging_strategy="steps",
         logging_steps=args.logging_steps,
         evaluation_strategy="epoch",
-        save_strategy="epoch",
-        save_total_limit=args.save_total_limit,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False,
         fp16=fp16,
         report_to=[] if args.no_wandb else ["wandb"],
         run_name=args.wandb_run_name,
         seed=args.seed,
     )
+    if args.save_checkpoints:
+        training_kwargs.update(
+            save_strategy="epoch",
+            save_total_limit=args.save_total_limit,
+            load_best_model_at_end=True,
+            metric_for_best_model="eval_loss",
+            greater_is_better=False,
+        )
+    else:
+        training_kwargs.update(
+            save_strategy="no",
+            load_best_model_at_end=False,
+        )
+        print("Checkpoint saving disabled; only final model/tokenizer will be written.")
+
+    training_args = TrainingArguments(**training_kwargs)
 
     log_collector = LogCollector()
     callbacks = []
     if args.early_stopping_patience and args.early_stopping_patience > 0:
-        callbacks.append(EarlyStoppingCallback(early_stopping_patience=args.early_stopping_patience))
+        if args.save_checkpoints:
+            callbacks.append(EarlyStoppingCallback(early_stopping_patience=args.early_stopping_patience))
+        else:
+            callbacks.append(EvalLossEarlyStopping(patience=args.early_stopping_patience))
     callbacks.append(log_collector)
 
     trainer = Trainer(
