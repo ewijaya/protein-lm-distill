@@ -112,14 +112,19 @@ class LogCollector(TrainerCallback):
 
 
 class EvalLossEarlyStopping(TrainerCallback):
-    """Early-stop on eval loss without requiring checkpoint saves."""
+    """Early-stop on eval loss without requiring checkpoint saves.
+
+    Keeps an in-memory copy of the best model weights and restores them
+    when training ends (either by early stop or reaching max epochs).
+    """
 
     def __init__(self, patience: int):
         self.patience = patience
         self.best_eval_loss = None
         self.bad_eval_epochs = 0
+        self.best_state_dict = None
 
-    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+    def on_evaluate(self, args, state, control, metrics=None, model=None, **kwargs):
         if not metrics or "eval_loss" not in metrics:
             return control
 
@@ -127,6 +132,9 @@ class EvalLossEarlyStopping(TrainerCallback):
         if self.best_eval_loss is None or current_eval_loss < self.best_eval_loss:
             self.best_eval_loss = current_eval_loss
             self.bad_eval_epochs = 0
+            if model is not None:
+                import copy
+                self.best_state_dict = copy.deepcopy(model.state_dict())
         else:
             self.bad_eval_epochs += 1
             if self.bad_eval_epochs >= self.patience:
@@ -136,6 +144,12 @@ class EvalLossEarlyStopping(TrainerCallback):
                 )
                 control.should_training_stop = True
         return control
+
+    def on_train_end(self, args, state, control, model=None, **kwargs):
+        if self.best_state_dict is not None and model is not None:
+            print(f"Restoring best model weights (eval_loss={self.best_eval_loss:.4f}).")
+            model.load_state_dict(self.best_state_dict)
+            self.best_state_dict = None
 
 
 def main():
