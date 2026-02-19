@@ -4,20 +4,24 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Transformers](https://img.shields.io/badge/Transformers-4.30+-orange?logo=huggingface&logoColor=white)](https://huggingface.co/docs/transformers)
-[![arXiv](https://img.shields.io/badge/arXiv-1503.02531-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/1503.02531)
+[![bioRxiv](https://img.shields.io/badge/bioRxiv-2026.02.17.706304-b31b1b?logo=biorxiv&logoColor=white)](https://doi.org/10.64898/2026.02.17.706304)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-yellow?logo=huggingface&logoColor=white)](https://huggingface.co/littleworth)
 [![W&B](https://img.shields.io/badge/W%26B-Experiments-1F1F1F?logo=weightsandbiases&logoColor=white)](https://wandb.ai/ewijaya/PROTGPT2_DISTILLATION)
 
-Knowledge distillation for [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2), creating smaller and faster protein language models that retain the generative capabilities of the original model.
+A distillation framework for [ProtGPT2](https://huggingface.co/nferruz/ProtGPT2) that combines temperature-scaled knowledge distillation with two protein-specific enhancements: **uncertainty-aware position weighting** and **calibration-aware label smoothing**. Student models achieve 2.4-5.3x speedup at 3.8-20x compression while preserving amino acid distributions consistent with natural proteins (KL divergence < 0.015).
+
+> **Paper**: [Distilling Protein Language Models with Complementary Regularizers](https://doi.org/10.64898/2026.02.17.706304) (bioRxiv 2026)
 
 ## Overview
 
-This project trains compact "student" GPT-2 models to mimic the behavior of the full ProtGPT2 "teacher" model using knowledge distillation. The distillation process combines:
+This project trains compact "student" GPT-2 models to mimic the behavior of the full ProtGPT2 "teacher" model using knowledge distillation with complementary regularizers. The distillation loss combines:
 
 - **Soft loss**: KL divergence between temperature-softened logits from student and teacher
 - **Hard loss**: Standard cross-entropy loss on ground truth labels
+- **Uncertainty-aware weighting**: Emphasizes biologically variable regions via teacher entropy
+- **Calibration-aware label smoothing**: Prevents overconfident predictions
 
-The combined loss enables student models to learn both the teacher's output distribution and the correct token predictions.
+A key finding is that each enhancement individually degrades distillation quality, yet their combination yields **53% perplexity improvement** over baseline distillation — a result explained through information-theoretic analysis of noise amplification and signal filtering.
 
 ### Applications in Biopharma
 
@@ -208,8 +212,24 @@ The `config.py` file centralizes paths and default values. It uses environment v
 
 Training metrics are logged to [Weights & Biases](https://wandb.ai) under the project `PROTGPT2_DISTILLATION`.
 
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@article{Wijaya2026.02.17.706304,
+    author = {Wijaya, Edward},
+    title = {Distilling Protein Language Models with Complementary Regularizers},
+    year = {2026},
+    doi = {10.64898/2026.02.17.706304},
+    publisher = {Cold Spring Harbor Laboratory},
+    journal = {bioRxiv}
+}
+```
+
 ## References
 
+- Wijaya, E. (2026). Distilling Protein Language Models with Complementary Regularizers. *bioRxiv*. [doi:10.64898/2026.02.17.706304](https://doi.org/10.64898/2026.02.17.706304)
 - Ferruz, N., et al. (2022). ProtGPT2 is a deep unsupervised language model for protein design. *Nature Communications*.
 - Hinton, G., Vinyals, O., & Dean, J. (2015). Distilling the Knowledge in a Neural Network. *arXiv:1503.02531*.
 
