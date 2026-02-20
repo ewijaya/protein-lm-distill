@@ -19,8 +19,8 @@ fi
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "Logging to: $LOG_FILE"
 
-FAMILIES=(amp conotoxin)
-# NOTE: lysozyme skipped for now — teacher OOMs on L4 due to long sequences
+FAMILIES=(lysozyme)
+# NOTE: amp and conotoxin already completed; running lysozyme only
 SUBSETS=(50 100 200 500 1000)
 MODELS=(teacher medium small tiny baseline-tiny)
 
@@ -42,7 +42,7 @@ LRS[baseline-tiny]="2e-4"
 
 # Batch sizes (smaller for teacher to fit T4 16GB)
 declare -A BS GA
-BS[teacher]=4;          GA[teacher]=2
+BS[teacher]=2;          GA[teacher]=4
 BS[medium]=8;           GA[medium]=1
 BS[small]=8;            GA[small]=1
 BS[tiny]=8;             GA[tiny]=1
