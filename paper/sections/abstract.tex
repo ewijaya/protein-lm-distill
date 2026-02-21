@@ -1,18 +1,18 @@
 \begin{abstract}
-Large autoregressive protein language models (700M+ parameters) generate novel
-sequences \textit{de novo}, yet their size limits throughput and precludes rapid
-domain adaptation on scarce proprietary data. We distill ProtGPT2 with two
-protein-specific enhancements---uncertainty-aware position weighting and
-calibration-aware label smoothing---that individually degrade quality yet combine
-for 53\% perplexity improvement, a \emph{complementary-regularizer} effect we
-explain via information theory. Three students (37M--194M parameters) achieve
-2.4--5.3$\times$ speedup while preserving natural amino acid distributions. When
-fine-tuned on protein families of 50--1{,}000 sequences, students outperform the
-teacher on conotoxin perplexity at every training set size, with Medium at
-$N = 50$ surpassing the teacher at $N = 100$ (2$\times$ sample efficiency). On
-lysozyme, students achieve 94\% Pfam hit rate versus the teacher's 69\% despite
-higher perplexity, revealing that distilled representations capture
-family-level patterns more effectively. Students fine-tune 20--162$\times$
-faster, establishing distilled protein language models as superior starting
-points for domain adaptation on scarce data.
+Large autoregressive protein language models generate novel sequences
+\textit{de novo}, but their size limits throughput and precludes rapid domain
+adaptation on scarce proprietary data. We distill ProtGPT2 into compact
+students using two protein-specific enhancements, uncertainty-aware position
+weighting and calibration-aware label smoothing, that individually degrade
+quality yet combine for substantial improvement. We trace this
+\emph{complementary-regularizer} effect to information theory: smoothing
+denoises teacher distributions while weighting amplifies the cleaned signal
+at biologically variable positions. Students are several times faster at
+inference, preserve natural amino acid distributions, and use a fraction of
+the teacher's memory, enabling deployment on consumer-grade hardware. When
+fine-tuned on protein families with as few as 50 sequences, students generate
+more family-matching sequences than the teacher, achieving higher sample
+efficiency and Pfam hit rates despite their smaller capacity. These results
+establish distilled protein language models as superior starting points for
+domain adaptation on scarce data.
 \end{abstract}
