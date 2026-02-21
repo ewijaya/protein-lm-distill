@@ -1,24 +1,18 @@
 \begin{abstract}
 Large autoregressive protein language models (700M+ parameters) generate novel
-sequences \textit{de novo}, yet their computational demands limit throughput in
-biopharma workflows such as antibody affinity maturation and enzyme engineering,
-where millions of candidates must be evaluated. We present a distillation
-framework combining temperature-scaled knowledge distillation with two
-protein-specific enhancements: uncertainty-aware position weighting, which
-emphasizes biologically variable regions via teacher entropy, and
-calibration-aware label smoothing. A central finding is \emph{complementary
-regularizers}: each enhancement individually degrades distillation quality, yet their
-combination yields 53\% perplexity improvement over baseline distillation---a
-result we explain through information-theoretic analysis of noise amplification
-and signal filtering. We train three student models at 3.8--20$\times$
-compression, all outperforming baselines (31--87\% perplexity improvement). The
-resulting models achieve 2.4--5.3$\times$ speedup while preserving amino acid
-distributions consistent with natural proteins (KL divergence $< 0.015$),
-enabling on-premise screening of proprietary sequences without cloud API
-dependencies---a key requirement in pharmaceutical settings.
-Moreover, when fine-tuned on domain-specific protein families (50--1{,}000 sequences), distilled
-students outperform the teacher on conotoxin perplexity at every training set size and
-generate lysozyme sequences with 94\% Pfam family match rate versus the teacher's
-69\%---demonstrating that smaller distilled models are superior starting points for
-domain adaptation on scarce data.
+sequences \textit{de novo}, yet their size limits throughput and precludes rapid
+domain adaptation on scarce proprietary data. We distill ProtGPT2 with two
+protein-specific enhancements---uncertainty-aware position weighting and
+calibration-aware label smoothing---that individually degrade quality yet combine
+for 53\% perplexity improvement, a \emph{complementary-regularizer} effect we
+explain via information theory. Three students (37M--194M parameters) achieve
+2.4--5.3$\times$ speedup while preserving natural amino acid distributions. When
+fine-tuned on protein families of 50--1{,}000 sequences, students outperform the
+teacher on conotoxin perplexity at every training set size, with Medium at
+$N = 50$ surpassing the teacher at $N = 100$ (2$\times$ sample efficiency). On
+lysozyme, students achieve 94\% Pfam hit rate versus the teacher's 69\% despite
+higher perplexity---revealing that distilled representations capture
+family-level patterns more effectively. Students fine-tune 20--162$\times$
+faster, establishing distilled protein language models as superior starting
+points for domain adaptation on scarce data.
 \end{abstract}
