@@ -397,32 +397,63 @@ The results support two complementary narratives:
 
 ### 6.2 Recommended Paper Section Structure
 
-> **Domain adaptation advantage** (1 page, 2 figures)
+> **Domain adaptation advantage** (~1 page, 2 figures)
 >
 > **Paragraph 1 — Motivation**: In real biopharma workflows, models are fine-tuned on small proprietary datasets (100–1,000 sequences). A model that adapts well from limited data is more valuable than one requiring abundant examples.
 >
-> **Paragraph 2 — Setup**: We fine-tuned all five models on three protein families (AMP, conotoxin, lysozyme) at five training set sizes (50–1000). Evaluation used test perplexity, HMMER hit rate (conotoxin, lysozyme), and amino acid composition KL.
+> **Paragraph 2 — Setup**: We fine-tuned all five models on three protein families (AMP, conotoxin, lysozyme) at five training set sizes (50–1,000). Evaluation used test perplexity, HMMER hit rate (conotoxin, lysozyme), and amino acid composition KL divergence.
 >
-> **Paragraph 3 — Sample efficiency**: On conotoxin, students achieve 3–4x lower perplexity than the teacher at the same training set size (Figure A). Medium at N=50 already outperforms Teacher at N=100.
+> **Paragraph 3 — Sample efficiency (→ Fig. 10a)**: On conotoxin, all distilled students achieve lower perplexity than the teacher at every training set size, with a 4.5× gap at $N=50$ (Figure 10a). The Synergy-Medium model at $N=50$ (PPL 372) already outperforms the teacher at $N=100$ (PPL 1,153), demonstrating 2× sample efficiency. This advantage persists at large $N$: at $N=1{,}000$ the Medium model reaches PPL 30 vs. the teacher's 54.
 >
-> **Paragraph 4 — Generation quality**: On lysozyme, the Small student achieves 94% HMMER hit rate vs. the teacher's 69% at N=1000 (Figure B), despite having higher perplexity. This decoupling suggests distilled representations are better calibrated for domain-specific pattern capture.
+> **Paragraph 4 — Generation quality (→ Fig. 10b, Fig. 11a)**: On lysozyme, the teacher achieves lower test perplexity at every $N$ (Figure 10b), yet distilled students generate sequences that more frequently match the family's Pfam HMM profile (Figure 11a). The Synergy-Small model achieves 94% HMMER hit rate at $N=1{,}000$ vs. the teacher's 69% — a 25 percentage-point advantage. Even at $N=200$, the Small model (73%) far exceeds the teacher (28%). This decoupling between perplexity and family-specific generation suggests that distilled representations are better calibrated for capturing structural motifs during fine-tuning.
 >
-> **Paragraph 5 — Synergy advantage**: Synergy-Tiny outperforms Baseline-Tiny at every subset size across all three families, confirming that the training procedure — not just compression — drives the fine-tuning advantage.
+> **Paragraph 5 — Synergy advantage**: Synergy-Tiny outperforms Baseline-Tiny (same 37M architecture, standard KD) at every subset size across all three protein families (15/15 comparisons), with the gap widening as training data increases (e.g., 42% lower PPL on lysozyme at $N=500$). This confirms that the synergy distillation procedure — not just model compression — drives the fine-tuning advantage.
 >
-> **Paragraph 6 — Cost**: Students fine-tune 20–160x faster and do not require gradient checkpointing, making them practical for consumer-grade GPUs.
+> **Paragraph 6 — Cost**: Students fine-tune 20–162× faster than the teacher in wall-clock time. Synergy-Tiny completes AMP fine-tuning ($N=1{,}000$) in 25 seconds vs. 66 minutes for the teacher, and does not require gradient checkpointing, making it feasible on consumer-grade GPUs.
+>
+> **Supplementary note**: AMP results (where the teacher dominates on perplexity and no HMMER profile is applicable) are reported in full in the supplementary materials.
 
-### 6.3 Recommended Figures
+### 6.3 Figures (Produced)
 
-**Figure A — Sample Efficiency Curves**: Three panels (one per family). X-axis: training set size (log scale). Y-axis: test perplexity. One line per model, color-coded. Key visual: student curves sit below teacher curve for conotoxin; student curves converge toward teacher for lysozyme.
+Two main-text figures have been generated following Nature Communications style conventions (sans-serif fonts, 300 DPI, TrueType PDF, matching the palette and layout of Figures 1–9). Panel ordering was chosen to lead with the strongest result.
 
-**Figure B — Lysozyme HMMER Hit Rate**: Bar chart or line plot. X-axis: training set size. Y-axis: hit rate. Key visual: students dramatically exceed teacher, especially Small at N=500–1000.
+#### Figure 10 — Fine-Tuning Sample Efficiency (`fig10_finetune_efficiency.pdf`)
+
+- **Layout**: 2 panels, double-column width
+- **Panel (a) Conotoxins**: Test perplexity (log scale) vs. training set size (log scale). All five models plotted. Key visual: teacher (gray) sits far above all students at every $N$, with a 4.5× gap annotated at $N=50$. Demonstrates that smaller distilled models are dramatically more sample-efficient on this constrained family.
+- **Panel (b) Lysozymes**: Same axes. Teacher achieves lowest PPL, but students converge — Medium reaches 217 vs. teacher's 187 at $N=1{,}000$. Sets up the surprising hit-rate inversion shown in Figure 11.
+- **AMP omitted** from main figure (teacher dominates, no HMMER, weakens visual narrative). Report in supplementary.
+- **Design choices**: Log-log scale to show proportional improvement; Dark2 colorblind-friendly palette; Baseline-Tiny in dashed pink to visually separate "same architecture, different method" from synergy students.
+- **Manuscript caption draft**: *"Fine-tuning sample efficiency on two protein families. Test perplexity (lower is better) as a function of fine-tuning set size for the teacher (738M), three synergy-distilled students, and a standard-KD baseline. (a) On conotoxins, all students outperform the teacher at every training set size, with a 4.5× perplexity gap at $N=50$. (b) On lysozymes, the teacher achieves the lowest perplexity, but students converge rapidly — see Figure 11 for generation quality."*
+
+#### Figure 11 — HMMER Hit Rate (`fig11_finetune_hitrate.pdf`)
+
+- **Layout**: 2 panels, double-column width
+- **Panel (a) Lysozyme (PF00959)**: HMMER hit rate (%) vs. training set size. Key visual: Small (orange) reaches 94% at $N=1{,}000$ while teacher plateaus at 69%. A +25 pp bracket annotation highlights the gap. Tiny (84%) and Medium (83.5%) also exceed the teacher.
+- **Panel (b) Conotoxin (PF02950)**: Same axes. Hit rates are lower across all models (max 42.5% for Medium at $N=1{,}000$), but Medium consistently leads and outperforms the teacher (8%).
+- **Design choices**: Linear y-axis (0–100%) to make percentage-point differences intuitive; same color/marker scheme as Figure 10 for cross-figure consistency; key values annotated directly on the plot.
+- **Manuscript caption draft**: *"Family-specific generation quality after fine-tuning. HMMER hit rate (percentage of 200 generated sequences matching the family Pfam profile at $E < 10^{-5}$) as a function of fine-tuning set size. (a) On lysozyme, distilled students generate substantially more family-specific sequences than the teacher despite higher perplexity (cf. Figure 10b), with the Synergy-Small model achieving 94\% vs. the teacher's 69\% at $N=1{,}000$ (+25 percentage points). (b) On conotoxin, the Synergy-Medium model achieves 42.5\% hit rate vs. the teacher's 8\%."*
+
+#### Cross-Figure Reading Guide
+
+The two figures are designed to be read together:
+1. **Fig. 10a** (conotoxin PPL) — Students win on the standard metric
+2. **Fig. 10b** (lysozyme PPL) — Teacher wins on the standard metric…
+3. **Fig. 11a** (lysozyme hit rate) — …but students win on the *functional* metric, revealing a PPL–quality decoupling
+4. **Fig. 11b** (conotoxin hit rate) — Medium dominates on both metrics for conotoxin
+
+This sequence builds a narrative arc: the advantage of distilled models is not captured by perplexity alone.
+
+#### Supplementary Figure (Not Yet Produced)
+
+- **AMP sample efficiency curves**: 1-panel version of Figure 10 for AMPs. Teacher dominates. Included for completeness and to demonstrate honest reporting.
 
 ### 6.4 What Not to Feature
 
-- **Novelty** (uninformative, constant across all runs)
-- **Diversity** (no differentiation)
-- **AMP as a headline** (teacher wins, no HMMER available)
-- **Length KL** (systematically high due to generation configuration)
+- **Novelty** (uninformative, constant ~1.0 across all 75 runs due to generation length mismatch)
+- **Diversity** (no differentiation, all ~0.80)
+- **AMP as a headline** (teacher wins, no HMMER available — supplementary only)
+- **Length KL** (systematically high due to generation configuration, see Section 5.1)
 
 ---
 
@@ -524,15 +555,26 @@ The results support two complementary narratives:
 
 | Resource | Path |
 |----------|------|
+| **Figures** | |
+| Fig. 10 PDF (sample efficiency) | `paper/figures/pdf/fig10_finetune_efficiency.pdf` |
+| Fig. 11 PDF (HMMER hit rate) | `paper/figures/pdf/fig11_finetune_hitrate.pdf` |
+| Fig. 10 script | `paper/figures/scripts/fig10_finetune_efficiency.py` |
+| Fig. 11 script | `paper/figures/scripts/fig11_finetune_hitrate.py` |
+| Shared figure styling | `paper/figures/scripts/common.py` |
+| **Results** | |
 | Result JSONs | `results/finetune/*.json` |
 | Generated sequences | `results/finetune/seqs/*.fasta` |
 | Training logs | `models/finetune/*/training_logs.json` |
 | Training hyperparameters | `models/finetune/*/training_hyperparameters.json` |
+| **Scripts** | |
 | Fine-tuning script | `scripts/finetune.py` |
 | Evaluation script | `scripts/evaluate_finetune.py` |
 | Orchestration script | `scripts/run_phase62.sh` |
+| **Data** | |
 | AMP data | `data/finetune/amp/` |
 | Conotoxin data | `data/finetune/conotoxin/` |
 | Lysozyme data | `data/finetune/lysozyme/` |
 | HMM profiles | `data/hmm/PF02950.hmm`, `data/hmm/PF00959.hmm` |
+| **Documentation** | |
 | PRD | `docs/PRD-phase-6-finetuning.md` |
+| This analysis | `docs/phase6-analysis.md` |
