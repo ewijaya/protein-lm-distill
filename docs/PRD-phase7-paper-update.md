@@ -47,11 +47,13 @@ Update the manuscript (`paper/`) with Phase 6 fine-tuning results, adding a new 
 
 | File | Changes |
 |------|---------|
-| `paper/sections/results.tex` | Add new subsection "Domain-specific fine-tuning" after "Structural quality" |
+| `paper/sections/results.tex` | Add new subsection "Domain-specific fine-tuning" after "Structural quality"; reference appendix tables |
 | `paper/sections/abstract.tex` | Add 1-2 sentences on fine-tuning advantage |
 | `paper/sections/introduction.tex` | Add fine-tuning as a contribution; update contributions list |
 | `paper/sections/discussion.tex` | Add paragraph on PPL-vs-hit-rate decoupling; update limitations and future directions |
-| `paper/sections/methods.tex` | Add fine-tuning experimental setup subsection |
+| `paper/sections/methods.tex` | Add brief fine-tuning setup prose (reference appendix for full tables) |
+| `paper/main.tex` | Add `\appendix` section and include appendix file |
+| `paper/sections/appendix.tex` | **New file** — Fine-tuning hyperparameters, dataset summary, generation config, AMP results |
 
 ### 3.2 Figures (Already Produced)
 
@@ -60,14 +62,22 @@ Update the manuscript (`paper/`) with Phase 6 fine-tuning results, adding a new 
 | Fig. 10 | `paper/figures/pdf/fig10_finetune_efficiency.pdf` | 2-panel: Conotoxin + Lysozyme test PPL vs N (log-log) | Results — sample efficiency |
 | Fig. 11 | `paper/figures/pdf/fig11_finetune_hitrate.pdf` | 2-panel: Lysozyme + Conotoxin HMMER hit rate vs N | Results — generation quality |
 
-No new figures needed. AMP supplementary figure is deferred (out of scope).
+No new figures needed. AMP appendix figure is deferred (out of scope).
 
-### 3.3 Tables to Add
+### 3.3 Tables to Add (Main Text)
+
+| Table | Content | Placement |
+|-------|---------|-----------|
+| Synergy vs Baseline | Synergy-Tiny vs Baseline-Tiny perplexity across conotoxin + lysozyme (emphasize 15/15 wins) | Results subsection |
+
+### 3.4 Tables to Add (Appendix)
 
 | Table | Content |
 |-------|---------|
-| Fine-tuning config | Training hyperparameters (LR, batch size, epochs, early stopping) per model — compact version |
-| Synergy vs Baseline | Synergy-Tiny vs Baseline-Tiny perplexity across conotoxin + lysozyme (emphasize 15/15 wins) |
+| Fine-tuning config | Full training hyperparameters (LR, batch size, epochs, early stopping, optimizer, scheduler) per model |
+| Dataset summary | Family sizes, median lengths, Pfam IDs, train/val/test splits |
+| Generation config | Sampling parameters (top-k, temperature, repetition penalty, max_length) |
+| AMP full results | Complete AMP perplexity and AA KL tables (appendix) |
 
 ---
 
@@ -102,7 +112,7 @@ Add 1-2 sentences to the motivation paragraph connecting distillation to the fin
 - Setup: 5 models × 3 families × 5 subset sizes (50–1000) = 75 runs
 - Families: conotoxin (PF02950, median 68 AA) and lysozyme (PF00959, median 170 AA)
 - Evaluation: test perplexity, HMMER hit rate (E < 1e-5)
-- AMP results reported in supplementary (no HMMER profile, teacher dominates)
+- AMP results reported in appendix (no HMMER profile, teacher dominates)
 
 #### Paragraph 2 — Sample efficiency on conotoxin (→ Fig. 10a) (~4 sentences)
 - All distilled students achieve lower perplexity than teacher at every N
@@ -160,23 +170,62 @@ Add 1-2 sentences to the motivation paragraph connecting distillation to the fin
 
 **Title**: "Fine-tuning evaluation"
 
-**Content** (~0.5 page):
+**Content** (~3–4 sentences in main text, full tables in appendix):
+
+In prose, briefly state:
+- Fine-tuned on conotoxin (PF02950) and lysozyme (PF00959) families at 5 subset sizes (50–1,000)
+- All models trained with AdamW, cosine schedule, early stopping (patience 3), effective batch size 8, FP16
+- Learning rates scaled by model size (see Appendix Table X for full hyperparameters)
+- Generated 200 sequences per run; evaluated with HMMER (E < 1e-5) against family Pfam profiles
+- Teacher required gradient checkpointing on 24 GB L4 GPU; students did not
+
+Reference `Appendix Table X` for the full hyperparameter table, dataset summary, and generation config. Do NOT inline these tables in the methods section.
+
+### 4.6 Appendix — New Section
+
+**Title**: "Fine-tuning experimental details"
+
+Add a new appendix section (or `\appendix` if not yet present) containing:
+
+**Table A1 — Fine-tuning hyperparameters**
+
+| Parameter | Teacher | Medium | Small | Tiny | Baseline-Tiny |
+|-----------|---------|--------|-------|------|---------------|
+| Parameters | 738M | 194M | 78M | 37M | 37M |
+| Learning rate | 2e-5 | 5e-5 | 1e-4 | 2e-4 | 2e-4 |
+| Batch size | 2 | 8 | 8 | 8 | 8 |
+| Grad accumulation | 4 | 1 | 1 | 1 | 1 |
+| Effective batch | 8 | 8 | 8 | 8 | 8 |
+| Grad checkpointing | Yes | No | No | No | No |
+| Max epochs | 20 | 20 | 20 | 20 | 20 |
+| Early stopping | 3 | 3 | 3 | 3 | 3 |
+| Optimizer | AdamW | AdamW | AdamW | AdamW | AdamW |
+| Scheduler | Cosine | Cosine | Cosine | Cosine | Cosine |
+| Warmup steps | 100 | 100 | 100 | 100 | 100 |
+| Precision | FP16 | FP16 | FP16 | FP16 | FP16 |
+
+**Table A2 — Dataset summary**
+
+| Family | Train (full) | Val | Test | Median length (AA) | Pfam ID |
+|--------|-------------|-----|------|-------------------|---------|
+| Conotoxin | 6,164 | 770 | 770 | 68 | PF02950 |
+| Lysozyme | 10,740 | 1,342 | 1,342 | 170 | PF00959 |
+| AMP | 2,501 | 313 | 313 | 29 | None |
+
+**Table A3 — Generation and evaluation config**
 
 | Parameter | Value |
 |-----------|-------|
-| Families | Conotoxin (PF02950, 6,164 train), Lysozyme (PF00959, 10,740 train) |
-| Subset sizes | 50, 100, 200, 500, 1,000 |
-| Optimizer | AdamW, cosine schedule, 100-step warmup |
-| Early stopping | patience 3, max 20 epochs |
-| Learning rates | Teacher 2e-5, Medium 5e-5, Small 1e-4, Tiny/Baseline-Tiny 2e-4 |
-| Effective batch size | 8 (all models) |
-| Precision | FP16 |
-| Max sequence length | 512 tokens |
-| Generation | 200 sequences per run, top-k=950, T=1.0, rep_penalty=1.2 |
-| HMMER evaluation | hmmsearch E < 1e-5 against family Pfam profile |
-| Hardware | NVIDIA L4 (24 GB) |
+| Sequences per run | 200 |
+| Max length | 200 tokens |
+| Top-k | 950 |
+| Temperature | 1.0 |
+| Repetition penalty | 1.2 |
+| HMMER E-value | 1e-5 |
 
-Note: Teacher required gradient checkpointing (batch_size=2, grad_accum=4); students did not (batch_size=8).
+**Table A4 — AMP complete results** (teacher dominates; included for completeness)
+
+Full AMP perplexity and AA KL table from phase6-analysis.md Section 7.1.
 
 ---
 
@@ -189,17 +238,19 @@ After all edits, verify:
 - [ ] All `\ref{}` labels resolve
 - [ ] Fig. 10 and Fig. 11 are referenced in the new results subsection
 - [ ] Abstract word count ≤ 250
-- [ ] No AMP data in main text (supplementary only mention)
+- [ ] No AMP data in main text (appendix only mention)
 - [ ] Synergy-Tiny vs Baseline-Tiny comparison appears in both results and discussion
 - [ ] Limitations section mentions generation length mismatch
-- [ ] Methods section includes fine-tuning hyperparameters table
+- [ ] Methods section references appendix for hyperparameters (no inline tables)
+- [ ] Appendix contains Tables A1–A4
+- [ ] `main.tex` includes `\appendix` and `\input{sections/appendix}`
 
 ---
 
 ## 6. Out of Scope
 
-- AMP supplementary figure (deferred)
-- Supplementary tables with full 75-run data
+- AMP appendix figure (deferred)
+- Appendix tables beyond A1–A4 (e.g., full 75-run data with all metrics)
 - Novelty/diversity analysis
 - Length distribution analysis
 - Rewriting existing sections (only additive changes)
@@ -209,9 +260,11 @@ After all edits, verify:
 
 ## 7. Execution Order
 
-1. `methods.tex` — Add fine-tuning setup (no dependencies)
-2. `results.tex` — Add new subsection with figures and tables
-3. `discussion.tex` — Add interpretation paragraphs
-4. `introduction.tex` — Add contribution and motivation
-5. `abstract.tex` — Add summary sentence
-6. Compile and verify (`make` or `pdflatex`)
+1. `appendix.tex` — Create new file with Tables A1–A4 (no dependencies)
+2. `main.tex` — Add `\appendix` and `\input{sections/appendix}`
+3. `methods.tex` — Add brief fine-tuning prose referencing appendix
+4. `results.tex` — Add new subsection with figures and results table
+5. `discussion.tex` — Add interpretation paragraphs
+6. `introduction.tex` — Add contribution and motivation
+7. `abstract.tex` — Add summary sentence
+8. Compile and verify (`make` or `pdflatex`)
