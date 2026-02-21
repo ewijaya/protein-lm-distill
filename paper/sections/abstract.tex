@@ -7,9 +7,9 @@ weighting and calibration-aware label smoothing, that individually degrade
 quality yet combine for substantial improvement. We trace this
 \emph{complementary-regularizer} effect to information theory: smoothing
 denoises teacher distributions while weighting amplifies the cleaned signal
-at biologically variable positions. Students are several times faster at
-inference, preserve natural amino acid distributions, and use a fraction of
-the teacher's memory, enabling deployment on consumer-grade hardware. When
+at biologically variable positions. Students achieve up to 5$\times$ inference speedup, preserve natural amino
+acid distributions, and require as little as 170\,MB of GPU memory, enabling
+deployment on consumer-grade hardware. When
 fine-tuned on protein families with as few as 50 sequences, students generate
 more family-matching sequences than the teacher, achieving higher sample
 efficiency and Pfam hit rates despite their smaller capacity. These results
