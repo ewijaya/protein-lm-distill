@@ -18,10 +18,13 @@ acute in biopharma applications such as ML-guided antibody affinity
 maturation~\cite{hie2024antibodies} and protein engineering
 campaigns~\cite{madani2023progen}, where evaluating thousands to millions of
 candidate sequences demands both high throughput and cost-effective deployment.
-Beyond inference efficiency, a critical question for such applications is whether
-distilled models can serve as effective starting points for domain-specific
-fine-tuning on proprietary datasets---typically comprising only 50--1{,}000 sequences
-from a target protein family.
+
+Beyond inference efficiency, a critical question for biopharma applications is whether
+compressed models can serve as effective starting points for domain-specific fine-tuning
+on proprietary datasets---typically comprising only 50--1{,}000 sequences from a target
+protein family. If distillation preserves or enhances the representations needed for
+rapid domain adaptation, the same compressed model can serve both as a fast inference
+engine and as a sample-efficient fine-tuning base.
 
 Knowledge distillation~\cite{hinton2015distilling} offers a principled approach to model
 compression by training a smaller student model to mimic the probability distributions

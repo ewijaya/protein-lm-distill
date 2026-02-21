@@ -22,32 +22,32 @@
 \citation{uniprot2023}
 \citation{hie2024antibodies}
 \citation{madani2023progen}
-\citation{hinton2015distilling}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{hinton2015distilling}
 \citation{sanh2019distilbert}
 \citation{jiao2020tinybert}
 \citation{geffen2022distilprotbert}
 \citation{wang2024mtdp}
 \citation{dubey2025spidersilk}
 \citation{guo2017calibration,muller2019label}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Results}{2}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Ablation reveals complementary regularizers}{2}{subsection.2.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Ablation study showing the complementary-regularizer effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline.}}{3}{figure.1}\protected@file@percent }
 \newlabel{fig:ablation}{{1}{3}{Ablation study showing the complementary-regularizer effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline}{figure.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error.}}{3}{table.1}\protected@file@percent }
 \newlabel{tab:ablation}{{1}{3}{Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Scaling across model sizes}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Results}{3}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Ablation reveals complementary regularizers}{3}{subsection.2.1}\protected@file@percent }
 \citation{guo2017calibration,naeini2015ece}
 \citation{uniprot2023}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines.}}{4}{table.2}\protected@file@percent }
 \newlabel{tab:scaling}{{2}{4}{Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Scaling across model sizes}{4}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{4}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Biological validity}{4}{subsection.2.4}\protected@file@percent }
-\citation{lin2023esmfold}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $).}}{5}{figure.2}\protected@file@percent }
 \newlabel{fig:scaling}{{2}{5}{Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $)}{figure.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Compression--quality tradeoff}{5}{subsection.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{5}{subsection.2.6}\protected@file@percent }
+\citation{lin2023esmfold}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference.}}{6}{figure.3}\protected@file@percent }
 \newlabel{fig:calibration}{{3}{6}{Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference}{figure.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Amino acid frequency deviation from the natural UniProt distribution (left) with mean absolute deviation summary (right). The synergy student (MAD\tmspace  +\thinmuskip {.1667em}=\tmspace  +\thinmuskip {.1667em}0.0073) deviates 18\% less than the baseline (MAD\tmspace  +\thinmuskip {.1667em}=\tmspace  +\thinmuskip {.1667em}0.0089), confirming that the combined enhancements improve distributional fidelity.}}{6}{figure.4}\protected@file@percent }
@@ -59,21 +59,21 @@
 \newlabel{sec:finetuning_results}{{2.8}{7}{Domain-specific fine-tuning}{subsection.2.8}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.4--5.3$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware.}}{8}{figure.6}\protected@file@percent }
 \newlabel{fig:speed}{{6}{8}{Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.4--5.3$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware}{figure.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage.}}{8}{table.3}\protected@file@percent }
-\newlabel{tab:synergy_vs_baseline}{{3}{8}{Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{8}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of complementary regularizers.}{8}{section*.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that complementary-regularizer distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit.}}{9}{figure.7}\protected@file@percent }
 \newlabel{fig:plddt}{{7}{9}{ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that complementary-regularizer distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit}{figure.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{9}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of complementary regularizers.}{9}{section*.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\tmspace  +\thinmuskip {.1667em}MB GPU memory (19$\times $ reduction from the teacher's 3.2\tmspace  +\thinmuskip {.1667em}GB), enabling large-scale screening on consumer hardware.}}{10}{figure.8}\protected@file@percent }
 \newlabel{fig:throughput}{{8}{10}{Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\,MB GPU memory (19$\times $ reduction from the teacher's 3.2\,GB), enabling large-scale screening on consumer hardware}{figure.8}{}}
 \@writefile{toc}{\contentsline {paragraph}{Training dynamics and the role of warmup.}{10}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{10}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{10}{section*.4}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Test perplexity versus training set size for domain-specific fine-tuning. (a)\nobreakspace  {}Conotoxin: all distilled students achieve lower perplexity than the teacher at every $N$, with Medium at $N = 50$ outperforming the teacher at $N = 100$ (2$\times $ sample efficiency). (b)\nobreakspace  {}Lysozyme: the teacher achieves lower perplexity, but students generate more family-matching sequences (see Fig.\nobreakspace  {}\ref  {fig:finetune_hitrate}).}}{11}{figure.9}\protected@file@percent }
 \newlabel{fig:finetune_efficiency}{{9}{11}{Test perplexity versus training set size for domain-specific fine-tuning. (a)~Conotoxin: all distilled students achieve lower perplexity than the teacher at every $N$, with Medium at $N = 50$ outperforming the teacher at $N = 100$ (2$\times $ sample efficiency). (b)~Lysozyme: the teacher achieves lower perplexity, but students generate more family-matching sequences (see Fig.~\ref {fig:finetune_hitrate})}{figure.9}{}}
-\@writefile{toc}{\contentsline {paragraph}{PPL-vs-hit-rate decoupling.}{11}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{11}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{11}{section*.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage.}}{11}{table.3}\protected@file@percent }
+\newlabel{tab:synergy_vs_baseline}{{3}{11}{Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage}{table.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{11}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{PPL-vs-hit-rate decoupling.}{11}{section*.6}\protected@file@percent }
 \citation{hie2024antibodies}
 \citation{madani2023progen}
 \citation{madani2023progen}

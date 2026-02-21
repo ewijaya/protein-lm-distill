@@ -73,20 +73,6 @@ approximately exponentially with scale, narrowing the gap. Third, larger student
 better model the true distribution at variable positions natively, reducing the marginal
 benefit of the noise-filtering mechanism.
 
-\paragraph{PPL-vs-hit-rate decoupling.}
-On lysozyme, the teacher achieves lower test perplexity than all students at every
-training set size, yet students generate sequences that more frequently match the
-PF00959 HMM profile (94\% for Small versus 69\% for the teacher at $N = 1{,}000$).
-We interpret this as evidence that distilled representations capture family-level
-structural patterns more effectively during fine-tuning: the compressed parameter
-space imposes an inductive bias that prevents overfitting to non-family sequence
-patterns, channeling limited capacity toward family-specific features. This challenges
-the assumption that larger models are always superior fine-tuning starting points.
-Importantly, the advantage holds across all three synergy scales (Medium, Small, Tiny),
-not just the smallest model---and the Baseline-Tiny control confirms it is the
-distillation method, not compression ratio alone, that enables superior domain
-adaptation.
-
 \paragraph{Learning rate scaling.}
 A practical finding is that synergy training requires approximately half the baseline
 learning rate at matching scales, plus warmup. The smoothed targets create a loss
@@ -102,6 +88,20 @@ the only scale where calibration worsened. This model was the only one trained w
 an explicit learning rate reduction, suggesting that the warmup schedule alone is not
 universally sufficient to optimize calibration. A targeted learning rate sweep at this
 scale would likely resolve the regression.
+
+\paragraph{PPL-vs-hit-rate decoupling.}
+On lysozyme, the teacher achieves lower test perplexity than all students at every
+training set size, yet students generate sequences that more frequently match the
+PF00959 HMM profile (94\% for Small versus 69\% for the teacher at $N = 1{,}000$).
+We interpret this as evidence that distilled representations capture family-level
+structural patterns more effectively during fine-tuning: the compressed parameter
+space imposes an inductive bias that prevents overfitting to non-family sequence
+patterns, channeling limited capacity toward family-specific features. This challenges
+the assumption that larger models are always superior fine-tuning starting points.
+Importantly, the advantage holds across all three synergy scales (Medium, Small, Tiny),
+not just the smallest model---and the Baseline-Tiny control confirms it is the
+distillation method, not compression ratio alone, that enables superior domain
+adaptation.
 
 \paragraph{Practical implications for biopharma.}
 The compressed models address concrete deployment bottlenecks in protein engineering

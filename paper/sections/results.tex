@@ -233,11 +233,14 @@ hardware.}
 \subsection{Domain-specific fine-tuning}
 \label{sec:finetuning_results}
 
-A critical question for biopharma applications is whether distilled models can serve as
-effective starting points for fine-tuning on proprietary datasets. We fine-tuned all five
-models---Teacher, Medium, Small, Tiny (synergy), and Baseline-Tiny (standard
-KD)---on conotoxin (PF02950, median 68~AA) and lysozyme (PF00959, median 170~AA) at
-five training set sizes ($N \in \{50, 100, 200, 500, 1000\}$), totaling 75 runs.
+Having established that synergy distillation produces superior compressed models, we
+next tested whether these models also serve as better starting points for domain-specific
+fine-tuning. We fine-tuned all five models---Teacher, Medium, Small, Tiny (synergy),
+and Baseline-Tiny---on conotoxin (PF02950, median 68~AA) and lysozyme (PF00959,
+median 170~AA) at five training set sizes ($N \in \{50, 100, 200, 500, 1000\}$),
+totaling 75 runs. Baseline-Tiny uses the same 37M Tiny architecture but was trained
+with standard (non-synergy) distillation, serving as a controlled comparison that
+isolates the effect of the distillation method from model compression alone.
 We evaluated test perplexity and HMMER hit rate (sequences matching the family Pfam
 profile at $E < 10^{-5}$). AMP results, where the teacher dominates and no HMMER
 profile is available, are reported in the Appendix (Table~\ref{tab:ft_amp}).
@@ -256,8 +259,8 @@ frequently match the PF00959 HMM profile (Fig.~\ref{fig:finetune_hitrate}a). At
 $N = 1{,}000$, Small achieves a 94\% HMMER hit rate versus the teacher's 69\%
 (+25 percentage points). At $N = 200$, the gap is even wider: Small 73\% versus
 teacher 28\%. This decoupling between perplexity and family-specific generation
-quality suggests that distilled representations capture family-level structural
-patterns more effectively during fine-tuning.
+quality indicates that lower perplexity does not guarantee better domain-adapted
+generation; we discuss possible mechanisms in the Discussion.
 
 On conotoxin HMMER hit rate, Medium dominates: 42.5\% at $N = 1{,}000$ versus the
 teacher's 8.0\% (Fig.~\ref{fig:finetune_hitrate}b). Hit rates are lower overall for
@@ -275,8 +278,9 @@ the teacher's 69\%; Baseline-Tiny (71\%) performs at teacher level. The controll
 comparison---Synergy-Tiny versus Baseline-Tiny (same 37M architecture, different
 distillation method)---isolates the source of the advantage: Baseline-Tiny performs
 near teacher level while Synergy-Tiny far exceeds both, with 15 out of 15 perplexity
-wins across all families. This confirms that the synergy distillation procedure, not
-just model compression, drives the fine-tuning advantage.
+wins across all three families including AMP (Table~\ref{tab:ft_amp}). This confirms
+that the synergy distillation procedure, not just model compression, drives the
+fine-tuning advantage.
 
 Students fine-tune 20--162$\times$ faster than the teacher in wall-clock time. The Tiny
 model completes AMP fine-tuning ($N = 1{,}000$) in 25 seconds versus 66 minutes for the
