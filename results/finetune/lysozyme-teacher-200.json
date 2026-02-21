@@ -1,0 +1,31 @@
+{
+  "model": "models/finetune/lysozyme-teacher-200",
+  "family": "lysozyme",
+  "train_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/lysozyme/train_200.fasta",
+  "test_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/lysozyme/test.fasta",
+  "train_sequences": 200,
+  "test_sequences": 1342,
+  "num_generated": 200,
+  "test_perplexity": 489.88374039754683,
+  "generation": {
+    "avg_length": 465.01,
+    "std_length": 132.79374947639667,
+    "length_kl": 12.68456109541436,
+    "aa_kl": 0.01228451982538956,
+    "novelty": {
+      "novelty_fraction": 1.0,
+      "mean_min_distance": 0.3000890471950134
+    },
+    "diversity": {
+      "mean_pairwise_distance": 0.809257417988884,
+      "pairs": 19900
+    }
+  },
+  "hmmer": {
+    "hmm_profile": "data/hmm/PF00959.hmm",
+    "evalue_threshold": 1e-05,
+    "hit_rate": 0.28,
+    "hits": 56
+  },
+  "plddt": null
+}

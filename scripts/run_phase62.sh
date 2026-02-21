@@ -40,7 +40,7 @@ LRS[small]="1e-4"
 LRS[tiny]="2e-4"
 LRS[baseline-tiny]="2e-4"
 
-# Batch sizes (smaller for teacher to fit T4 16GB)
+# Batch sizes (smaller for teacher to fit L4 24GB)
 declare -A BS GA
 BS[teacher]=2;          GA[teacher]=4
 BS[medium]=8;           GA[medium]=1
@@ -82,6 +82,12 @@ for family in "${FAMILIES[@]}"; do
             echo "===== [$DONE/$TOTAL] FINETUNE: ${family} / ${model} / ${subset} ====="
             echo "Time: $(date)"
 
+            # Gradient checkpointing for teacher to avoid OOM on L4
+            gc_flag=""
+            if [[ "$model" == "teacher" ]]; then
+                gc_flag="--gradient_checkpointing"
+            fi
+
             python scripts/finetune.py \
                 --model "${PATHS[$model]}" \
                 --data_dir "data/finetune/${family}" \
@@ -95,6 +101,7 @@ for family in "${FAMILIES[@]}"; do
                 --early_stopping_patience 3 \
                 --warmup_steps 100 \
                 --overwrite_output_dir \
+                $gc_flag \
                 --wandb_project PROTGPT2_FINETUNE \
                 --wandb_run_name "ft-${family}-${model}-${subset}"
 

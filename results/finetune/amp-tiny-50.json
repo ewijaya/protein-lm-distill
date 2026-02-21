@@ -1,0 +1,31 @@
+{
+  "model": "models/finetune/amp-tiny-50",
+  "family": "amp",
+  "train_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/amp/train_50.fasta",
+  "test_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/amp/test.fasta",
+  "train_sequences": 50,
+  "test_sequences": 313,
+  "num_generated": 200,
+  "test_perplexity": 3090.4704973955686,
+  "generation": {
+    "avg_length": 470.09,
+    "std_length": 55.37744938149463,
+    "length_kl": 14.577568459485311,
+    "aa_kl": 0.1319812290250853,
+    "novelty": {
+      "novelty_fraction": 1.0,
+      "mean_min_distance": 0.3012545244305207
+    },
+    "diversity": {
+      "mean_pairwise_distance": 0.7915668031656221,
+      "pairs": 19900
+    }
+  },
+  "hmmer": {
+    "hmm_profile": null,
+    "evalue_threshold": 1e-05,
+    "hit_rate": null,
+    "hits": null
+  },
+  "plddt": null
+}

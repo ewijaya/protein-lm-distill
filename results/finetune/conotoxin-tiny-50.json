@@ -1,0 +1,31 @@
+{
+  "model": "models/finetune/conotoxin-tiny-50",
+  "family": "conotoxin",
+  "train_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/conotoxin/train_50.fasta",
+  "test_file": "/home/ubuntu/storage1/protein-lm-distill/data/finetune/conotoxin/test.fasta",
+  "train_sequences": 50,
+  "test_sequences": 770,
+  "num_generated": 200,
+  "test_perplexity": 500.14964751146954,
+  "generation": {
+    "avg_length": 376.53,
+    "std_length": 187.29044049283456,
+    "length_kl": 12.797275123159439,
+    "aa_kl": 0.03889396048694077,
+    "novelty": {
+      "novelty_fraction": 1.0,
+      "mean_min_distance": 0.30060201748609733
+    },
+    "diversity": {
+      "mean_pairwise_distance": 0.8230052161858361,
+      "pairs": 19900
+    }
+  },
+  "hmmer": {
+    "hmm_profile": "data/hmm/PF02950.hmm",
+    "evalue_threshold": 1e-05,
+    "hit_rate": 0.005,
+    "hits": 1
+  },
+  "plddt": null
+}
