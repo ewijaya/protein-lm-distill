@@ -188,6 +188,20 @@ The Medium model was trained on an NVIDIA L40S GPU (48\,GB). Smaller models were
 on various NVIDIA GPUs with at least 24\,GB of memory. Gradient accumulation (4 steps)
 was used to achieve an effective batch size of 32.
 
+\subsection{Fine-tuning evaluation}
+
+To assess whether distilled models serve as effective starting points for domain
+adaptation, we fine-tuned all five models on two protein families: conotoxin
+(PF02950, median 68 AA) and lysozyme (PF00959, median 170 AA), at five training
+subset sizes ($N \in \{50, 100, 200, 500, 1000\}$). All models were trained with
+AdamW, cosine learning rate schedule, early stopping (patience~3), effective batch
+size~8, and FP16 mixed precision; learning rates were scaled by model size
+(Table~\ref{tab:ft_hyperparams}). For each fine-tuned model, we generated 200
+sequences and evaluated them with HMMER~\cite{eddy2011hmmer} against family Pfam HMM
+profiles ($E < 10^{-5}$). The teacher required gradient checkpointing on a 24\,GB L4
+GPU; students did not. Full hyperparameter, dataset, and generation configuration
+details are provided in Tables~\ref{tab:ft_hyperparams}--\ref{tab:ft_generation}.
+
 \subsection{Data and code availability}
 
 \begin{sloppypar}

@@ -73,6 +73,20 @@ approximately exponentially with scale, narrowing the gap. Third, larger student
 better model the true distribution at variable positions natively, reducing the marginal
 benefit of the noise-filtering mechanism.
 
+\paragraph{PPL-vs-hit-rate decoupling.}
+On lysozyme, the teacher achieves lower test perplexity than all students at every
+training set size, yet students generate sequences that more frequently match the
+PF00959 HMM profile (94\% for Small versus 69\% for the teacher at $N = 1{,}000$).
+We interpret this as evidence that distilled representations capture family-level
+structural patterns more effectively during fine-tuning: the compressed parameter
+space imposes an inductive bias that prevents overfitting to non-family sequence
+patterns, channeling limited capacity toward family-specific features. This challenges
+the assumption that larger models are always superior fine-tuning starting points.
+Importantly, the advantage holds across all three synergy scales (Medium, Small, Tiny),
+not just the smallest model---and the Baseline-Tiny control confirms it is the
+distillation method, not compression ratio alone, that enables superior domain
+adaptation.
+
 \paragraph{Learning rate scaling.}
 A practical finding is that synergy training requires approximately half the baseline
 learning rate at matching scales, plus warmup. The smoothed targets create a loss
@@ -100,6 +114,10 @@ on-premise deployment of compact models avoids transmitting proprietary sequence
 cloud APIs, satisfying data-governance requirements common in pharmaceutical settings.
 More broadly, the 170\,MB memory footprint of the Tiny model enables integration
 into automated laboratory workflows where GPU resources are shared across instruments.
+The fine-tuning results further strengthen this case: distilled students not only
+generate faster at inference time but also serve as superior starting points for
+domain adaptation, achieving better family-specific generation with fewer training
+sequences and 20--162$\times$ faster fine-tuning wall-clock time.
 
 \paragraph{Limitations.}
 This work has several limitations. First, we evaluate a single teacher model
@@ -110,7 +128,11 @@ applications. Third, structural plausibility is assessed via predicted metrics
 (pLDDT from ESMFold~\cite{lin2023esmfold}) rather than experimental validation. Fourth,
 all experiments use a fixed smoothing factor ($\lambda = 0.1$) and temperature
 ($T = 2.0$); a joint hyperparameter search over the enhanced distillation objective
-could yield further improvements.
+could yield further improvements. Fifth, the fine-tuning evaluation used a single
+learning rate per model size without grid search, and the generation length
+(max\_length\,=\,200 tokens) produces sequences 2--15$\times$ longer than the
+training families, which depresses HMMER hit rates and makes the reported student
+advantage a conservative estimate.
 
 \paragraph{Future directions.}
 We identify three extensions. Multi-teacher distillation, combining signals from
@@ -118,4 +140,7 @@ diverse protein LMs, could provide more robust soft targets. The complementary-r
 approach should be tested on other autoregressive protein LMs and on non-protein biological
 sequence models. Finally, experimental validation of generated sequences---via wet-lab
 synthesis and characterization---would provide the strongest evidence of preserved
-biological function.
+biological function. For fine-tuning, length-constrained generation with
+family-aware stopping criteria would likely improve HMMER hit rates further, and
+evaluation on additional protein families would test the generality of the
+fine-tuning advantage.

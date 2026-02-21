@@ -23,106 +23,117 @@
 \citation{hie2024antibodies}
 \citation{madani2023progen}
 \citation{hinton2015distilling}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \citation{sanh2019distilbert}
 \citation{jiao2020tinybert}
 \citation{geffen2022distilprotbert}
 \citation{wang2024mtdp}
 \citation{dubey2025spidersilk}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \citation{guo2017calibration,muller2019label}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Results}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Ablation reveals complementary regularizers}{2}{subsection.2.1}\protected@file@percent }
-\citation{guo2017calibration,naeini2015ece}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Ablation study showing the complementary-regularizer effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline.}}{3}{figure.1}\protected@file@percent }
 \newlabel{fig:ablation}{{1}{3}{Ablation study showing the complementary-regularizer effect. Each enhancement individually degrades distillation quality (higher perplexity, higher KL divergence, higher ECE), but their combination yields a 53\% perplexity improvement over baseline}{figure.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error.}}{3}{table.1}\protected@file@percent }
 \newlabel{tab:ablation}{{1}{3}{Ablation study results on Micro architecture (4L/4H/256E, $\sim $16M parameters). Each enhancement individually degrades distillation quality, but their combination yields a 53\% improvement over baseline. PPL: perplexity; KL: KL divergence from teacher; ECE: expected calibration error}{table.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Scaling across model sizes}{3}{subsection.2.2}\protected@file@percent }
+\citation{guo2017calibration,naeini2015ece}
 \citation{uniprot2023}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines.}}{4}{table.2}\protected@file@percent }
 \newlabel{tab:scaling}{{2}{4}{Scaling results across three model sizes. Synergy models use both uncertainty weighting and calibration smoothing with adjusted learning rates and warmup. All synergy models outperform their respective baselines}{table.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Calibration analysis}{4}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Biological validity}{4}{subsection.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Compression--quality tradeoff}{4}{subsection.2.5}\protected@file@percent }
 \citation{lin2023esmfold}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $).}}{5}{figure.2}\protected@file@percent }
 \newlabel{fig:scaling}{{2}{5}{Perplexity ratio (student/teacher) across model scales. Synergy models outperform baselines at all three compression ratios, with the largest improvement at the highest compression (20$\times $)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Compression--quality tradeoff}{5}{subsection.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Practical deployment}{5}{subsection.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Structural quality}{5}{subsection.2.7}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference.}}{6}{figure.3}\protected@file@percent }
 \newlabel{fig:calibration}{{3}{6}{Expected calibration error across model scales. Synergy (red) achieves lower ECE than Baseline (blue) at Medium and Tiny scales, with the largest improvement at Tiny (0.183 vs.\ 0.345, 47\% reduction). At Small scale, Synergy shows a minor regression (0.259 vs.\ 0.235). The teacher ECE (0.148) is shown for reference}{figure.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Amino acid frequency deviation from the natural UniProt distribution (left) with mean absolute deviation summary (right). The synergy student (MAD\tmspace  +\thinmuskip {.1667em}=\tmspace  +\thinmuskip {.1667em}0.0073) deviates 18\% less than the baseline (MAD\tmspace  +\thinmuskip {.1667em}=\tmspace  +\thinmuskip {.1667em}0.0089), confirming that the combined enhancements improve distributional fidelity.}}{6}{figure.4}\protected@file@percent }
 \newlabel{fig:aa_dist}{{4}{6}{Amino acid frequency deviation from the natural UniProt distribution (left) with mean absolute deviation summary (right). The synergy student (MAD\,=\,0.0073) deviates 18\% less than the baseline (MAD\,=\,0.0089), confirming that the combined enhancements improve distributional fidelity}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{6}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of complementary regularizers.}{6}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Structural quality}{6}{subsection.2.7}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Compression--quality Pareto frontier. Synergy models (filled) dominate baseline models (open) at every compression ratio, achieving strictly better perplexity at the same model size.}}{7}{figure.5}\protected@file@percent }
 \newlabel{fig:pareto}{{5}{7}{Compression--quality Pareto frontier. Synergy models (filled) dominate baseline models (open) at every compression ratio, achieving strictly better perplexity at the same model size}{figure.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Training dynamics and the role of warmup.}{7}{section*.2}\protected@file@percent }
-\citation{hie2024antibodies}
-\citation{madani2023progen}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.8}Domain-specific fine-tuning}{7}{subsection.2.8}\protected@file@percent }
+\newlabel{sec:finetuning_results}{{2.8}{7}{Domain-specific fine-tuning}{subsection.2.8}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.4--5.3$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware.}}{8}{figure.6}\protected@file@percent }
 \newlabel{fig:speed}{{6}{8}{Inference speedup on an NVIDIA L40S GPU. Student models achieve 2.4--5.3$\times $ speedup over the ProtGPT2 teacher, enabling deployment on consumer-grade hardware}{figure.6}{}}
-\@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{8}{section*.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{8}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{8}{section*.5}\protected@file@percent }
-\citation{madani2023progen}
-\citation{lin2023esmfold}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage.}}{8}{table.3}\protected@file@percent }
+\newlabel{tab:synergy_vs_baseline}{{3}{8}{Synergy-Tiny versus Baseline-Tiny at $N = 1{,}000$: same 37M architecture, different distillation method. Synergy-Tiny outperforms the teacher on conotoxin PPL and lysozyme HMMER, while Baseline-Tiny performs near teacher level, confirming that the synergy distillation procedure drives the fine-tuning advantage}{table.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that complementary-regularizer distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit.}}{9}{figure.7}\protected@file@percent }
 \newlabel{fig:plddt}{{7}{9}{ESMFold pLDDT scores for 50 generated sequences per model. The teacher achieves higher structural confidence (mean 51.2) due to greater capacity. At the Medium scale, synergy and baseline produce indistinguishable pLDDT distributions (both 38.1), confirming that complementary-regularizer distillation preserves structural quality---the capacity gap is a compression effect, not a method deficit}{figure.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Practical implications for biopharma.}{9}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Limitations.}{9}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Future directions.}{9}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{9}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mechanistic explanation of complementary regularizers.}{9}{section*.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\tmspace  +\thinmuskip {.1667em}MB GPU memory (19$\times $ reduction from the teacher's 3.2\tmspace  +\thinmuskip {.1667em}GB), enabling large-scale screening on consumer hardware.}}{10}{figure.8}\protected@file@percent }
+\newlabel{fig:throughput}{{8}{10}{Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\,MB GPU memory (19$\times $ reduction from the teacher's 3.2\,GB), enabling large-scale screening on consumer hardware}{figure.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Training dynamics and the role of warmup.}{10}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scale-dependent effects.}{10}{section*.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Test perplexity versus training set size for domain-specific fine-tuning. (a)\nobreakspace  {}Conotoxin: all distilled students achieve lower perplexity than the teacher at every $N$, with Medium at $N = 50$ outperforming the teacher at $N = 100$ (2$\times $ sample efficiency). (b)\nobreakspace  {}Lysozyme: the teacher achieves lower perplexity, but students generate more family-matching sequences (see Fig.\nobreakspace  {}\ref  {fig:finetune_hitrate}).}}{11}{figure.9}\protected@file@percent }
+\newlabel{fig:finetune_efficiency}{{9}{11}{Test perplexity versus training set size for domain-specific fine-tuning. (a)~Conotoxin: all distilled students achieve lower perplexity than the teacher at every $N$, with Medium at $N = 50$ outperforming the teacher at $N = 100$ (2$\times $ sample efficiency). (b)~Lysozyme: the teacher achieves lower perplexity, but students generate more family-matching sequences (see Fig.~\ref {fig:finetune_hitrate})}{figure.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{PPL-vs-hit-rate decoupling.}{11}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Learning rate scaling.}{11}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Small model ECE regression.}{11}{section*.6}\protected@file@percent }
+\citation{hie2024antibodies}
+\citation{madani2023progen}
+\citation{madani2023progen}
+\citation{lin2023esmfold}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces HMMER hit rate versus training set size. (a)\nobreakspace  {}Lysozyme: Small achieves 94\% hit rate at $N = 1{,}000$ versus the teacher's 69\%, despite having higher perplexity. (b)\nobreakspace  {}Conotoxin: Medium reaches 42.5\% versus the teacher's 8.0\%; lower absolute rates reflect the generation length mismatch relative to the short peptide family.}}{12}{figure.10}\protected@file@percent }
+\newlabel{fig:finetune_hitrate}{{10}{12}{HMMER hit rate versus training set size. (a)~Lysozyme: Small achieves 94\% hit rate at $N = 1{,}000$ versus the teacher's 69\%, despite having higher perplexity. (b)~Conotoxin: Medium reaches 42.5\% versus the teacher's 8.0\%; lower absolute rates reflect the generation length mismatch relative to the short peptide family}{figure.10}{}}
+\@writefile{toc}{\contentsline {paragraph}{Practical implications for biopharma.}{12}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{12}{section*.8}\protected@file@percent }
 \citation{hinton2015distilling}
 \citation{romero2015fitnets}
 \citation{park2019relational}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape.}}{13}{figure.11}\protected@file@percent }
+\newlabel{fig:training_dynamics}{{11}{13}{Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape}{figure.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{Future directions.}{13}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{13}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Standard distillation framework}{13}{subsection.4.1}\protected@file@percent }
 \citation{hinton2015distilling}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\tmspace  +\thinmuskip {.1667em}MB GPU memory (19$\times $ reduction from the teacher's 3.2\tmspace  +\thinmuskip {.1667em}GB), enabling large-scale screening on consumer hardware.}}{10}{figure.8}\protected@file@percent }
-\newlabel{fig:throughput}{{8}{10}{Generation throughput and GPU memory usage on an NVIDIA L40S. The Tiny model generates 111 sequences per minute while requiring only 170\,MB GPU memory (19$\times $ reduction from the teacher's 3.2\,GB), enabling large-scale screening on consumer hardware}{figure.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{10}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Standard distillation framework}{10}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Temperature-scaled softmax.}{10}{section*.9}\protected@file@percent }
-\newlabel{eq:temp_softmax}{{1}{10}{Temperature-scaled softmax}{equation.4.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{Soft loss.}{10}{section*.10}\protected@file@percent }
-\newlabel{eq:soft_loss}{{2}{10}{Soft loss}{equation.4.2}{}}
 \citation{hinton2015distilling}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape.}}{11}{figure.9}\protected@file@percent }
-\newlabel{fig:training_dynamics}{{9}{11}{Training loss dynamics during the first 500 steps. Without warmup, the synergy objective allows rapid convergence to a degenerate minimum. Linear warmup over 500 steps constrains early optimization, enabling the student to reach a generalizable region of the loss landscape}{figure.9}{}}
-\@writefile{toc}{\contentsline {paragraph}{Hard loss.}{11}{section*.11}\protected@file@percent }
-\newlabel{eq:hard_loss}{{3}{11}{Hard loss}{equation.4.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Combined loss.}{11}{section*.12}\protected@file@percent }
-\newlabel{eq:combined_loss}{{4}{11}{Combined loss}{equation.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Uncertainty-aware position weighting}{11}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Shannon entropy.}{11}{section*.13}\protected@file@percent }
-\newlabel{eq:entropy}{{5}{11}{Shannon entropy}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Temperature-scaled softmax.}{14}{section*.10}\protected@file@percent }
+\newlabel{eq:temp_softmax}{{1}{14}{Temperature-scaled softmax}{equation.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Soft loss.}{14}{section*.11}\protected@file@percent }
+\newlabel{eq:soft_loss}{{2}{14}{Soft loss}{equation.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hard loss.}{14}{section*.12}\protected@file@percent }
+\newlabel{eq:hard_loss}{{3}{14}{Hard loss}{equation.4.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Combined loss.}{14}{section*.13}\protected@file@percent }
+\newlabel{eq:combined_loss}{{4}{14}{Combined loss}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Uncertainty-aware position weighting}{14}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Shannon entropy.}{14}{section*.14}\protected@file@percent }
+\newlabel{eq:entropy}{{5}{14}{Shannon entropy}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Position weights.}{14}{section*.15}\protected@file@percent }
+\newlabel{eq:weights}{{6}{14}{Position weights}{equation.4.6}{}}
 \citation{guo2017calibration}
 \citation{muller2019label}
 \citation{naeini2015ece}
-\@writefile{toc}{\contentsline {paragraph}{Position weights.}{12}{section*.14}\protected@file@percent }
-\newlabel{eq:weights}{{6}{12}{Position weights}{equation.4.6}{}}
-\@writefile{toc}{\contentsline {paragraph}{Weighted soft loss.}{12}{section*.15}\protected@file@percent }
-\newlabel{eq:weighted_soft}{{7}{12}{Weighted soft loss}{equation.4.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Calibration-aware distillation}{12}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Dynamic smoothing.}{12}{section*.16}\protected@file@percent }
-\newlabel{eq:smoothing}{{8}{12}{Dynamic smoothing}{equation.4.8}{}}
-\@writefile{toc}{\contentsline {paragraph}{Smoothed targets.}{12}{section*.17}\protected@file@percent }
-\newlabel{eq:smoothed_targets}{{9}{12}{Smoothed targets}{equation.4.9}{}}
 \citation{radford2019language,vaswani2017attention}
 \citation{ferruz2022protgpt2}
 \citation{uniprot2023}
+\@writefile{toc}{\contentsline {paragraph}{Weighted soft loss.}{15}{section*.16}\protected@file@percent }
+\newlabel{eq:weighted_soft}{{7}{15}{Weighted soft loss}{equation.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Calibration-aware distillation}{15}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Dynamic smoothing.}{15}{section*.17}\protected@file@percent }
+\newlabel{eq:smoothing}{{8}{15}{Dynamic smoothing}{equation.4.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Smoothed targets.}{15}{section*.18}\protected@file@percent }
+\newlabel{eq:smoothed_targets}{{9}{15}{Smoothed targets}{equation.4.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{15}{section*.19}\protected@file@percent }
+\newlabel{eq:ece}{{10}{15}{Expected calibration error}{equation.4.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{15}{subsection.4.4}\protected@file@percent }
+\citation{eddy2011hmmer}
 \citation{uniprot2023}
 \bibstyle{unsrtnat}
 \bibdata{references}
 \bibcite{ferruz2022protgpt2}{{1}{2022}{{Ferruz et~al.}}{{Ferruz, Schmidt, and H{\"o}cker}}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$). $^\dag  $Micro is used only for the ablation study; scaling experiments use Tiny--Medium.}}{13}{table.3}\protected@file@percent }
-\newlabel{tab:architectures}{{3}{13}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$). $^\dag $Micro is used only for the ablation study; scaling experiments use Tiny--Medium}{table.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Expected calibration error.}{13}{section*.18}\protected@file@percent }
-\newlabel{eq:ece}{{10}{13}{Expected calibration error}{equation.4.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Model architectures}{13}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training details}{13}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Data.}{13}{section*.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Optimization.}{13}{section*.20}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Hardware.}{13}{section*.21}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Data and code availability}{13}{subsection.4.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal  {V}| = 50,257$). $^\dag  $Micro is used only for the ablation study; scaling experiments use Tiny--Medium.}}{16}{table.4}\protected@file@percent }
+\newlabel{tab:architectures}{{4}{16}{Model architectures and compression ratios. All models use the GPT-2 architecture with the ProtGPT2 tokenizer ($|\mathcal {V}| = 50,257$). $^\dag $Micro is used only for the ablation study; scaling experiments use Tiny--Medium}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Training details}{16}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Data.}{16}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Optimization.}{16}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hardware.}{16}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Fine-tuning evaluation}{16}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Data and code availability}{16}{subsection.4.7}\protected@file@percent }
 \bibcite{rives2021biological}{{2}{2021}{{Rives et~al.}}{{Rives, Meier, Sercu, Goyal, Lin, Liu, Guo, Ott, Zitnick, Ma, and Fergus}}}
 \bibcite{madani2023progen}{{3}{2023}{{Madani et~al.}}{{Madani, Krause, Greene, Subramanian, Mohr, Holton, Olmos, Xiong, Sun, Socher, Fraser, and Naik}}}
 \bibcite{radford2019language}{{4}{2019}{{Radford et~al.}}{{Radford, Wu, Child, Luan, Amodei, and Sutskever}}}
@@ -141,3 +152,14 @@
 \bibcite{romero2015fitnets}{{17}{2015}{{Romero et~al.}}{{Romero, Ballas, Kahou, Chassang, Gatta, and Bengio}}}
 \bibcite{park2019relational}{{18}{2019}{{Park et~al.}}{{Park, Kim, Lu, and Cho}}}
 \bibcite{vaswani2017attention}{{19}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
+\bibcite{eddy2011hmmer}{{20}{2011}{{Eddy}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Fine-tuning experimental details}{18}{appendix.A}\protected@file@percent }
+\newlabel{sec:appendix_finetuning}{{A}{18}{Fine-tuning experimental details}{appendix.A}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Fine-tuning hyperparameters for each model. All models use the same optimizer, scheduler, and early stopping configuration; only learning rate, batch size, and gradient checkpointing differ across scales.}}{18}{table.5}\protected@file@percent }
+\newlabel{tab:ft_hyperparams}{{5}{18}{Fine-tuning hyperparameters for each model. All models use the same optimizer, scheduler, and early stopping configuration; only learning rate, batch size, and gradient checkpointing differ across scales}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Dataset summary for fine-tuning evaluation. Training subsets of size $N \in \{50, 100, 200, 500, 1000\}$ were sampled from the full training set. Validation and test sets were held constant across all runs.}}{19}{table.6}\protected@file@percent }
+\newlabel{tab:ft_datasets}{{6}{19}{Dataset summary for fine-tuning evaluation. Training subsets of size $N \in \{50, 100, 200, 500, 1000\}$ were sampled from the full training set. Validation and test sets were held constant across all runs}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Generation and evaluation configuration. All models used identical sampling parameters. HMMER evaluation was performed against family-specific Pfam HMM profiles where available.}}{19}{table.7}\protected@file@percent }
+\newlabel{tab:ft_generation}{{7}{19}{Generation and evaluation configuration. All models used identical sampling parameters. HMMER evaluation was performed against family-specific Pfam HMM profiles where available}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces AMP fine-tuning results. The teacher dominates on perplexity at all training set sizes, consistent with the absence of a family-specific HMM profile for evaluation. AMP is a functionally diverse class rather than a single sequence family, making perplexity an incomplete measure of domain adaptation. AA KL divergence values show students converge to competitive amino acid composition by $N = 1{,}000$.}}{19}{table.8}\protected@file@percent }
+\newlabel{tab:ft_amp}{{8}{19}{AMP fine-tuning results. The teacher dominates on perplexity at all training set sizes, consistent with the absence of a family-specific HMM profile for evaluation. AMP is a functionally diverse class rather than a single sequence family, making perplexity an incomplete measure of domain adaptation. AA KL divergence values show students converge to competitive amino acid composition by $N = 1{,}000$}{table.8}{}}

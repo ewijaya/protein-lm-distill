@@ -1,4 +1,4 @@
-\begin{thebibliography}{19}
+\begin{thebibliography}{20}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -145,5 +145,11 @@ Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
 \newblock Attention is all you need.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, volume~30, 2017.
+
+\bibitem[Eddy(2011)]{eddy2011hmmer}
+Sean~R Eddy.
+\newblock Accelerated profile {HMM} searches.
+\newblock \emph{PLoS Computational Biology}, 7\penalty0 (10):\penalty0
+  e1002195, 2011.
 
 \end{thebibliography}

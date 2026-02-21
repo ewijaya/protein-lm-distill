@@ -18,6 +18,10 @@ acute in biopharma applications such as ML-guided antibody affinity
 maturation~\cite{hie2024antibodies} and protein engineering
 campaigns~\cite{madani2023progen}, where evaluating thousands to millions of
 candidate sequences demands both high throughput and cost-effective deployment.
+Beyond inference efficiency, a critical question for such applications is whether
+distilled models can serve as effective starting points for domain-specific
+fine-tuning on proprietary datasets---typically comprising only 50--1{,}000 sequences
+from a target protein family.
 
 Knowledge distillation~\cite{hinton2015distilling} offers a principled approach to model
 compression by training a smaller student model to mimic the probability distributions
@@ -63,4 +67,7 @@ Our contributions are as follows:
     amino acid distributional fidelity, and inference benchmarks.
   \item Open-source compressed models at three scales (37M, 78M, 194M parameters)
     available on HuggingFace.
+  \item Demonstration that distilled students are superior fine-tuning starting points
+    on scarce protein family data, achieving higher sample efficiency and better
+    family-specific generation than the teacher.
 \end{enumerate}

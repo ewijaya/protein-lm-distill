@@ -1,0 +1,102 @@
+\section{Fine-tuning experimental details}
+\label{sec:appendix_finetuning}
+
+This appendix provides full experimental details for the domain-specific fine-tuning
+evaluation described in Section~\ref{sec:finetuning_results}.
+
+\begin{table}[h]
+\centering
+\caption{Fine-tuning hyperparameters for each model. All models use the same
+optimizer, scheduler, and early stopping configuration; only learning rate,
+batch size, and gradient checkpointing differ across scales.}
+\label{tab:ft_hyperparams}
+\begin{tabular}{lccccc}
+\toprule
+Parameter & Teacher & Medium & Small & Tiny & Baseline-Tiny \\
+\midrule
+Parameters           & 738M  & 194M & 78M & 37M & 37M \\
+Learning rate        & 2e-5  & 5e-5 & 1e-4 & 2e-4 & 2e-4 \\
+Batch size           & 2     & 8    & 8   & 8   & 8 \\
+Grad accumulation    & 4     & 1    & 1   & 1   & 1 \\
+Effective batch      & 8     & 8    & 8   & 8   & 8 \\
+Grad checkpointing   & Yes   & No   & No  & No  & No \\
+Max epochs           & 20    & 20   & 20  & 20  & 20 \\
+Early stopping       & 3     & 3    & 3   & 3   & 3 \\
+Optimizer            & AdamW & AdamW & AdamW & AdamW & AdamW \\
+Scheduler            & Cosine & Cosine & Cosine & Cosine & Cosine \\
+Warmup steps         & 100   & 100  & 100 & 100 & 100 \\
+Precision            & FP16  & FP16 & FP16 & FP16 & FP16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Dataset summary for fine-tuning evaluation. Training subsets of size
+$N \in \{50, 100, 200, 500, 1000\}$ were sampled from the full training set.
+Validation and test sets were held constant across all runs.}
+\label{tab:ft_datasets}
+\begin{tabular}{lccccc}
+\toprule
+Family & Train (full) & Val & Test & Median length (AA) & Pfam ID \\
+\midrule
+Conotoxin & 6,164  & 770   & 770   & 68  & PF02950 \\
+Lysozyme  & 10,740 & 1,342 & 1,342 & 170 & PF00959 \\
+AMP       & 2,501  & 313   & 313   & 29  & None \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Generation and evaluation configuration. All models used identical
+sampling parameters. HMMER evaluation was performed against family-specific
+Pfam HMM profiles where available.}
+\label{tab:ft_generation}
+\begin{tabular}{lc}
+\toprule
+Parameter & Value \\
+\midrule
+Sequences per run   & 200 \\
+Max length          & 200 tokens \\
+Top-$k$             & 950 \\
+Temperature         & 1.0 \\
+Repetition penalty  & 1.2 \\
+HMMER $E$-value     & $< 10^{-5}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{AMP fine-tuning results. The teacher dominates on perplexity at all
+training set sizes, consistent with the absence of a family-specific HMM
+profile for evaluation. AMP is a functionally diverse class rather than a
+single sequence family, making perplexity an incomplete measure of domain
+adaptation. AA KL divergence values show students converge to competitive
+amino acid composition by $N = 1{,}000$.}
+\label{tab:ft_amp}
+\begin{tabular}{lccccc}
+\toprule
+\multicolumn{6}{c}{\textbf{AMP --- Test Perplexity}} \\
+\midrule
+$N$ & Teacher & Medium & Small & Tiny & Baseline-Tiny \\
+\midrule
+50   & \textbf{2,576} & 3,003 & 3,005 & 3,090 & 3,169 \\
+100  & \textbf{2,060} & 2,895 & 2,845 & 2,886 & 2,997 \\
+200  & \textbf{1,664} & 2,611 & 2,524 & 2,610 & 2,787 \\
+500  & \textbf{1,036} & 2,073 & 2,293 & 2,354 & 2,534 \\
+1000 & \textbf{829}   & 1,375 & 1,764 & 1,782 & 2,048 \\
+\midrule
+\multicolumn{6}{c}{\textbf{AMP --- Amino Acid KL Divergence}} \\
+\midrule
+$N$ & Teacher & Medium & Small & Tiny & Baseline-Tiny \\
+\midrule
+50   & \textbf{0.021} & 0.196 & 0.122 & 0.132 & 0.158 \\
+100  & \textbf{0.047} & 0.211 & 0.126 & 0.178 & 0.181 \\
+200  & \textbf{0.074} & 0.215 & 0.144 & 0.103 & 0.142 \\
+500  & \textbf{0.081} & 0.146 & 0.139 & 0.157 & 0.158 \\
+1000 & 0.068 & 0.055 & 0.048 & \textbf{0.037} & 0.061 \\
+\bottomrule
+\end{tabular}
+\end{table}
