@@ -16,7 +16,7 @@ calibration smoothing alone degraded it further to 39.64 (+109\%). Both individu
 enhancements also increased KL divergence from the teacher and worsened expected
 calibration error (ECE). Taken individually, neither enhancement appears beneficial.
 
-However, when both enhancements are applied simultaneously, perplexity drops to 8.93---a
+However, when both enhancements are applied simultaneously, perplexity drops to 8.93, a
 53\% improvement over baseline and a 75--77\% improvement over either individual
 enhancement. KL divergence decreases from 2.23 to 1.62, and ECE improves from 0.274 to
 0.216. This complementary-regularizer effect, where two individually harmful modifications combine
@@ -136,7 +136,7 @@ biologically realistic amino acid usage is essential. We evaluated the amino aci
 frequency distributions of generated sequences against the natural distribution observed
 in UniProt~\cite{uniprot2023} (Fig.~\ref{fig:aa_dist}).
 
-All student models---both baseline and synergy---produce amino acid distributions
+All student models, both baseline and synergy, produce amino acid distributions
 closely matching the natural UniProt distribution, with KL divergence below 0.015 in
 all cases. Quantifying per-residue deviations via mean absolute deviation (MAD) from
 UniProt frequencies reveals a clear ordering: the teacher deviates least
@@ -180,8 +180,8 @@ speedups over the teacher (Fig.~\ref{fig:speed}): 5.3$\times$ for Tiny, 4.1$\tim
 requirements (Fig.~\ref{fig:throughput}), enable protein sequence generation on
 consumer-grade GPUs. Peak GPU memory drops from 3.2\,GB for the teacher to just
 170\,MB for the Tiny model---a 19$\times$ reduction. At the Tiny model's throughput of
-111 sequences per minute, screening a library of $10^6$ candidate sequences---typical
-of combinatorial antibody or enzyme engineering campaigns---requires approximately
+111 sequences per minute, screening a library of $10^6$ candidate sequences, typical
+of combinatorial antibody or enzyme engineering campaigns, requires approximately
 6 GPU-hours on a single consumer-grade device, compared to $\sim$48 GPU-hours for the
 full teacher. The Tiny model's $\sim$37M parameters fit within 170\,MB of GPU memory,
 permitting deployment on shared laboratory workstations without dedicated accelerator
@@ -203,7 +203,7 @@ To assess whether distilled models generate structurally plausible proteins, we 
 (pLDDT)~\cite{lin2023esmfold} (Fig.~\ref{fig:plddt}). The teacher achieved a mean pLDDT
 of 51.2 with 16\% of sequences exceeding the confident prediction threshold of 70.
 Student models scored lower (mean pLDDT 38--40), consistent with the reduced capacity
-of smaller architectures. Importantly, synergy and baseline models at the same scale
+of smaller architectures. Synergy and baseline models at the same scale
 produce comparable pLDDT distributions (synergy-medium: 38.1 vs.\ baseline-medium: 38.1),
 confirming that complementary-regularizer distillation does not sacrifice structural
 quality for improved perplexity. The pLDDT gap between teacher and students reflects
@@ -274,9 +274,9 @@ HMMER hit rate at every $N$ tested. At $N = 1{,}000$, conotoxin perplexity is 30
 (Medium), 39 (Small), and 40 (Tiny), all below the teacher's 54; Baseline-Tiny (52)
 barely edges out the teacher (Table~\ref{tab:synergy_vs_baseline}). On lysozyme HMMER
 at $N = 1{,}000$, Small reaches 94\%, Tiny 84\%, and Medium 83.5\%, all far exceeding
-the teacher's 69\%; Baseline-Tiny (71\%) performs at teacher level. The controlled
-comparison---Synergy-Tiny versus Baseline-Tiny (same 37M architecture, different
-distillation method)---isolates the source of the advantage: Baseline-Tiny performs
+the teacher's 69\%; Baseline-Tiny (71\%) performs at teacher level. The controlled Synergy-Tiny versus Baseline-Tiny comparison
+(same 37M architecture, different distillation method) isolates the source of the
+advantage: Baseline-Tiny performs
 near teacher level while Synergy-Tiny far exceeds both, with 15 out of 15 perplexity
 wins across all three families including AMP (Table~\ref{tab:ft_amp}). This confirms
 that the synergy distillation procedure, not just model compression, drives the

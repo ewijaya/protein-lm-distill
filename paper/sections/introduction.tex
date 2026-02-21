@@ -21,7 +21,7 @@ candidate sequences demands both high throughput and cost-effective deployment.
 
 Beyond inference efficiency, a critical question for biopharma applications is whether
 compressed models can serve as effective starting points for domain-specific fine-tuning
-on proprietary datasets---typically comprising only 50--1{,}000 sequences from a target
+on proprietary datasets, typically comprising only 50--1{,}000 sequences from a target
 protein family. If distillation preserves or enhances the representations needed for
 rapid domain adaptation, the same compressed model can serve both as a fast inference
 engine and as a sample-efficient fine-tuning base.
@@ -43,7 +43,7 @@ distillation, and MTDP~\cite{wang2024mtdp} introduced multi-teacher distillation
 protein representations. For causal protein LMs, Dubey et
 al.~\cite{dubey2025spidersilk} applied distillation to a domain-specific model trained
 on 572 spider silk sequences. However, \emph{no systematic study has addressed
-distillation for general-purpose autoregressive protein language models}---despite these
+distillation for general-purpose autoregressive protein language models}, despite these
 being the models required for open-ended \textit{de novo} sequence design.
 
 We address this gap with a distillation framework that combines standard Hinton-style

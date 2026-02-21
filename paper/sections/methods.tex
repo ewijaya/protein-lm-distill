@@ -3,8 +3,8 @@
 \subsection{Standard distillation framework}
 
 We adopt the response-based knowledge distillation framework of Hinton et
-al.~\cite{hinton2015distilling}---as opposed to feature-based~\cite{romero2015fitnets}
-or relational~\cite{park2019relational} approaches---adapted for autoregressive protein
+al.~\cite{hinton2015distilling}, as opposed to feature-based~\cite{romero2015fitnets}
+or relational~\cite{park2019relational} approaches, adapted for autoregressive protein
 language modeling.
 Given a protein sequence $x = (x_1, \ldots, x_n)$ over vocabulary $\mathcal{V}$, the
 teacher and student models produce logit vectors $z_t^T, z_t^S \in
@@ -98,7 +98,7 @@ intensity inversely proportional to teacher confidence.
 
 \paragraph{Dynamic smoothing.}
 At each position $t$, the smoothing intensity is computed on the temperature-scaled
-teacher distribution---the same distribution used as the KL divergence target:
+teacher distribution, the same distribution used as the KL divergence target:
 \begin{equation}
 \epsilon_t = \lambda \cdot \left(1 - \max_{v \in \mathcal{V}}
   p_T^{(\tau)}(v | x_{<t})\right)
