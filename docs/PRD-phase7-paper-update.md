@@ -18,7 +18,7 @@ Update the manuscript (`paper/`) with Phase 6 fine-tuning results, adding a new 
 
 | ID | Finding | Why it matters |
 |----|---------|---------------|
-| F1 | **Synergy-Tiny beats Baseline-Tiny at every N across all families (15/15)** | Cleanest validation of the method — controls for model size, isolates distillation method |
+| F1 | **Synergy advantage holds across all three scales (Medium, Small, Tiny)** | All synergy students dramatically outperform the teacher on conotoxin PPL and lysozyme HMMER; the controlled Tiny-vs-Baseline comparison (same 37M arch, different distillation) confirms the method drives the advantage — Baseline-Tiny performs near teacher level while Synergy-Tiny far exceeds both |
 | F2 | **Students generate more family-specific sequences (Lysozyme HMMER)** | Small at N=1000 hits 94% vs teacher 69%; PPL-vs-hit-rate decoupling is a publishable scientific insight |
 | F3 | **Students are dramatically more sample-efficient on Conotoxin** | All students beat teacher at every N; Medium at N=50 outperforms teacher at N=100 (2x sample efficiency) |
 | F4 | **20–162x fine-tuning speedup** | Practical argument for biopharma users iterating on proprietary datasets |
@@ -122,11 +122,12 @@ Add 1-2 sentences to the motivation paragraph connecting distillation to the fin
 - Hit rates lower overall (short peptide family, generation length mismatch)
 - Medium leads on both PPL and HMMER for conotoxin
 
-#### Paragraph 5 — Synergy vs standard KD (~4 sentences)
-- Synergy-Tiny outperforms Baseline-Tiny at every N across both families (10/10 featured comparisons; 15/15 including AMP)
-- Gap widens with data: 42% lower PPL on lysozyme at N=500
-- Lysozyme HMMER: Synergy-Tiny 84% vs Baseline-Tiny 71% at N=1000
-- Confirms distillation method, not just compression, drives the advantage
+#### Paragraph 5 — Synergy advantage across scales (~5 sentences)
+- The advantage is not limited to one model size: all three synergy students (Medium, Small, Tiny) dramatically outperform the teacher on conotoxin PPL and lysozyme HMMER at every N tested
+- Conotoxin PPL at N=1000: Medium 30, Small 39, Tiny 40 vs Teacher 54 — all synergy models beat the teacher; Baseline-Tiny (52) barely edges it out
+- Lysozyme HMMER at N=1000: Small 94%, Tiny 84%, Medium 83.5% vs Teacher 69% — all synergy models far exceed the teacher; Baseline-Tiny (71%) performs at teacher level
+- The controlled comparison — Synergy-Tiny vs Baseline-Tiny (same 37M architecture, different distillation method) — isolates the source: Baseline-Tiny performs near teacher level while Synergy-Tiny far exceeds both (15/15 PPL wins across all families)
+- This confirms the synergy distillation procedure, not just model compression, drives the fine-tuning advantage
 
 #### Paragraph 6 — Cost (~3 sentences)
 - Students fine-tune 20–162x faster in wall-clock time
@@ -141,6 +142,7 @@ Add 1-2 sentences to the motivation paragraph connecting distillation to the fin
 - Interpretation: distilled representations capture family-level structural patterns more effectively during fine-tuning
 - Smaller models have a bias-variance advantage on scarce data (higher bias prevents overfitting to non-family patterns)
 - This challenges the assumption that larger models are always better fine-tuning starting points
+- Importantly, the advantage holds across all three synergy scales (Medium, Small, Tiny), not just the smallest model — and the Baseline-Tiny control confirms it is the distillation method, not compression ratio, that enables superior domain adaptation
 
 **Update "Practical implications for biopharma" paragraph**:
 
