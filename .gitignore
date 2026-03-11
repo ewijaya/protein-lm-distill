@@ -43,3 +43,20 @@ nohup*
 # Claude
 .claude/
 CLAUDE.md
+
+# LaTeX build artifacts
+*.aux
+*.blg
+*.out
+*.bbl
+*.synctex.gz
+paper/main.pdf
+
+# Results (regenerable)
+results/
+
+# Generated figure PDFs
+paper/figures/pdf/
+
+# Editor/linter config
+.markdownlint.json

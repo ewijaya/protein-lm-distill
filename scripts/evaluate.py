@@ -1,4 +1,4 @@
-#!/home/ubuntu/storage1/anaconda3/envs/pepmlm/bin/python
+#!/usr/bin/env python
 """
 Evaluate distilled ProtGPT2 models against the teacher model.
 
