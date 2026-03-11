@@ -39,3 +39,7 @@ nohup*
 # Jupyter
 .ipynb_checkpoints/
 .conda-env
+
+# Claude
+.claude/
+CLAUDE.md
